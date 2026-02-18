@@ -1,0 +1,82 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <section class="bonus-section">
+      <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Accuracy Bonus">
+        <i class="fa-solid fa-bullseye-arrow"></i>
+        {{formInput systemFields.bonus.fields.accuracy value=system.bonus.accuracy classes="etheria-input"}}
+      </div>
+
+      <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Pysical Damage Bonus">
+        <i class="fa-solid fa-sword"></i>
+        {{formInput systemFields.bonus.fields.physicalDamage value=system.bonus.physicalDamage classes="etheria-input"}}
+      </div>
+
+      <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Magic Aamage Bonus">
+        <i class="fa-solid fa-fire-flame"></i>
+        {{formInput systemFields.bonus.fields.magicDamage value=system.bonus.magicDamage classes="etheria-input"}}
+      </div>
+
+    </section>
+    <hr class="etheria-hr">
+    <section class="skills-secttion">
+      {{#each skills as |attribute|}}
+      <section class="glass-panel skills-list stat-list flexcol">
+        <div class="panel-header">
+          {{attribute.label}}
+        </div>
+        {{#each attribute.skills}}
+        <div class="stat-row">
+          <div class="stat-label" data-tooltip="{{field.label}}">{{localize field.label}}</div>
+          <div>{{formInput field value=value classes="etheria-input" dataset=(object tooltip=(concat field.label " Value"))}}</div>
+          <div class="mod-value" data-tooltip="{{field.label}} Total">
+            ({{numberFormat total sign=true}})
+          </div>
+          <div>
+            <button type="button" class="etheria-button icon" data-tooltip="Roll {{field.label}}">
+              <i class="fa-solid fa-dice-d20"></i>
+            </button>
+          </div>
+        </div>
+        {{/each}}
+      </section>
+      {{/each}}
+    </section>
+    <hr class="etheria-hr">
+    <section class="glass-panel resources-section flexcol">
+      <div class="resource-row">
+        <div class="header-label">Label</div>
+        <div class="header-label">Data Key</div>
+        <div></div>
+      </div>
+      <div class="resource-row">
+        <div class="input-group">
+          <input type="text" class="resource-name etheria-input" placeholder="e.g. Mana">
+        </div>
+
+        <div class="input-group">
+          <input type="text" class="resource-key etheria-input" placeholder="e.g. mana_points">
+        </div>
+
+        <div class="controls flex-center">
+          <a class="clickable-anchor" data-tooltip="Add Resource" data-action="createResource">
+            <i class="fa-solid fa-square-plus"></i>
+          </a>
+        </div>
+      </div>
+
+      {{#each system.resourcesExtra}}
+      <div class="resource-row">
+        <div class="input-group">
+          <input type="text" class="resource-name etheria-input" value="{{label}}">
+        </div>
+        <div class="input-group">
+          <input type="text" class="resource-name etheria-input" value="{{@key}}" disabled>
+        </div>
+        <div class="controls flex-center">
+          <a class="delete-resource" data-key="{{key}}"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/each}}
+    </section>
+  </div>
+</section>

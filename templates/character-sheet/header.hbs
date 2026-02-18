@@ -1,0 +1,26 @@
+<header class="sheet-header flexrow">
+  <div class="portrait flex-center">
+    <img class="portrait-img" src="{{document.img}}" alt="{{document.name}}" data-edit="img" />
+  </div>
+  <div class="header-fields flexcol">
+
+    <div class="name-level-row flexrow">
+      {{formInput fields.name value=document.name classes="header-input input-name"}}
+      <div class="flexcol resource-field glass-panel level-name">
+        <div class="resource-header flexrow">
+          <label class="resource-label">Level</label>
+        </div>
+        <div class="resource-inputs flexrow">
+          {{formInput system.schema.fields.level value=system.level}}
+        </div>
+      </div>
+    </div>
+    <hr class="etheria-hr">
+    <div class="resources-fields flexrow">
+
+      {{#each resources }}
+      {{> "modules/etheria-uts/templates/character-sheet/partials/resource-field.hbs" label=field.label data=value fields=field.fields}}
+      {{/each}}
+    </div>
+  </div>
+</header>

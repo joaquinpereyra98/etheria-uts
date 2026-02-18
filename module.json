@@ -1,0 +1,55 @@
+{
+  "id": "etheria-uts",
+  "title": "Etheria UTS",
+  "description": "",
+  "version": "#{VERSION}#",
+  "compatibility": {
+    "minimun": "13",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "JoaquinP",
+      "url": "https://github.com/joaquinpereyra98",
+      "email": "joaquinpereyra98@gmail.com",
+      "discord": "joaquinp98"
+    }
+  ],
+  "languages": [{
+    "lang": "en",
+    "name": "English",
+    "path": "lang/en.json"
+  }],
+  "url": "#{URL}#",
+  "download": "#{DOWNLOAD}#",
+  "manifest": "#{MANIFEST}#",
+  "readme": "README.md",
+  "socket": true,
+  "documentTypes": {
+    "Actor": {
+      "character": {}
+    }
+  },
+  "relationships": {
+    "requires": [],
+    "recommends": []
+  },
+  "esmodules": [
+    "main.mjs"
+  ],
+  "styles": [
+    "styles/main.css"
+  ],
+  "flags": {
+    "hotReload": {
+      "extensions": [
+        "css",
+        "hbs"
+      ],
+      "paths": [
+        "styles/",
+        "templates/"
+      ]
+    }
+  }
+}

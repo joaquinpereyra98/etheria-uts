@@ -1,0 +1,84 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <section class="race-section glass-panel">
+      <div class="item-portrait race-portrait">
+        {{#if race}}
+        <img src="" alt="Character Race">
+        {{else}}
+        <i class="fa-solid fa-circle-user"></i>
+        {{/if}}
+      </div>
+      <label class="race-label">Human</label>
+    </section>
+    <section class="exhaustion-section glass-panel">
+      {{formInput exhaustion.field value=exhaustion.value classes="etheria-input" dataset=(object tooltip="Exhaustion Value")}}
+      <label class="exhaustion-label">Exhaustion</label>
+      <div class="exhaustion-mod" data-tooltip="Exhaustion Modifier">({{numberFormat exhaustion.mod sign=true}})</div>
+    </section>
+    <section class="defense-stats-section">
+      <div class="defense-box stat-box flex-center glass-panel" data-tooltip="Block Bonus">
+        <i class="fa-solid fa-shield-halved"></i>
+        <div class="defense-value">{{system.defense.block.value}}</div>
+      </div>
+
+      <div class="defense-box stat-box flex-center glass-panel" data-tooltip="Parry Bonus">
+        <i class="fa-solid fa-swords"></i>
+        <div class="defense-value">{{system.defense.parry.value}}</div>
+      </div>
+
+      <div class="defense-box stat-box flex-center glass-panel" data-tooltip="Dodge Bonus">
+        <i class="fa-solid fa-person-running"></i>
+        <div class="defense-value">{{system.defense.dodge.value}}</div>
+      </div>
+    </section>
+    <section class="glass-panel attributes-list stat-list flexcol">
+      {{#each attributes }}
+      <div class="stat-row">
+        <div class="stat-label">{{localize field.label}}</div>
+        <div data-tooltip="{{field.label}} Value">{{formInput field value=value classes="etheria-input"}}</div>
+        <div class="mod-value" data-tooltip="{{field.label}} Modifier">
+          {{numberFormat mod sign=true}}
+        </div>
+        <div>
+          <button type="button" class="etheria-button" data-tooltip="Roll {{field.label}}">
+            <i class="fa-solid fa-dice-d20"></i> Roll
+          </button>
+        </div>
+      </div>
+      {{/each}}
+    </section>
+    <section class="recovery-section">
+      <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Stamina">
+        <i class="fa-solid fa-heart-circle-bolt"></i>
+        <span>
+          {{actor.system.recovers.stamina.value}}
+        </span>
+      </button>
+      <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Mana">
+        <i class="fa-solid fa-fire-flame"></i>
+        <span>
+          {{numberFormat actor.system.recovers.mana.value sign=true}}
+        </span>
+      </button>
+    </section>
+    <section class="dice-resources-section">
+      <div class="roll-box stat-box flex-center glass-panel">
+        <a class="clickable-anchor icon-layer" data-tooltip="Roll Health Advancement">
+          <i class="fa-solid fa-heart"></i>
+          <i class="sub-icon fa-duotone fa-light fa-dice-d20"></i>
+        </a>
+        {{formInput systemFields.advancementRoll.fields.health value=system.advancementRoll.health
+        classes="etheria-input"}}
+      </div>
+
+      <div class="roll-box stat-box flex-center glass-panel">
+        <a class="clickable-anchor icon-layer" data-tooltip="Roll Resource Advancement">
+          <i class="fa-solid fa-sparkles"></i>
+          <i class="sub-icon fa-duotone fa-light fa-dice-d20"></i>
+        </a>
+        {{formInput systemFields.advancementRoll.fields.resource value=system.advancementRoll.resource
+        classes="etheria-input"}}
+      </div>
+    </section>
+  </div>
+</section>

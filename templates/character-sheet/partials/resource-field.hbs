@@ -1,0 +1,20 @@
+<div class="resource-field flexcol glass-panel {{classes}}">
+  <div class="resource-header flexrow">
+    {{#if fields.label}}
+      {{formInput fields.label value=data.label}}
+    {{else}}
+      <label class="resource-label">
+        {{localize label}}
+      </label>
+    {{/if}}
+  </div>
+
+  <div class="resource-inputs flexrow">
+    {{formInput fields.value value=data.value}}
+
+    {{#if (ne data.max null)}}
+      {{formInput fields.max value=data.max}}
+    {{/if}}
+  </div>
+
+</div>
