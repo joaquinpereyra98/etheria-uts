@@ -1,0 +1,13 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <section class="spheres-section magic-section">
+     {{#each magicSpheres}}
+      <div class="stat-box flex-center glass-panel" data-tooltip="{{field.label}} Sphere">
+        <img class="stat-icon" src="{{icon}}" alt="field.label">
+        <label class="stat-label">{{field.label}}</label>
+        {{formInput field value=value classes="etheria-input"}}
+      </div>
+      {{/each}}
+    </section>
+  </div>
+</section>

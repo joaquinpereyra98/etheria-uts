@@ -1,5 +1,12 @@
 <section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
   <div class="tab-container flexcol">
+     <section class="bonus-section">
+      <div class="stat-box flex-center glass-panel">
+        <label class="stat-label">Is Caster?</label>
+        {{formInput systemFields.details.fields.isCaster value=system.details.isCaster classes="etheria-checkbox"}}
+      </div>
+    </section>
+    <hr class="etheria-hr">
     <section class="bonus-section">
       <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Accuracy Bonus">
         <i class="fa-solid fa-bullseye-arrow"></i>
@@ -15,7 +22,6 @@
         <i class="fa-solid fa-fire-flame"></i>
         {{formInput systemFields.bonus.fields.magicDamage value=system.bonus.magicDamage classes="etheria-input"}}
       </div>
-
     </section>
     <hr class="etheria-hr">
     <section class="skills-secttion">

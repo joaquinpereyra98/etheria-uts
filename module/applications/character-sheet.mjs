@@ -52,7 +52,11 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     resistances: {
       template: `${TEMPLATES_PATH_CHARACTER}/resistances.hbs`,
       scrollable: [""],
-    }
+    },
+    spheres: {
+      template: `${TEMPLATES_PATH_CHARACTER}/spheres.hbs`,
+      scrollable: [""],
+    },
   };
 
   /** @override */
@@ -61,6 +65,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       tabs: [
         { id: "character", label: "Character" },
         { id: "resistances", label: "Resistances" },
+        { id: "spheres", label: "Spheres" },
         { id: "secondaryStats", label: "Secondary Stat" },
       ],
       initial: "character",
@@ -89,18 +94,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     context = await super._preparePartContext(partId, context, options);
     if (partId in context.tabs) context.tab = context.tabs[partId];
 
-    switch (partId) {
-      case "header":
-        await this._prepareHeaderContext(context, options);
-        break;
-      case "character":
-        await this._prepareCharacterContext(context, options);
-        break;
-      case "secondaryStats":
-        await this._prepareSecondaryStatsContext(context, options);
-        break;
-    }
-
+    const methodName = `_prepare${partId.capitalize()}Context`;
+    const fn = this[methodName];
+    if (fn instanceof Function) await fn.call(this, context, options);
     return context;
   }
 
@@ -181,6 +177,73 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       };
       return acc;
     }, {});
+    return context;
+  }
+
+  /**
+   * Prepare render context for the Resistances part.
+   * @param {foundry.applications.types.ApplicationRenderContext} context
+   * @param {HandlebarsApplicationRenderOptions} options
+   * @returns {Promise<void>}
+   * @protected
+   */
+  async _prepareResistancesContext(context, _options) {
+    const resistances = this.actor.system.resistances;
+    context.resistances = Object.entries(resistances).reduce(
+      (acc, [key, data]) => {
+        const context = {
+          field: this.actor.system.schema.getField(`resistances.${key}`),
+          value: data,
+          icon:
+            ETHERIA.resistances[key]?.icon ??
+            ETHERIA.basicDamages[key]?.icon ??
+            "",
+        };
+
+        if (key === "all") {
+          acc.all = context;
+        } else if (ETHERIA.resistances.hasOwnProperty(key)) {
+          acc.magic[key] = context;
+        } else {
+          acc.simple[key] = context;
+        }
+
+        return acc;
+      },
+      {
+        all: {},
+        magic: {},
+        simple: {},
+      },
+    );
+    return context;
+  }
+
+  /**
+   * Prepare render context for the Spheres part.
+   * @param {foundry.applications.types.ApplicationRenderContext} context
+   * @param {HandlebarsApplicationRenderOptions} options
+   * @returns {Promise<void>}
+   * @protected
+   */
+  async _prepareSpheresContext(context, _options) {
+    const magicSpheres = this.actor.system.magicSpheres;
+    context.magicSpheres = Object.entries(magicSpheres).reduce(
+      (acc, [key, data]) => {
+        const context = {
+          field: this.actor.system.schema.getField(`magicSpheres.${key}`),
+          value: data,
+          icon:
+            ETHERIA.magicSpheres[key]?.icon ??
+            ETHERIA.basicDamages[key]?.icon ??
+            "",
+        };
+
+        acc[key] = context;
+        return acc;
+      },
+      {},
+    );
     return context;
   }
 }

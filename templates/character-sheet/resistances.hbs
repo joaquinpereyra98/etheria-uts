@@ -1,2 +1,31 @@
 <section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <section class="resistence-section all-section">
+      <div class="stat-box flex-center glass-panel" data-tooltip="Resistance to All Damage">
+        <i class="fa-solid fa-shield-heart"></i>
+        <label class="stat-label">{{resistances.all.field.label}}</label>
+        {{formInput resistances.all.field value=resistances.all.value classes="etheria-input"}}
+      </div>
+    </section>
+    <hr class="etheria-hr">
+    <section class="resistence-section simple-section">
+      {{#each resistances.simple}}
+      <div class="stat-box flex-center glass-panel" data-tooltip="{{field.label}} Resistance">
+        <img class="stat-icon" src="{{icon}}" alt="field.label">
+        <label class="stat-label">{{field.label}}</label>
+        {{formInput field value=value classes="etheria-input"}}
+      </div>
+      {{/each}}
+    </section>
+    <hr class="etheria-hr">
+    <section class="resistence-section magic-section">
+     {{#each resistances.magic}}
+      <div class="stat-box flex-center glass-panel" data-tooltip="{{field.label}} Resistance">
+        <img class="stat-icon" src="{{icon}}" alt="field.label">
+        <label class="stat-label">{{field.label}}</label>
+        {{formInput field value=value classes="etheria-input"}}
+      </div>
+      {{/each}}
+    </section>
+  </div>
 </section>

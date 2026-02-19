@@ -1,46 +1,54 @@
+import { ASSETS_PATH } from "./constants.mjs";
+
 /**
  * The Etheria System Configuration
  */
 export const ETHERIA = {};
 
 ETHERIA.magicSpheres = {
-  arcane: { label: "Arcane" },
-  blood: { label: "Blood" },
-  chaos: { label: "Chaos" },
-  earth: { label: "Earth" },
-  entropy: { label: "Entropy" },
-  fire: { label: "Fire" },
-  frost: { label: "Frost" },
-  holy: { label: "Holy" },
-  lightning: { label: "Lightning" },
-  nature: { label: "Nature" },
-  necromancy: { label: "Necromancy" },
-  necropotency: { label: "Necropotency" },
-  water: { label: "Water" },
-  wind: { label: "Wind" },
+  arcane: { label: "Arcane", icon: `${ASSETS_PATH}/damage-icons/Arcane.webp` },
+  blood: { label: "Blood", icon: `${ASSETS_PATH}/damage-icons/Blood.webp` },
+  chaos: { label: "Chaos", icon: `${ASSETS_PATH}/damage-icons/Chaos.webp` },
+  earth: { label: "Earth", icon: `${ASSETS_PATH}/damage-icons/Earth.webp` },
+  entropy: { label: "Entropy", icon: `${ASSETS_PATH}/damage-icons/Entropy.webp` },
+  fire: { label: "Fire", icon: `${ASSETS_PATH}/damage-icons/Fire.webp` },
+  frost: { label: "Frost", icon: `${ASSETS_PATH}/damage-icons/Frost.webp` },
+  holy: { label: "Holy", icon: `${ASSETS_PATH}/damage-icons/Holy.webp` },
+  lightning: { label: "Lightning", icon: `${ASSETS_PATH}/damage-icons/Lightning.webp` },
+  nature: { label: "Nature", icon: `${ASSETS_PATH}/damage-icons/Nature.webp` },
+  necromancy: { label: "Necromancy", icon: `${ASSETS_PATH}/damage-icons/Necromancy.webp` },
+  necropotency: {
+    label: "Necropotency",
+    icon: `${ASSETS_PATH}/damage-icons/Necropotency.webp`,
+  },
+  water: { label: "Water", icon: `${ASSETS_PATH}/damage-icons/Water.webp` },
+  wind: { label: "Wind", icon: `${ASSETS_PATH}/damage-icons/Wind.webp` },
 };
 
 ETHERIA.basicDamages = {
-  bludgeoning: { label: "Bludgeoning" },
-  slashing: { label: "Slashing" },
-  piercing: { label: "Piercing" },
+  bludgeoning: {
+    label: "Bludgeoning",
+    icon: `${ASSETS_PATH}/damage-icons/Bludgeoning.webp`,
+  },
+  slashing: { label: "Slashing", icon: `${ASSETS_PATH}/damage-icons/Slashing.webp` },
+  piercing: { label: "Piercing", icon: `${ASSETS_PATH}/damage-icons/Piercing.webp` },
 };
 
 ETHERIA.resistances = {
-  arcane: { label: "Arcane" },
-  blood: { label: "Blood" },
-  chaos: { label: "Chaos" },
-  earth: { label: "Earth" },
-  entropy: { label: "Entropy" },
-  fire: { label: "Fire" },
-  frost: { label: "Frost" },
-  holy: { label: "Holy" },
-  lightning: { label: "Lightning" },
-  nature: { label: "Nature" },
-  necromancy: { label: "Necromancy" },
-  necrotic: { label: "Necrotic" },
-  water: { label: "Water" },
-  wind: { label: "Wind" },
+  arcane: { label: "Arcane", icon: `${ASSETS_PATH}/damage-icons/Arcane.webp` },
+  blood: { label: "Blood", icon: `${ASSETS_PATH}/damage-icons/Blood.webp` },
+  chaos: { label: "Chaos", icon: `${ASSETS_PATH}/damage-icons/Chaos.webp` },
+  earth: { label: "Earth", icon: `${ASSETS_PATH}/damage-icons/Earth.webp` },
+  entropy: { label: "Entropy", icon: `${ASSETS_PATH}/damage-icons/Entropy.webp` },
+  fire: { label: "Fire", icon: `${ASSETS_PATH}/damage-icons/Fire.webp` },
+  frost: { label: "Frost", icon: `${ASSETS_PATH}/damage-icons/Frost.webp` },
+  holy: { label: "Holy", icon: `${ASSETS_PATH}/damage-icons/Holy.webp` },
+  lightning: { label: "Lightning", icon: `${ASSETS_PATH}/damage-icons/Lightning.webp` },
+  nature: { label: "Nature", icon: `${ASSETS_PATH}/damage-icons/Nature.webp` },
+  necromancy: { label: "Necromancy", icon: `${ASSETS_PATH}/damage-icons/Necromancy.webp` },
+  necrotic: { label: "Necrotic", icon: `${ASSETS_PATH}/damage-icons/Necropotency.webp` },
+  water: { label: "Water", icon: `${ASSETS_PATH}/damage-icons/Water.webp` },
+  wind: { label: "Wind", icon: `${ASSETS_PATH}/damage-icons/Wind.webp` },
 };
 
 ETHERIA.attributes = {

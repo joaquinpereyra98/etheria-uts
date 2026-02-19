@@ -67,6 +67,19 @@
     --button-focus-outline-color: var(--border-glow);
   }
 
+  input[type=checkbox].etheria-checkbox,
+  input[type=radio].etheria-radio {
+    --checkbox-checked-color: var(--input-bg);
+    --checkbox-background-color: var(--input-bg);
+    --checkbox-checkmark-color: var(--accent);
+    --checkbox-font-weight: bold;
+    text-shadow: var(--shadow-thin);
+    height: var(--checkbox-size);
+    width: var(--checkbox-size);
+    margin: 0;
+  }
+
+
   hr.etheria-hr {
     background-image: none;
     border-top: 1px solid var(--border-glow);
@@ -92,6 +105,13 @@
 
     i {
       font-size: 1.5rem;
+    }
+
+    img.stat-icon {
+      height: 2rem;
+      flex: 0 0 2rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-thin);
     }
   }
 
@@ -442,12 +462,54 @@
       }
 
       .bonus-section {
-        margin: 10px;
         display: flex;
         gap: 10px;
         justify-content: space-evenly;
       }
 
+    }
+
+    section.tab[data-tab="resistances"] {
+      .resistence-section {
+        margin: 5px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--gap-md);
+
+        &.all-section .stat-box {
+          grid-column: 2;
+        }
+
+        .stat-box {
+          .stat-label {
+            flex: 1;
+          }
+
+          .etheria-input {
+            flex: 0 0 3rem;
+          }
+        }
+      }
+    }
+
+    section.tab[data-tab="spheres"] {
+      .spheres-section {
+        margin: 5px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--gap-md);
+
+        .stat-box {
+
+          .stat-label {
+            flex: 1;
+          }
+
+          .etheria-input {
+            flex: 0 0 3rem;
+          }
+        }
+      }
     }
 
   }
