@@ -1,2 +1,3 @@
-export { default as EtheriaActor } from "./actor.mjs";
 export { default as EtheriaActiveEffect } from "./active-effect.mjs";
+export { default as EtheriaActor } from "./actor.mjs";
+export {default as EtheriaItem } from "./item.mjs";

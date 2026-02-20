@@ -1,5 +1,5 @@
 import { enrichHTML, prepareActiveEffectCategories } from "../../utils.mjs";
-import { MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
+import { EFFECT_DATA_DEFAULT, MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheet } = foundry.applications.sheets;
@@ -149,9 +149,9 @@ export default class EtheriaItemSheet extends HandlebarsApplicationMixin(
           type: "base",
           parent: this.document,
         }),
-        img: cls.getDefaultArtwork(),
+        img: cls.getDefaultArtwork()?.img,
         disabled: effectType === "inactive",
-        origin: this.actor.uuid,
+        origin: this.document.uuid,
       },
       { inplace: false },
     );

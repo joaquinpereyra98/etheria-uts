@@ -5,6 +5,14 @@ import EtheriaItemSheet from "./_item-sheet.mjs";
  */
 
 export default class EtheriaArmorSheet extends EtheriaItemSheet {
+
+    /** @inheritdoc */
+  static DEFAULT_OPTIONS = {
+    window: {
+      icon: "fa-solid fa-helmet-battle"
+    }
+  };
+  
   /** @override */
   static PARTS = {
     ...super.PARTS,

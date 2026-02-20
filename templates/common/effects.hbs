@@ -9,7 +9,7 @@
         <div class="effect-source">
           {{localize "EFFECT.FIELDS.origin.label"}}
         </div>
-        <div class="effect-duration">{{ifThen (eq section.type "temporary" ) (localize "EFFECT.TABS.duration") ""}}</div>
+        <div class="effect-duration">{{ifThen (ne section.type "passive" ) (localize "EFFECT.TABS.duration") ""}}</div>
         <div class="document-controls flexrow">
           <a class="effect-controls" data-action="createEffect"
             data-tooltip="{{localize 'DOCUMENT.Create' type=(localize 'DOCUMENT.ActiveEffect')}}"
@@ -26,7 +26,7 @@
             <div class="effect-name">{{effect.name}}</div>
           </div>
           <div class="effect-source">{{effect.sourceName}}</div>
-          <div class="effect-duration">{{ifThen (eq ../type "temporary" ) effect.duration.label ""}}</div>
+          <div class="effect-duration">{{ifThen effect.isTemporary effect.duration.label ""}}</div>
           <div class="document-controls flexrow">
             {{#if @root.editable}}
             <a class="effect-control" data-action="toggleEffect" data-tooltip="{{localize 'UTS.Effect.Toggle'}}">

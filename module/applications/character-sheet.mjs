@@ -297,9 +297,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
           type: "base",
           parent: this.document,
         }),
-        img: cls.getDefaultArtwork(),
+        img: cls.getDefaultArtwork()?.img,
         disabled: effectType === "inactive",
-        origin: this.actor.uuid,
+        origin: this.document.uuid,
       },
       { inplace: false },
     );

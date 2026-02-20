@@ -10,6 +10,7 @@ Hooks.once("init", () => {
 
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
+  CONFIG.Item.documentClass = documents.EtheriaItem;
 
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
 

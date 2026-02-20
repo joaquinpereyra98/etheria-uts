@@ -15,9 +15,7 @@ export default class EtheriaArmorData extends EtheriaItemData {
       armorType: new fields.StringField({
         choices: ETHERIA.armorType,
         label: "Type",
-        blank: false,
-        required: true,
-        nullable: false,
+        blank: true,
       }),
       requirementAttribute: new fields.StringField({
         blank: true,
