@@ -1,3 +1,5 @@
+import EtheriaActiveEffect from "./documents/active-effect.mjs";
+
 export const MODULE_ID = "etheria-uts";
 
 export const TEMPLATE_PATH = `modules/${MODULE_ID}/templates`;
@@ -13,3 +15,11 @@ export const DOC_SUB_TYPES = {
     misc: `${MODULE_ID}.misc`
   },
 };
+
+/**@type {Partial<foundry.documents.types.ActiveEffectData>} */
+export const EFFECT_DATA_DEFAULT = {
+  name: "Active Effect",
+  img: EtheriaActiveEffect.defaultArtwork,
+  disabled: false, 
+  transfer: true,
+}

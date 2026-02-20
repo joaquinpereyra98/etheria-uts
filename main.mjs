@@ -9,6 +9,8 @@ Hooks.once("init", () => {
   CONFIG.ETHERIA = ETHERIA;
 
   CONFIG.Actor.documentClass = documents.EtheriaActor;
+  CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
+
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
 
   Object.assign(CONFIG.Item.dataModels, {
@@ -33,55 +35,18 @@ Hooks.once("init", () => {
     },
   );
 
-  DocumentSheetConfig.registerSheet(
-    foundry.documents.Item,
-    MODULE_ID,
-    applications.items.EtheriaArmorSheet,
-    {
-      makeDefault: true,
-      types: [DOC_SUB_TYPES.items.armor],
-    },
-  );
+  const itemSheets = [
+    [DOC_SUB_TYPES.items.armor, applications.items.EtheriaArmorSheet],
+    [DOC_SUB_TYPES.items.weapon, applications.items.EtheriaWeaponSheet],
+    [DOC_SUB_TYPES.items.consumable, applications.items.EtheriaConsumableSheet],
+    [DOC_SUB_TYPES.items.misc, applications.items.EtheriaMiscSheet],
+    [DOC_SUB_TYPES.items.ability, applications.items.EtheriaAbilitySheet],
+  ];
 
-  DocumentSheetConfig.registerSheet(
-    foundry.documents.Item,
-    MODULE_ID,
-    applications.items.EtheriaWeaponSheet,
-    {
+  for (const [type, sheet] of itemSheets) {
+    DocumentSheetConfig.registerSheet(foundry.documents.Item, MODULE_ID, sheet, {
+      types: [type],
       makeDefault: true,
-      types: [DOC_SUB_TYPES.items.weapon],
-    },
-  );
-
-  DocumentSheetConfig.registerSheet(
-    foundry.documents.Item,
-    MODULE_ID,
-    applications.items.EtheriaConsumableSheet,
-    {
-      makeDefault: true,
-      types: [DOC_SUB_TYPES.items.consumable],
-    },
-  );
-
-  DocumentSheetConfig.registerSheet(
-    foundry.documents.Item,
-    MODULE_ID,
-    applications.items.EtheriaMiscSheet,
-    {
-      makeDefault: true,
-      types: [DOC_SUB_TYPES.items.misc],
-    },
-  );
-
-  DocumentSheetConfig.registerSheet(
-    foundry.documents.Item,
-    MODULE_ID,
-    applications.items.EtheriaAbilitySheet,
-    {
-      makeDefault: true,
-      types: [DOC_SUB_TYPES.items.ability],
-    },
-  );
-  
-
+    });
+  }
 });

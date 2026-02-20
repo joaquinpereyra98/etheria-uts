@@ -1,0 +1,57 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    {{#each effects as |section sid|}}
+    <section class="glass-panel skills-list stat-list flexcol" data-effect-type="{{section.type}}">
+      <div class="effect effects-header flexrow">
+        <div class="effect-label flexrow">
+          {{localize section.label}}
+        </div>
+        <div class="effect-source">
+          {{localize "EFFECT.FIELDS.origin.label"}}
+        </div>
+        <div class="effect-duration">{{ifThen (eq section.type "temporary" ) (localize "EFFECT.TABS.duration") ""}}</div>
+        <div class="document-controls flexrow">
+          <a class="effect-controls" data-action="createEffect"
+            data-tooltip="{{localize 'DOCUMENT.Create' type=(localize 'DOCUMENT.ActiveEffect')}}"
+            data-img="icons/svg/aura.svg">
+            <i class="fas fa-plus"></i>
+          </a>
+        </div>
+      </div>
+      <div class="effect-list">
+        {{#each section.effects as |effect|}}
+        <div class="effect flexrow" data-doc-uuid="{{effect.uuid}}">
+          <div class="effect-label flexrow">
+            <img class="effect-image" src="{{effect.img}}" height="24" width="24">
+            <div class="effect-name">{{effect.name}}</div>
+          </div>
+          <div class="effect-source">{{effect.sourceName}}</div>
+          <div class="effect-duration">{{ifThen (eq ../type "temporary" ) effect.duration.label ""}}</div>
+          <div class="document-controls flexrow">
+            {{#if @root.editable}}
+            <a class="effect-control" data-action="toggleEffect" data-tooltip="{{localize 'UTS.Effect.Toggle'}}">
+              {{#if effect.disabled}}
+              <i class="fa-solid fa-lightbulb-on"></i>
+              {{else}}
+              <i class="fa-regular fa-lightbulb"></i>
+              {{/if}}
+            </a>
+            {{/if}}
+            <a class="effect-control" data-action="viewDoc"
+              data-tooltip="{{localize 'DOCUMENT.Update' type=(localize 'DOCUMENT.ActiveEffect')}}">
+              <i class="fa-solid fa-edit"></i>
+            </a>
+            {{#if @root.editable}}
+            <a class="effect-control" data-action="deleteDoc"
+              data-tooltip="{{localize 'DOCUMENT.Delete' type=(localize 'DOCUMENT.ActiveEffect')}}">
+              <i class="fa-solid fa-trash"></i>
+            </a>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+    {{/each}}
+    <div>
+</section>

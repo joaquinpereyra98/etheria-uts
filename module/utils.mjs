@@ -23,7 +23,41 @@ export function defineValueGetter(
   });
 }
 
+export async function enrichHTML(content, options = {}) {
+  return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+    content,
+    options,
+  );
+}
 
-export async function enrichHTML(content, options = {}){
-  return await foundry.applications.ux.TextEditor.implementation.enrichHTML(content, options);
+export function prepareActiveEffectCategories(effects) {
+  const categories = {
+    temporary: {
+      type: "temporary",
+      label: game.i18n.localize("UTS.Effect.Temporary"),
+      effects: [],
+    },
+    passive: {
+      type: "passive",
+      label: game.i18n.localize("UTS.Effect.Passive"),
+      effects: [],
+    },
+    inactive: {
+      type: "inactive",
+      label: game.i18n.localize("UTS.Effect.Inactive"),
+      effects: [],
+    },
+  };
+
+  for (const e of effects) {
+    if (!e.active) categories.inactive.effects.push(e);
+    else if (e.isTemporary) categories.temporary.effects.push(e);
+    else categories.passive.effects.push(e);
+  }
+
+  // Sort each category
+  for (const c of Object.values(categories)) {
+    c.effects.sort((a, b) => (a.sort || 0) - (b.sort || 0));
+  }
+  return categories;
 }

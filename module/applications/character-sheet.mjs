@@ -1,6 +1,10 @@
 import { ETHERIA } from "../config.mjs";
-import { MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
-import { enrichHTML } from "../utils.mjs";
+import {
+  EFFECT_DATA_DEFAULT,
+  MODULE_ID,
+  TEMPLATE_PATH,
+} from "../constants.mjs";
+import { enrichHTML, prepareActiveEffectCategories } from "../utils.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheet } = foundry.applications.sheets;
@@ -30,7 +34,12 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       height: 720,
       width: 600,
     },
-    actions: {},
+    actions: {
+      createEffect: EtheriaCharacterSheet.#onCreateEffect,
+      toggleEffect: EtheriaCharacterSheet.#onToggleEffect,
+      viewDoc: EtheriaCharacterSheet.#onViewDoc,
+      deleteDoc: EtheriaCharacterSheet.#onDeleteDoc,
+    },
   };
 
   /** @override */
@@ -46,16 +55,20 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       template: `${TEMPLATES_PATH_CHARACTER}/character.hbs`,
       scrollable: [""],
     },
-    secondaryStats: {
-      template: `${TEMPLATES_PATH_CHARACTER}/secondary-stats.hbs`,
-      scrollable: [""],
-    },
     resistances: {
       template: `${TEMPLATES_PATH_CHARACTER}/resistances.hbs`,
       scrollable: [""],
     },
     spheres: {
       template: `${TEMPLATES_PATH_CHARACTER}/spheres.hbs`,
+      scrollable: [""],
+    },
+    effects: {
+      template: `${TEMPLATE_PATH}/common/effects.hbs`,
+      scrollable: [""],
+    },
+    secondaryStats: {
+      template: `${TEMPLATES_PATH_CHARACTER}/secondary-stats.hbs`,
       scrollable: [""],
     },
     notes: {
@@ -70,6 +83,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         { id: "character", label: "Character" },
         { id: "resistances", label: "Resistances" },
         { id: "spheres", label: "Spheres" },
+        { id: "effects", label: "Effects" },
         { id: "secondaryStats", label: "Secondary Stat" },
         { id: "notes", label: "Notes" },
       ],
@@ -188,9 +202,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         const context = {
           field: this.actor.system.schema.getField(`resistances.${key}`),
           value: data,
-          icon:
-            ETHERIA.damageTypes[key]?.icon ??
-            "",
+          icon: ETHERIA.damageTypes[key]?.icon ?? "",
         };
 
         if (key === "true") {
@@ -223,15 +235,24 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         const context = {
           field: this.actor.system.schema.getField(`magicSpheres.${key}`),
           value: data,
-          icon:
-            ETHERIA.magicSpheres[key]?.icon ??
-            "",
+          icon: ETHERIA.magicSpheres[key]?.icon ?? "",
         };
 
         acc[key] = context;
         return acc;
       },
       {},
+    );
+    return context;
+  }
+
+  /**
+   * Prepare render context for the Effects part.
+   * @type {PartContextCallback}
+   */
+  async _prepareEffectsContext(context, _options) {
+    context.effects = prepareActiveEffectCategories(
+      this.actor.allApplicableEffects(),
     );
     return context;
   }
@@ -252,18 +273,86 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     context.description = {
       field: this.actor.system.schema.getField(`details.description`),
       value: description,
-      enrich: await enrichHTML(
-        description,
-        enrichmentOptions,
-      ),
+      enrich: await enrichHTML(description, enrichmentOptions),
     };
     context.gmNotes = {
       field: this.actor.system.schema.getField(`details.gmNotes`),
       value: gmNotes,
-      enrich: await enrichHTML(
-        gmNotes,
-        enrichmentOptions,
-      ),
+      enrich: await enrichHTML(gmNotes, enrichmentOptions),
     };
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onCreateEffect(event, target) {
+    const { effectType } = target.closest("[data-effect-type]")?.dataset ?? {};
+    const cls = foundry.documents.ActiveEffect.implementation;
+
+    const docData = foundry.utils.mergeObject(
+      EFFECT_DATA_DEFAULT,
+      {
+        name: cls.defaultName({
+          type: "base",
+          parent: this.document,
+        }),
+        img: cls.getDefaultArtwork(),
+        disabled: effectType === "inactive",
+        origin: this.actor.uuid,
+      },
+      { inplace: false },
+    );
+
+    if (effectType === "temporary") {
+      if (game.combat) {
+        docData.duration = {
+          rounds: 1,
+          startRound: game.combat?.round,
+          startTurn: game.combat?.turn,
+        };
+      } else {
+        docData.duration = {
+          seconds: 60,
+          startTime: game.time.worldTime,
+        };
+      }
+    }
+
+    await cls.create(docData, {
+      parent: this.document,
+      renderSheet: !event.shiftKey,
+    });
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onToggleEffect(_event, target) {
+    const { docUuid } = target.closest("[data-doc-uuid]").dataset ?? {};
+    const effect = foundry.utils.fromUuidSync(docUuid);
+    effect.update({ disabled: !effect.disabled });
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onViewDoc(_event, target) {
+    const { docUuid } = target.closest("[data-doc-uuid]").dataset ?? {};
+    const doc = foundry.utils.fromUuidSync(docUuid);
+    doc.sheet.render({ force: true });
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onDeleteDoc(event, target) {
+    const { docUuid } = target.closest("[data-doc-uuid]").dataset ?? {};
+    const doc = foundry.utils.fromUuidSync(docUuid);
+    if (event.shiftKey) return doc.delete();
+    return doc.deleteDialog();
   }
 }

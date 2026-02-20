@@ -416,6 +416,67 @@
       }
     }
 
+    section.tab[data-tab="effects"] {
+      .tab-container {
+        margin: 10px;
+        gap: 10px; 
+        .stat-list {
+          padding: 3px 0;
+        }
+      }
+
+      .effects-header {
+        font-size: 0.9rem;
+        padding-bottom: 1px;
+        border-bottom: 1px solid var(--border-shadow);
+
+        > div:not(:last-child) {
+          border-right: 1px solid var(--border-shadow);
+          margin-right: 5px;
+          margin-bottom: 3px;
+        }
+      }
+
+      .effect-list {
+        min-height: 24px;
+
+        .effect:hover {
+          background-color: rgba(0, 0, 0, 0.1) ;
+        }
+      }
+
+      .effect {
+        transition: background 0.3s ease;
+        padding-top: 5px;
+        padding-left: 10px;
+        padding-right: 10px;
+
+        .effect-label {
+          flex: 2;
+          img {
+            border: none;
+            flex: 0 0 30px;
+            padding-right: 5px;
+          }
+
+          .effect-name {
+            line-height: 24px;
+          }
+        }
+
+        .effect-duration {
+          flex: 0 0 130px;
+        }
+
+        .document-controls {
+          font-size: 0.85rem;
+          flex: 0 0 60px;
+          gap: 5px;
+          text-align: end;
+        }
+      }
+    }
+
     section.tab[data-tab="secondaryStats"] {
       padding-top: 10px;
 
