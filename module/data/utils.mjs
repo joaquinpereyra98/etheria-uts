@@ -21,14 +21,8 @@ export function createSphereFields(options = {}) {
 }
 
 export function createResistancesFields(options = {}) {
-  const allResistances = {
-    all: { label: "All" },
-    ...ETHERIA.resistances,
-    ...ETHERIA.basicDamages,
-  };
-
   return Object.fromEntries(
-    Object.entries(allResistances).map(([k, v]) => [
+    Object.entries(ETHERIA.damageTypes).map(([k, v]) => [
       k,
       makeScoreField({ label: v.label, ...options }),
     ]),

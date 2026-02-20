@@ -15,11 +15,13 @@
       "discord": "joaquinp98"
     }
   ],
-  "languages": [{
-    "lang": "en",
-    "name": "English",
-    "path": "lang/en.json"
-  }],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    }
+  ],
   "url": "#{URL}#",
   "download": "#{DOWNLOAD}#",
   "manifest": "#{MANIFEST}#",
@@ -28,28 +30,25 @@
   "documentTypes": {
     "Actor": {
       "character": {}
+    },
+    "Item": {
+      "ability": {},
+      "armor": {},
+      "consumable": {},
+      "weapon": {},
+      "misc": {}
     }
   },
   "relationships": {
     "requires": [],
     "recommends": []
   },
-  "esmodules": [
-    "main.mjs"
-  ],
-  "styles": [
-    "styles/main.css"
-  ],
+  "esmodules": ["main.mjs"],
+  "styles": ["styles/main.css"],
   "flags": {
     "hotReload": {
-      "extensions": [
-        "css",
-        "hbs"
-      ],
-      "paths": [
-        "styles/",
-        "templates/"
-      ]
+      "extensions": ["css", "hbs"],
+      "paths": ["styles/", "templates/"]
     }
   }
 }

@@ -11,6 +11,14 @@ Hooks.once("init", () => {
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
 
+  Object.assign(CONFIG.Item.dataModels, {
+    [DOC_SUB_TYPES.items.ability]: data.items.EtheriaAbilityData,
+    [DOC_SUB_TYPES.items.armor]: data.items.EtheriaArmorData,
+    [DOC_SUB_TYPES.items.consumable]: data.items.EtheriaConsumableData,
+    [DOC_SUB_TYPES.items.misc]: data.items.EtheriaMiscData,
+    [DOC_SUB_TYPES.items.weapon]: data.items.EtheriaWeaponData,
+  });
+
   CONFIG.Actor.defaultType = DOC_SUB_TYPES.character;
 
   const { DocumentSheetConfig } = foundry.applications.apps;
@@ -24,4 +32,56 @@ Hooks.once("init", () => {
       types: [DOC_SUB_TYPES.character],
     },
   );
+
+  DocumentSheetConfig.registerSheet(
+    foundry.documents.Item,
+    MODULE_ID,
+    applications.items.EtheriaArmorSheet,
+    {
+      makeDefault: true,
+      types: [DOC_SUB_TYPES.items.armor],
+    },
+  );
+
+  DocumentSheetConfig.registerSheet(
+    foundry.documents.Item,
+    MODULE_ID,
+    applications.items.EtheriaWeaponSheet,
+    {
+      makeDefault: true,
+      types: [DOC_SUB_TYPES.items.weapon],
+    },
+  );
+
+  DocumentSheetConfig.registerSheet(
+    foundry.documents.Item,
+    MODULE_ID,
+    applications.items.EtheriaConsumableSheet,
+    {
+      makeDefault: true,
+      types: [DOC_SUB_TYPES.items.consumable],
+    },
+  );
+
+  DocumentSheetConfig.registerSheet(
+    foundry.documents.Item,
+    MODULE_ID,
+    applications.items.EtheriaMiscSheet,
+    {
+      makeDefault: true,
+      types: [DOC_SUB_TYPES.items.misc],
+    },
+  );
+
+  DocumentSheetConfig.registerSheet(
+    foundry.documents.Item,
+    MODULE_ID,
+    applications.items.EtheriaAbilitySheet,
+    {
+      makeDefault: true,
+      types: [DOC_SUB_TYPES.items.ability],
+    },
+  );
+  
+
 });

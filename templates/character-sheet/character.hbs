@@ -11,24 +11,25 @@
       <label class="race-label">Human</label>
     </section>
     <section class="exhaustion-section glass-panel">
-      {{formInput exhaustion.field value=exhaustion.value classes="etheria-input" dataset=(object tooltip="Exhaustion Value")}}
+      {{formInput exhaustion.field value=exhaustion.value classes="etheria-input" dataset=(object tooltip="Exhaustion
+      Value")}}
       <label class="exhaustion-label">Exhaustion</label>
       <div class="exhaustion-mod" data-tooltip="Exhaustion Modifier">({{numberFormat exhaustion.mod sign=true}})</div>
     </section>
     <section class="defense-stats-section">
       <div class="defense-box stat-box flex-center glass-panel" data-tooltip="Block Bonus">
         <i class="fa-solid fa-shield-halved"></i>
-        <div class="defense-value">{{system.defense.block.value}}</div>
+        <div class="defense-value">{{numberFormat system.defense.block.value sign=true}}</div>
       </div>
 
       <div class="defense-box stat-box flex-center glass-panel" data-tooltip="Parry Bonus">
         <i class="fa-solid fa-swords"></i>
-        <div class="defense-value">{{system.defense.parry.value}}</div>
+        <div class="defense-value">{{numberFormat system.defense.parry.value sign=true}}</div>
       </div>
 
       <div class="defense-box stat-box flex-center glass-panel" data-tooltip="Dodge Bonus">
         <i class="fa-solid fa-person-running"></i>
-        <div class="defense-value">{{system.defense.dodge.value}}</div>
+        <div class="defense-value">{{numberFormat system.defense.dodge.value sign=true}}</div>
       </div>
     </section>
     <section class="glass-panel attributes-list stat-list flexcol">

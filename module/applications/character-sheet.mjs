@@ -1,11 +1,12 @@
 import { ETHERIA } from "../config.mjs";
 import { MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
+import { enrichHTML } from "../utils.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheet } = foundry.applications.sheets;
 
 /**
- * @import {HandlebarsApplicationRenderOptions} from "./_types.mjs";
+ * @import {PartContextCallback} from "./_types.mjs";
  */
 
 const TEMPLATES_PATH_CHARACTER = `${TEMPLATE_PATH}/character-sheet`;
@@ -57,6 +58,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       template: `${TEMPLATES_PATH_CHARACTER}/spheres.hbs`,
       scrollable: [""],
     },
+    notes: {
+      template: `${TEMPLATES_PATH_CHARACTER}/notes.hbs`,
+    },
   };
 
   /** @override */
@@ -67,6 +71,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         { id: "resistances", label: "Resistances" },
         { id: "spheres", label: "Spheres" },
         { id: "secondaryStats", label: "Secondary Stat" },
+        { id: "notes", label: "Notes" },
       ],
       initial: "character",
     },
@@ -86,6 +91,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       actor: this.actor,
       system: this.actor.system,
       systemFields: this.actor.system.schema.fields,
+      user: game.user,
     };
   }
 
@@ -102,10 +108,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**
    * Prepare render context for the header part.
-   * @param {foundry.applications.types.ApplicationRenderContext} context
-   * @param {HandlebarsApplicationRenderOptions} options
-   * @returns {Promise<void>}
-   * @protected
+   * @type {PartContextCallback}
    */
   async _prepareHeaderContext(context, _options) {
     const { system } = this.actor;
@@ -131,10 +134,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**
    * Prepare render context for the character part.
-   * @param {foundry.applications.types.ApplicationRenderContext} context
-   * @param {HandlebarsApplicationRenderOptions} options
-   * @returns {Promise<void>}
-   * @protected
+   * @type {PartContextCallback}
    */
   async _prepareCharacterContext(context, _options) {
     const attributes = this.actor.system.attributes;
@@ -158,10 +158,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**
    * Prepare render context for the Secondary Stats part.
-   * @param {foundry.applications.types.ApplicationRenderContext} context
-   * @param {HandlebarsApplicationRenderOptions} options
-   * @returns {Promise<void>}
-   * @protected
+   * @type {PartContextCallback}
    */
   async _prepareSecondaryStatsContext(context, _options) {
     const skills = this.actor.system.skills;
@@ -182,10 +179,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**
    * Prepare render context for the Resistances part.
-   * @param {foundry.applications.types.ApplicationRenderContext} context
-   * @param {HandlebarsApplicationRenderOptions} options
-   * @returns {Promise<void>}
-   * @protected
+   * @type {PartContextCallback}
    */
   async _prepareResistancesContext(context, _options) {
     const resistances = this.actor.system.resistances;
@@ -195,14 +189,13 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
           field: this.actor.system.schema.getField(`resistances.${key}`),
           value: data,
           icon:
-            ETHERIA.resistances[key]?.icon ??
-            ETHERIA.basicDamages[key]?.icon ??
+            ETHERIA.damageTypes[key]?.icon ??
             "",
         };
 
-        if (key === "all") {
+        if (key === "true") {
           acc.all = context;
-        } else if (ETHERIA.resistances.hasOwnProperty(key)) {
+        } else if (ETHERIA.damageTypes[key]?.isMagic) {
           acc.magic[key] = context;
         } else {
           acc.simple[key] = context;
@@ -221,10 +214,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**
    * Prepare render context for the Spheres part.
-   * @param {foundry.applications.types.ApplicationRenderContext} context
-   * @param {HandlebarsApplicationRenderOptions} options
-   * @returns {Promise<void>}
-   * @protected
+   * @type {PartContextCallback}
    */
   async _prepareSpheresContext(context, _options) {
     const magicSpheres = this.actor.system.magicSpheres;
@@ -235,7 +225,6 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
           value: data,
           icon:
             ETHERIA.magicSpheres[key]?.icon ??
-            ETHERIA.basicDamages[key]?.icon ??
             "",
         };
 
@@ -245,5 +234,36 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       {},
     );
     return context;
+  }
+
+  /**
+   * Prepare render context for the Notes part.
+   * @type {PartContextCallback}
+   */
+  async _prepareNotesContext(context, _options) {
+    const { description, gmNotes } = this.actor.system.details;
+
+    const enrichmentOptions = {
+      secrets: game.user.isGM,
+      rollData: this.actor.getRollData(),
+      relativeTo: this.actor,
+    };
+
+    context.description = {
+      field: this.actor.system.schema.getField(`details.description`),
+      value: description,
+      enrich: await enrichHTML(
+        description,
+        enrichmentOptions,
+      ),
+    };
+    context.gmNotes = {
+      field: this.actor.system.schema.getField(`details.gmNotes`),
+      value: gmNotes,
+      enrich: await enrichHTML(
+        gmNotes,
+        enrichmentOptions,
+      ),
+    };
   }
 }

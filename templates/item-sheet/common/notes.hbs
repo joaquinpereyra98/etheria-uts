@@ -1,0 +1,15 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <section class="html-box glass-panel">
+      <h4>Description</h4>
+      {{formInput description.field value=description.value enrich=description.enrich toggled=true}}
+    </section>
+    {{#if user.isGM}}
+    <hr class="etheria-hr">
+    <section class="html-box glass-panel">
+    <h4>GM Notes</h4>
+      {{formInput gmNotes.field value=gmNotes.value enrich=gmNotes.enrich toggled=true}}
+    </section>
+    {{/if}}
+  </div>
+</section>

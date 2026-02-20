@@ -10,13 +10,22 @@ ETHERIA.magicSpheres = {
   blood: { label: "Blood", icon: `${ASSETS_PATH}/damage-icons/Blood.webp` },
   chaos: { label: "Chaos", icon: `${ASSETS_PATH}/damage-icons/Chaos.webp` },
   earth: { label: "Earth", icon: `${ASSETS_PATH}/damage-icons/Earth.webp` },
-  entropy: { label: "Entropy", icon: `${ASSETS_PATH}/damage-icons/Entropy.webp` },
+  entropy: {
+    label: "Entropy",
+    icon: `${ASSETS_PATH}/damage-icons/Entropy.webp`,
+  },
   fire: { label: "Fire", icon: `${ASSETS_PATH}/damage-icons/Fire.webp` },
   frost: { label: "Frost", icon: `${ASSETS_PATH}/damage-icons/Frost.webp` },
   holy: { label: "Holy", icon: `${ASSETS_PATH}/damage-icons/Holy.webp` },
-  lightning: { label: "Lightning", icon: `${ASSETS_PATH}/damage-icons/Lightning.webp` },
+  lightning: {
+    label: "Lightning",
+    icon: `${ASSETS_PATH}/damage-icons/Lightning.webp`,
+  },
   nature: { label: "Nature", icon: `${ASSETS_PATH}/damage-icons/Nature.webp` },
-  necromancy: { label: "Necromancy", icon: `${ASSETS_PATH}/damage-icons/Necromancy.webp` },
+  necromancy: {
+    label: "Necromancy",
+    icon: `${ASSETS_PATH}/damage-icons/Necromancy.webp`,
+  },
   necropotency: {
     label: "Necropotency",
     icon: `${ASSETS_PATH}/damage-icons/Necropotency.webp`,
@@ -25,31 +34,127 @@ ETHERIA.magicSpheres = {
   wind: { label: "Wind", icon: `${ASSETS_PATH}/damage-icons/Wind.webp` },
 };
 
-ETHERIA.basicDamages = {
+ETHERIA.damageTypes = {
+  true: {
+    label: "True",
+    group: "",
+    isMagic: false,
+  },
+
+  // Basic Damages
   bludgeoning: {
     label: "Bludgeoning",
     icon: `${ASSETS_PATH}/damage-icons/Bludgeoning.webp`,
+    group: "Basic",
+    isMagic: false,
   },
-  slashing: { label: "Slashing", icon: `${ASSETS_PATH}/damage-icons/Slashing.webp` },
-  piercing: { label: "Piercing", icon: `${ASSETS_PATH}/damage-icons/Piercing.webp` },
+  slashing: {
+    label: "Slashing",
+    icon: `${ASSETS_PATH}/damage-icons/Slashing.webp`,
+    group: "Basic",
+    isMagic: false,
+  },
+  piercing: {
+    label: "Piercing",
+    icon: `${ASSETS_PATH}/damage-icons/Piercing.webp`,
+    group: "Basic",
+    isMagic: false,
+  },
+
+  // Magic Damages
+  arcane: {
+    label: "Arcane",
+    icon: `${ASSETS_PATH}/damage-icons/Arcane.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  blood: {
+    label: "Blood",
+    icon: `${ASSETS_PATH}/damage-icons/Blood.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  chaos: {
+    label: "Chaos",
+    icon: `${ASSETS_PATH}/damage-icons/Chaos.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  earth: {
+    label: "Earth",
+    icon: `${ASSETS_PATH}/damage-icons/Earth.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  entropy: {
+    label: "Entropy",
+    icon: `${ASSETS_PATH}/damage-icons/Entropy.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  fire: {
+    label: "Fire",
+    icon: `${ASSETS_PATH}/damage-icons/Fire.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  frost: {
+    label: "Frost",
+    icon: `${ASSETS_PATH}/damage-icons/Frost.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  holy: {
+    label: "Holy",
+    icon: `${ASSETS_PATH}/damage-icons/Holy.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  lightning: {
+    label: "Lightning",
+    icon: `${ASSETS_PATH}/damage-icons/Lightning.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  nature: {
+    label: "Nature",
+    icon: `${ASSETS_PATH}/damage-icons/Nature.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  necromancy: {
+    label: "Necromancy",
+    icon: `${ASSETS_PATH}/damage-icons/Necromancy.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  necrotic: {
+    label: "Necrotic",
+    icon: `${ASSETS_PATH}/damage-icons/Necropotency.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  water: {
+    label: "Water",
+    icon: `${ASSETS_PATH}/damage-icons/Water.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
+  wind: {
+    label: "Wind",
+    icon: `${ASSETS_PATH}/damage-icons/Wind.webp`,
+    group: "Magic",
+    isMagic: true,
+  },
 };
 
-ETHERIA.resistances = {
-  arcane: { label: "Arcane", icon: `${ASSETS_PATH}/damage-icons/Arcane.webp` },
-  blood: { label: "Blood", icon: `${ASSETS_PATH}/damage-icons/Blood.webp` },
-  chaos: { label: "Chaos", icon: `${ASSETS_PATH}/damage-icons/Chaos.webp` },
-  earth: { label: "Earth", icon: `${ASSETS_PATH}/damage-icons/Earth.webp` },
-  entropy: { label: "Entropy", icon: `${ASSETS_PATH}/damage-icons/Entropy.webp` },
-  fire: { label: "Fire", icon: `${ASSETS_PATH}/damage-icons/Fire.webp` },
-  frost: { label: "Frost", icon: `${ASSETS_PATH}/damage-icons/Frost.webp` },
-  holy: { label: "Holy", icon: `${ASSETS_PATH}/damage-icons/Holy.webp` },
-  lightning: { label: "Lightning", icon: `${ASSETS_PATH}/damage-icons/Lightning.webp` },
-  nature: { label: "Nature", icon: `${ASSETS_PATH}/damage-icons/Nature.webp` },
-  necromancy: { label: "Necromancy", icon: `${ASSETS_PATH}/damage-icons/Necromancy.webp` },
-  necrotic: { label: "Necrotic", icon: `${ASSETS_PATH}/damage-icons/Necropotency.webp` },
-  water: { label: "Water", icon: `${ASSETS_PATH}/damage-icons/Water.webp` },
-  wind: { label: "Wind", icon: `${ASSETS_PATH}/damage-icons/Wind.webp` },
-};
+ETHERIA.healingTypes = {
+  heal: {
+    label: "Heal",
+    group: "Healings",
+    isMagic: false,
+  },
+}
 
 ETHERIA.attributes = {
   strength: { label: "Strength", abrr: "str" },
@@ -92,4 +197,20 @@ ETHERIA.skills = {
   medicine: { label: "Medicine", attribute: "wisdom" },
   perception: { label: "Perception", attribute: "wisdom" },
   survival: { label: "Survival", attribute: "wisdom" },
+};
+
+ETHERIA.actionType = {
+  anytime: { label: "Anytime" },
+  regular: { label: "Regular" },
+  fullTurn: { label: "Full-Turn" },
+  passive: { label: "Passive" },
+  movement: { label: "Movement" },
+  misc: { label: "Misc" },
+};
+
+ETHERIA.armorType = {
+  light: { label: "Light" },
+  medium: { label: "Medium" },
+  heavy: { label: "Heavy" },
+  superHeavy: { label: "Super Heavy" },
 };

@@ -79,6 +79,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
 
       details: new fields.SchemaField({
         isCaster: new fields.BooleanField({ initial: false }),
+        description: new fields.HTMLField(),
+        gmNotes: new fields.HTMLField(),
       }),
     };
   }

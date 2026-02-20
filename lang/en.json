@@ -1,3 +1,8 @@
 {
-  "TYPES.Actor.etheria-uts.character": "Character"
+  "TYPES.Actor.etheria-uts.character": "Character",
+  "TYPES.Item.etheria-uts.ability": "Ability",
+  "TYPES.Item.etheria-uts.armor": "Armor",
+  "TYPES.Item.etheria-uts.consumable": "Consumable",
+  "TYPES.Item.etheria-uts.misc": "Misc",
+  "TYPES.Item.etheria-uts.weapon": "Weapon"
 }
