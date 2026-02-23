@@ -22,8 +22,19 @@
       </div>
       {{/each}}
       {{#each resources}}
-      {{> "modules/etheria-uts/templates/character-sheet/partials/resource-field.hbs" label=field.label data=value
-      fields=field.fields}}
+      <div class="resource-field flexcol glass-panel">
+        <div class="resource-header flexrow">
+          <label class="resource-label">
+            {{localize field.label}}
+          </label>
+        </div>
+
+        <div class="resource-inputs flexrow">
+          {{formInput field.fields.value value=data.value}}
+          {{formInput field.fields.max value=data.max}}
+        </div>
+
+      </div>
       {{/each}}
     </div>
   </div>

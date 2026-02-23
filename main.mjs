@@ -51,3 +51,8 @@ Hooks.once("init", () => {
     });
   }
 });
+
+Hooks.once("ready", () => {
+  foundry.utils.setProperty(game, "system.grid.units", "Tiles");
+  console.log(game.system.grid.units)
+})

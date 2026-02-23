@@ -1,5 +1,6 @@
 import { ETHERIA } from "../config.mjs";
 import {
+  DOC_SUB_TYPES,
   EFFECT_DATA_DEFAULT,
   MODULE_ID,
   TEMPLATE_PATH,
@@ -35,6 +36,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       width: 600,
     },
     actions: {
+      createAbility: EtheriaCharacterSheet.#onCreateAbility,
       createEffect: EtheriaCharacterSheet.#onCreateEffect,
       toggleEffect: EtheriaCharacterSheet.#onToggleEffect,
       viewDoc: EtheriaCharacterSheet.#onViewDoc,
@@ -63,6 +65,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       template: `${TEMPLATES_PATH_CHARACTER}/spheres.hbs`,
       scrollable: [""],
     },
+    abilities: {
+      template: `${TEMPLATES_PATH_CHARACTER}/abilities.hbs`,
+      scrollable: [""],
+    },
     effects: {
       template: `${TEMPLATE_PATH}/common/effects.hbs`,
       scrollable: [""],
@@ -82,6 +88,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       tabs: [
         { id: "character", label: "Character" },
         { id: "resistances", label: "Resistances" },
+        { id: "abilities", label: "Abilities" },
         { id: "spheres", label: "Spheres" },
         { id: "effects", label: "Effects" },
         { id: "secondaryStats", label: "Secondary Stat" },
@@ -280,6 +287,58 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       value: gmNotes,
       enrich: await enrichHTML(gmNotes, enrichmentOptions),
     };
+  }
+
+  /**
+   * Prepare render context for the Notes part.
+   * @type {PartContextCallback}
+   */
+  /** @inheritdoc */
+  async _prepareAbilitiesContext(context, _options) {
+    const allAbilities = this.actor.itemTypes[DOC_SUB_TYPES.items.ability].sort(
+      (a, b) => a.sort - b.sort,
+    );
+
+    context.abilities = Object.fromEntries(
+      Object.entries(ETHERIA.abilityType).map(([key, { label }]) => [
+        key,
+        {
+          label,
+          items: allAbilities.filter((i) => i.system.actionType === key),
+        },
+      ]),
+    );
+
+    context.damageTypeChoices = Object.fromEntries(
+      Object.entries({ ...ETHERIA.damageTypes, ...ETHERIA.healingTypes }).map(([k, v]) => [k, v.label]),
+    );
+    context.resourcesChoices = this.actor.system.getResourcesChoices();
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onCreateAbility(event, target) {
+    const { category } = target.closest("[data-category]")?.dataset ?? {};
+    const cls = foundry.documents.Item.implementation;
+
+    const docData = {
+      name: cls.defaultName({
+        type: DOC_SUB_TYPES.items.ability,
+        parent: this.document,
+      }),
+      type: DOC_SUB_TYPES.items.ability,
+      img: cls.getDefaultArtwork()?.img,
+      system: {
+        actionType: category,
+      },
+    };
+
+    await cls.create(docData, {
+      parent: this.document,
+      renderSheet: !event.shiftKey,
+    });
   }
 
   /**

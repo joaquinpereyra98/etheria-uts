@@ -154,7 +154,7 @@ ETHERIA.healingTypes = {
     group: "Healings",
     isMagic: false,
   },
-}
+};
 
 ETHERIA.attributes = {
   strength: { label: "Strength", abrr: "str" },
@@ -203,9 +203,17 @@ ETHERIA.actionType = {
   anytime: { label: "Anytime" },
   regular: { label: "Regular" },
   fullTurn: { label: "Full-Turn" },
+};
+
+ETHERIA.abilityType = {
+  anytime: { label: "Anytime" },
+  regular: { label: "Regular" },
+  fullTurn: { label: "Full-Turn" },
   passive: { label: "Passive" },
   movement: { label: "Movement" },
   misc: { label: "Misc" },
+  traits: { label: "Traits" },
+  mythic: { label: "Mythic" },
 };
 
 ETHERIA.armorType = {

@@ -70,7 +70,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
       bonus: new fields.SchemaField({
         accuracy: new fields.NumberField({ integer: true, initial: 0 }),
         physicalDamage: new fields.NumberField({ integer: true, initial: 0 }),
-        magicDamage: new fields.NumberField({ integer: true, initial: 0 })
+        magicDamage: new fields.NumberField({ integer: true, initial: 0 }),
       }),
 
       resistances: new fields.SchemaField(createResistancesFields({ min: 0 })),
@@ -196,5 +196,26 @@ export default class EtheriaCharacterData extends TypeDataModel {
     ];
     const entry = lookupTable.find((i) => stat >= i.minStat);
     return entry ? entry.mod : -10;
+  }
+
+  /**
+   * Generates an object mapping resource paths to their display labels.
+   * @returns {Object<string, string>}
+   */
+  getResourcesChoices() {
+    const { schema, resourcesExtra } = this;
+
+    const entries = [
+      ...Object.entries(schema.fields.resources.fields).map(([k, v]) => [
+        `system.resources.${k}`,
+        v.label,
+      ]),
+      ...Object.entries(resourcesExtra).map(([k, v]) => [
+        `system.resourcesExtra.${k}`,
+        v.label,
+      ]),
+    ];
+
+    return Object.fromEntries(entries);
   }
 }

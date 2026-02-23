@@ -1,0 +1,70 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <div class="bound-box glass-panel stat-box flex-center ">
+      <a class="clickable-anchor" data-tooltip="Open Bounded Item" {{disabled (not system.bound)}}>
+        <i class="fa-solid fa-suitcase "></i>
+      </a>
+      <input class="etheria-input" type="text" name="system.bound" value="{{system.bound}}"
+        placeholder="No item bound..." disabled>
+
+      <p class="hint">
+        The source item providing this ability to your character
+      </p>
+    </div>
+
+    <section class="cost-section">
+      <div class="stat-box flexrow flex-center glass-panel">
+        <span class="cost-span">Cost:</span>
+        <div class="value-input">
+          {{formInput systemFields.cost.fields.value value=system.cost.value placeholder="Value"
+          classes="etheria-input"}}
+        </div>
+
+        <div class="resource-input">
+          <input type="text" name="system.cost.resource"
+          value="{{system.cost.resource}}"
+          class="etheria-input"
+          placeholder="Resource"
+          list="{{rootId}}-cost-resource">
+
+          <datalist id="{{rootId}}-cost-resource">
+            {{#each resourcesChoices as |label value|}}
+              <option value="{{value}}">{{label}}</option>
+            {{/each}}
+          </datalist>
+        </div>
+      </div>
+    </section>
+
+    <div class="glass-panel stat-list ability-list">
+      <div class="panel-header flexrow">
+        <span class="label">Ability Damages</span>
+        <div class="controls">
+          <a data-action="createDamage" class="fa-solid fa-plus clickable-anchor" data-tooltip="Add Damage"></a>
+        </div>
+      </div>
+
+      <div class="damage-items flexcol">
+        {{#each system.damages as |damage id|}}
+        <div class="stat-row" data-damage-id="{{id}}">
+
+          <div class="flexcol">
+            {{formInput damage.schema.fields.formula name=(concat "system.damages." id ".formula") placeholder="Damage Formula"
+            value=damage.formula classes="etheria-input formula-input"}}
+          </div>
+
+          <div class="flexcol">
+            {{formInput damage.schema.fields.type name=(concat "system.damages." id ".type") value=damage.type
+            classes="etheria-input"}}
+          </div>
+
+          <div class="controls">
+            <a data-action="deleteDamage" data-id="{{id}}" class="fa-solid fa-trash clickable-anchor"
+              data-tooltip="Remove"></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</section>
