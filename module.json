@@ -32,11 +32,24 @@
       "character": {}
     },
     "Item": {
-      "ability": {},
-      "armor": {},
-      "consumable": {},
-      "weapon": {},
-      "misc": {}
+      "ability": {
+        "htmlFields": ["description"]
+      },
+      "armor": {
+        "htmlFields": ["description"]
+      },
+      "consumable": {
+        "htmlFields": ["description"]
+      },
+      "misc": {
+        "htmlFields": ["description"]
+      },
+      "race": {
+        "htmlFields": ["description"]
+      },
+      "weapon": {
+        "htmlFields": ["description"]
+      }
     }
   },
   "relationships": {

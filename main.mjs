@@ -14,13 +14,10 @@ Hooks.once("init", () => {
 
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
 
-  Object.assign(CONFIG.Item.dataModels, {
-    [DOC_SUB_TYPES.items.ability]: data.items.EtheriaAbilityData,
-    [DOC_SUB_TYPES.items.armor]: data.items.EtheriaArmorData,
-    [DOC_SUB_TYPES.items.consumable]: data.items.EtheriaConsumableData,
-    [DOC_SUB_TYPES.items.misc]: data.items.EtheriaMiscData,
-    [DOC_SUB_TYPES.items.weapon]: data.items.EtheriaWeaponData,
-  });
+  for(const model of Object.values(data.items)) {
+    CONFIG.Item.dataModels[model.metadata.type] = model
+    CONFIG.Item.typeIcons[model.metadata.type] = model.metadata.icon;
+  }
 
   CONFIG.Actor.defaultType = DOC_SUB_TYPES.character;
 
@@ -41,6 +38,7 @@ Hooks.once("init", () => {
     [DOC_SUB_TYPES.items.weapon, applications.items.EtheriaWeaponSheet],
     [DOC_SUB_TYPES.items.consumable, applications.items.EtheriaConsumableSheet],
     [DOC_SUB_TYPES.items.misc, applications.items.EtheriaMiscSheet],
+    [DOC_SUB_TYPES.items.race, applications.items.EtheriaRaceSheet],
     [DOC_SUB_TYPES.items.ability, applications.items.EtheriaAbilitySheet],
   ];
 
@@ -54,5 +52,4 @@ Hooks.once("init", () => {
 
 Hooks.once("ready", () => {
   foundry.utils.setProperty(game, "system.grid.units", "Tiles");
-  console.log(game.system.grid.units)
 })

@@ -38,6 +38,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     actions: {
       createAbility: EtheriaCharacterSheet.#onCreateAbility,
       createEffect: EtheriaCharacterSheet.#onCreateEffect,
+      createRace: EtheriaCharacterSheet.#onCreateRace,
       toggleEffect: EtheriaCharacterSheet.#onToggleEffect,
       viewDoc: EtheriaCharacterSheet.#onViewDoc,
       deleteDoc: EtheriaCharacterSheet.#onDeleteDoc,
@@ -310,7 +311,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     );
 
     context.damageTypeChoices = Object.fromEntries(
-      Object.entries({ ...ETHERIA.damageTypes, ...ETHERIA.healingTypes }).map(([k, v]) => [k, v.label]),
+      Object.entries({ ...ETHERIA.damageTypes, ...ETHERIA.healingTypes }).map(
+        ([k, v]) => [k, v.label],
+      ),
     );
     context.resourcesChoices = this.actor.system.getResourcesChoices();
   }
@@ -329,10 +332,32 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         parent: this.document,
       }),
       type: DOC_SUB_TYPES.items.ability,
-      img: cls.getDefaultArtwork()?.img,
+      img: cls.getDefaultArtwork({ type: DOC_SUB_TYPES.items.ability })?.img,
       system: {
         actionType: category,
       },
+    };
+
+    await cls.create(docData, {
+      parent: this.document,
+      renderSheet: !event.shiftKey,
+    });
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onCreateRace(event, target) {
+    const cls = foundry.documents.Item.implementation;
+
+    const docData = {
+      name: cls.defaultName({
+        type: DOC_SUB_TYPES.items.race,
+        parent: this.document,
+      }),
+      type: DOC_SUB_TYPES.items.race,
+      img: cls.getDefaultArtwork({ type: DOC_SUB_TYPES.items.race })?.img,
     };
 
     await cls.create(docData, {

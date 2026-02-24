@@ -1,0 +1,33 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <div class="glass-panel stat-list bound-abilities-list">
+      <div class="panel-header flexrow">
+        {{formInput systemFields.boundAbilities.element name="" classes="etheria-tag-input"}}
+      </div>
+
+      <div class="bound-items-container flexcol">
+        {{#each system.boundAbilitiesDocs as |ability|}}
+        <div class="stat-row" data-doc-uuid="{{ability.uuid}}">
+          <img class="stat-icon" src="{{ability.img}}" title="{{ability.name}}" />
+
+          <span class="stat-label">{{ability.name}}</span>
+
+          <div class="controls flexrow">
+            <a class="item-control" data-action="viewDoc" data-tooltip="{{localize 'DOCUMENT.Update' type='Ability'}}">
+              <i class="fa-solid fa-edit"></i>
+            </a>
+
+            <a class="fa-solid fa-unlink clickable-anchor" data-action="removeBoundAbility"
+              data-tooltip="Unbind Ability"></a>
+          </div>
+
+        </div>
+        {{else}}
+        <div class="flex-center unbounded">
+          <p class="stat-label">No items bound...</p>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</section>

@@ -4,5 +4,6 @@
   "TYPES.Item.etheria-uts.armor": "Armor",
   "TYPES.Item.etheria-uts.consumable": "Consumable",
   "TYPES.Item.etheria-uts.misc": "Misc",
+  "TYPES.Item.etheria-uts.race": "Race",
   "TYPES.Item.etheria-uts.weapon": "Weapon"
 }

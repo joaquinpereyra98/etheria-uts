@@ -218,4 +218,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
 
     return Object.fromEntries(entries);
   }
+
+  get race() {
+    return foundry.utils.fromUuidSync(this.race);
+  }
 }

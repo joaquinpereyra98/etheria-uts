@@ -1,11 +1,15 @@
 import { TEMPLATE_PATH } from "../../constants.mjs";
 import EtheriaItemSheet from "./_item-sheet.mjs";
 
-export default class EtheriaMiscSheet extends EtheriaItemSheet {
+/**
+ * @import {PartContextCallback, PartListenerCallback} from "../_types.mjs";
+ */
+
+export default class EtheriaRaceSheet extends EtheriaItemSheet {
   /** @inheritdoc*/
   static DEFAULT_OPTIONS = {
     actions: {
-      removeBoundAbility: EtheriaMiscSheet.#onRemoveBoundAbility,
+      removeBoundAbility: EtheriaRaceSheet.#onRemoveBoundAbility,
     },
   };
 
@@ -29,6 +33,23 @@ export default class EtheriaMiscSheet extends EtheriaItemSheet {
       initial: "notes",
     },
   };
+
+  /**
+   * Prepare render context for the header part.
+   * @type {PartContextCallback}
+   */
+  async _prepareHeaderContext(context, _options) {
+    const system = this.item.system;
+    const fields = [];
+
+    context.itemFields = fields.reduce((obj, key) => {
+      obj[key] = {
+        field: system.schema.getField(key),
+        value: system[key],
+      };
+      return obj;
+    }, {});
+  }
 
   /**
    * Attach event listeners to Mechanics part.

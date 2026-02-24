@@ -1,13 +1,25 @@
 import { ETHERIA } from "../../config.mjs";
 import EtheriaItemData from "./_base-item.mjs";
-import FormulaField from "../fields/formula-field.mjs";
 import DamageField from "../shared/damage-field.mjs";
+import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
+import BoundAbilitiesMixin from "./mixins/bound-abilities-mixin.mjs";
 
-export default class EtheriaAbilityData extends EtheriaItemData {
+export default class EtheriaAbilityData extends BoundAbilitiesMixin(EtheriaItemData) {
+    /** @inheritDoc */
+  static get metadata() {
+    return foundry.utils.mergeObject(super.metadata, {
+      icon: "fa-solid fa-meteor",
+      img: `${ASSETS_PATH}/items-icons/fire-ray.svg`,
+      type: DOC_SUB_TYPES.items.ability,
+      isEquippable: false,
+    });
+  }
+
+  /**@override */
   static defineSchema() {
     const fields = foundry.data.fields;
     return {
-      ...super.defineSchema({ isEquippable: false }),
+      ...super.defineSchema(),
       actionType: new fields.StringField({
         choices: ETHERIA.abilityType,
         blank: false,
@@ -24,13 +36,13 @@ export default class EtheriaAbilityData extends EtheriaItemData {
         { label: "Uses" },
       ),
       cost: new fields.SchemaField({
-        value: new fields.NumberField({integer: true}),
+        value: new fields.NumberField({ integer: true }),
         resource: new fields.StringField(),
       }),
       range: new fields.StringField({ blank: true, label: "Range" }),
       area: new fields.StringField({ blank: true, label: "Area" }),
       damages: new fields.TypedObjectField(new DamageField()),
-      bound: new fields.DocumentUUIDField(),
+      bound: new fields.DocumentUUIDField({ type: "Item" }),
     };
   }
 
@@ -43,7 +55,7 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     const oldBound = this._source.system?.bound;
 
     if (newBound !== undefined && oldBound) {
-      const doc = await fromUuid(oldBound);
+      const doc = await foundry.utils.fromUuid(oldBound);
 
       if (doc) {
         const updatedAbilities = doc.system._source.boundAbilities.filter(

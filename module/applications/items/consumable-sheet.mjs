@@ -5,14 +5,6 @@ import EtheriaItemSheet from "./_item-sheet.mjs";
  */
 
 export default class EtheriaConsumableSheet extends EtheriaItemSheet {
-
-    /** @inheritdoc */
-  static DEFAULT_OPTIONS = {
-    window: {
-      icon: "fa-solid fa-flask-round-potion"
-    }
-  };
-
   /** @override */
   static PARTS = {
     ...super.PARTS,

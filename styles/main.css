@@ -45,14 +45,20 @@
     border-radius: var(--radius-sm);
   }
 
+  .etheria-tag-input>input,
   input.etheria-input {
     text-align: center;
     font-size: 1.1rem;
     background-color: var(--input-bg);
     color: var(--text-main);
     border: none;
+
+    &:disabled {
+      color: var(--text-muted);
+    }
   }
 
+  .etheria-tag-input>button,
   button.etheria-button {
     --button-background-color: var(--bg-primary);
     --button-border-color: transparent;
@@ -336,11 +342,25 @@
 
       .race-section {
         margin: 10px;
-        display: flex;
-        align-items: center;
-        gap: 5px;
+        transition: transform 0.3s ease;
+
+        &:hover {
+          transform: scale(1.03);
+
+          .controls {
+            opacity: 1;
+          }
+        }
+
+        .race-content {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          cursor: pointer;
+        }
 
         .item-portrait {
+          cursor: inherit;
           flex: 0 0 50px;
           aspect-ratio: 1;
           background-color: var(--input-bg);
@@ -355,8 +375,15 @@
         }
 
         .race-label {
+          cursor: inherit;
           font-size: 1rem;
           flex: 1;
+        }
+
+        .controls {
+          margin-right: 10px;
+          opacity: 0;
+          transition: opacity 0.3s ease;
         }
 
       }
@@ -877,6 +904,57 @@
             input::-webkit-calendar-picker-indicator {
               display: none !important;
             }
+          }
+        }
+
+        .bound-abilities-list {
+          margin: 5px;
+          padding: 5px 0;
+
+          .stat-row {
+            padding: 0 15px;
+            grid-template-columns: 2rem 1fr auto;
+            gap: var(--gap-sm);
+            transition: background 0.3s ease;
+
+            &:hover {
+              background-color: var(--bg-primary);
+              .controls {
+                opacity: 1;
+              }
+            }
+
+            .stat-label {
+              font-size: 1.1rem;
+            }
+
+            .stat-icon {
+              height: 2rem;
+              flex: 0 0 2rem;
+              border-radius: var(--radius-sm);
+              box-shadow: var(--shadow-thin);
+            }
+
+            .controls {
+              transition: opacity 0.3s ease;
+              gap: var(--gap-md);
+              opacity: 0;
+            }
+          }
+
+          .unbounded {
+            .stat-label {
+              opacity: 0.5;
+              text-align: center;
+            }
+          }
+        }
+
+        .etheria-tag-input {
+          margin: 5px 10px;
+
+          .tags.input-element-tags {
+            display: none;
           }
         }
       }

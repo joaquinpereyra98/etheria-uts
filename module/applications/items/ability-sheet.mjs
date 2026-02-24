@@ -9,9 +9,6 @@ import EtheriaItemSheet from "./_item-sheet.mjs";
 export default class EtheriaAbilitySheet extends EtheriaItemSheet {
   /** @inheritdoc */
   static DEFAULT_OPTIONS = {
-    window: {
-      icon: "fa-solid fa-meteor",
-    },
     actions: {
       createDamage: EtheriaAbilitySheet.#onCreateDamage,
       deleteDamage: EtheriaAbilitySheet.#onDeleteDamage,

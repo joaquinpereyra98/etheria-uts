@@ -11,3 +11,11 @@
  * @param {HandlebarsApplicationRenderOptions} options - The specific render options for this part.
  * @returns {Promise<void>|void} - May return a promise if asynchronous logic is required.
  */
+
+/**
+ * A callback function to attach event listeners to a specific rendered application part.
+ * @callback PartListenerCallback
+ * @param {HTMLElement} htmlElement - The rendered HTML element for this specific part.
+ * @param {HandlebarsApplicationRenderOptions} options - The specific render options for this part.
+ * @returns {void}
+ */

@@ -1,14 +1,26 @@
 <section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
   <div class="tab-container flexcol">
-    <section class="race-section glass-panel">
-      <div class="item-portrait race-portrait">
-        {{#if race}}
-        <img src="" alt="Character Race">
-        {{else}}
-        <i class="fa-solid fa-circle-user"></i>
-        {{/if}}
+    <section class="race-section glass-panel" data-doc-uuid="{{system.race.uuid}}">
+      {{#if system.race}}
+      <div class="race-content" data-action="viewDoc" data-tooltip="Click to Edit Race">
+        <div class="item-portrait race-portrait">
+          <img src="{{system.race.img}}" alt="{{system.race.name}}">
+        </div>
+        <label class="race-label">{{system.race.name}}</label>
+        <div class="controls">
+          <a class="item-control" data-action="deleteDoc" data-tooltip="{{localize 'DOCUMENT.Delete' type='Race'}}">
+            <i class="fa-solid fa-trash"></i>
+          </a>
+        </div>
       </div>
-      <label class="race-label">Human</label>
+      {{else}}
+      <div class="race-content" data-action="createRace" data-tooltip="Click to Create a New Race">
+        <div class="item-portrait race-portrait">
+          <i class="fa-solid fa-circle-plus"></i>
+        </div>
+        <label class="race-label">Create Race</label>
+      </div>
+      {{/if}}
     </section>
     <section class="exhaustion-section glass-panel">
       {{formInput exhaustion.field value=exhaustion.value classes="etheria-input" dataset=(object tooltip="Exhaustion

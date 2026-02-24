@@ -1,5 +1,9 @@
 import { enrichHTML, prepareActiveEffectCategories } from "../../utils.mjs";
-import { EFFECT_DATA_DEFAULT, MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
+import {
+  EFFECT_DATA_DEFAULT,
+  MODULE_ID,
+  TEMPLATE_PATH,
+} from "../../constants.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ItemSheet } = foundry.applications.sheets;
@@ -65,6 +69,14 @@ export default class EtheriaItemSheet extends HandlebarsApplicationMixin(
     },
   };
 
+  /**@inheritdoc */
+  _initializeApplicationOptions(options) {
+    const applicationOptions = super._initializeApplicationOptions(options);
+    applicationOptions.window.icon ||=
+      options.document?.system?.constructor?.metadata?.icon;
+    return applicationOptions;
+  }
+
   /* -------------------------------------------- */
   /* Context Preparation                          */
   /* -------------------------------------------- */
@@ -91,6 +103,7 @@ export default class EtheriaItemSheet extends HandlebarsApplicationMixin(
     const methodName = `_prepare${partId.capitalize()}Context`;
     const fn = this[methodName];
     if (fn instanceof Function) await fn.call(this, context, options);
+
     return context;
   }
 
@@ -128,10 +141,18 @@ export default class EtheriaItemSheet extends HandlebarsApplicationMixin(
    * @type {PartContextCallback}
    */
   async _prepareEffectsContext(context, _options) {
-    context.effects = prepareActiveEffectCategories(
-      this.item.effects,
-    );
+    context.effects = prepareActiveEffectCategories(this.item.effects);
     return context;
+  }
+
+  /** @inheritdoc */
+  _attachPartListeners(partId, htmlElement, options) {
+    super._attachPartListeners(partId, htmlElement, options);
+    const fn = this[`_attach${partId.capitalize()}Listeners`];
+
+    if (fn instanceof Function) {
+      fn.call(this, htmlElement, options);
+    }
   }
 
   /**

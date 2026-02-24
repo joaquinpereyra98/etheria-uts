@@ -1,14 +1,28 @@
 export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
-  static defineSchema({ isEquippable = true } = {}) {
+  /** @inheritDoc */
+  static get metadata() {
+    return {
+      icon: "",
+      img: foundry.documents.Item.DEFAULT_ICON,
+      type: "base",
+      isEquippable: true,
+    };
+  }
+
+  /**@override */
+  static defineSchema() {
     const fields = foundry.data.fields;
 
     const schema = {};
-    if (isEquippable)
-      schema.isEquipped = new fields.BooleanField({ initial: false, label: "is Equipped?" });
+    if (EtheriaItemData.metadata.isEquippable)
+      schema.isEquipped = new fields.BooleanField({
+        initial: false,
+        label: "is Equipped?",
+      });
     schema.description = new fields.SchemaField({
       value: new fields.HTMLField(),
       gmNotes: new fields.HTMLField(),
-    })
+    });
     return schema;
   }
 }

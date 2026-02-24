@@ -11,8 +11,9 @@ export const DOC_SUB_TYPES = {
     ability: `${MODULE_ID}.ability`,
     armor: `${MODULE_ID}.armor`,
     consumable: `${MODULE_ID}.consumable`,
+    misc: `${MODULE_ID}.misc`,
+    race: `${MODULE_ID}.race`,
     weapon: `${MODULE_ID}.weapon`,
-    misc: `${MODULE_ID}.misc`
   },
 };
 
@@ -20,6 +21,6 @@ export const DOC_SUB_TYPES = {
 export const EFFECT_DATA_DEFAULT = {
   name: "Active Effect",
   img: EtheriaActiveEffect.defaultArtwork,
-  disabled: false, 
+  disabled: false,
   transfer: true,
-}
+};
