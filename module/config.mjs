@@ -5,6 +5,12 @@ import { ASSETS_PATH } from "./constants.mjs";
  */
 export const ETHERIA = {};
 
+ETHERIA.defenses = {
+  block: { skill: "endurance", attribute: "strength"},
+  parry: { skill: "concentration", attribute: "agility"},
+  dodge: { skill: "reflex", attribute: "agility"},
+}
+
 ETHERIA.magicSpheres = {
   arcane: { label: "Arcane", icon: `${ASSETS_PATH}/damage-icons/Arcane.webp` },
   blood: { label: "Blood", icon: `${ASSETS_PATH}/damage-icons/Blood.webp` },

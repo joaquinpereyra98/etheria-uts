@@ -64,7 +64,7 @@
       <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Stamina">
         <i class="fa-solid fa-heart-circle-bolt"></i>
         <span>
-          {{actor.system.recovers.stamina.value}}
+          {{numberFormat actor.system.recovers.stamina.value sign=true}}
         </span>
       </button>
       <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Mana">

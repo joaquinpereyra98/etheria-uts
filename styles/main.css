@@ -821,9 +821,11 @@
       .currencies-section {
         display: flex;
         justify-content: flex-end;
+
         i {
           font-size: 1.1rem;
         }
+
         .etheria-input {
           font-size: 1rem;
           width: 100px;

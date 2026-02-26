@@ -171,6 +171,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         key,
         {
           field: this.actor.system.schema.getField(`attributes.${key}.value`),
+          raw: foundry.utils.getProperty(this.actor.system._source, `attributes.${key}.value`),
           value: data.value,
           mod: data.mod,
         },

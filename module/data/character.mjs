@@ -6,7 +6,6 @@ import {
   createSkillsFields,
 } from "./utils.mjs";
 
-import { defineValueGetter } from "../utils.mjs";
 import { LocalDocumentField, FormulaField } from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
 import { ETHERIA } from "../config.mjs";
@@ -84,43 +83,23 @@ export default class EtheriaCharacterData extends TypeDataModel {
       }),
 
       currencies: new fields.SchemaField({
-        argents: new fields.NumberField({integer: true, initial: 0, min: 0}),
-      })
+        argents: new fields.NumberField({ integer: true, initial: 0, min: 0 }),
+      }),
     };
   }
 
   /**@override */
   prepareBaseData() {
-    const defineStat = (stat, name, getter) => {
-      this[stat] ??= {};
-      this[stat][name] = { override: null, mod: 0 };
-      defineValueGetter(this[stat][name], getter);
+    this.recovers = {
+      stamina: { mod: 0, override: null },
+      mana: { mod: 0, override: null },
     };
 
-    defineStat("recovers", "stamina", () => this.#staminaRecovery());
-    defineStat("recovers", "mana", () => this.#manaRecovery());
-
-    defineStat("defense", "block", () => this.#calculateDefense("block"));
-    defineStat("defense", "parry", () => this.#calculateDefense("dodge"));
-    defineStat("defense", "dodge", () => this.#calculateDefense("parry"));
-
-    this.defense.block.skill = "endurance";
-    this.defense.block.attribute = "strength";
-
-    this.defense.parry.skill = "concentration";
-    this.defense.parry.attribute = "agility";
-
-    this.defense.dodge.skill = "reflex";
-    this.defense.dodge.attribute = "agility";
-
-    for (const [key, skill] of Object.entries(this.skills)) {
-      const attrKey = ETHERIA.skills[key].attribute;
-      skill.attribute = attrKey;
-      Object.defineProperty(skill, "total", {
-        get: () => skill.value + (this.attributes[attrKey]?.mod ?? 0),
-        configurable: true,
-      });
-    }
+    this.defense = {
+      block: { mod: 0, override: null },
+      parry: { mod: 0, override: null },
+      dodge: { mod: 0, override: null },
+    };
   }
 
   /**@override */
@@ -128,77 +107,69 @@ export default class EtheriaCharacterData extends TypeDataModel {
     for (const [key, attribute] of Object.entries(this.attributes)) {
       this.attributes[key].mod = this.#calcModifer(attribute.value);
     }
+
+    for (const [key, skill] of Object.entries(this.skills)) {
+      const attrKey = ETHERIA.skills[key].attribute;
+      skill.total = skill.value + (this.attributes[attrKey]?.mod ?? 0);
+    }
+
+    const { constitution, wisdom } = this.attributes;
+
+    for (const [key, recover] of Object.entries(this.recovers)) {
+      const attribute = key === "stamina" ? constitution : wisdom;
+      foundry.utils.setProperty(
+        this.recovers,
+        `${key}.value`,
+        recover.override ??
+          Math.floor(attribute.value / 2) + attribute.mod + recover.mod,
+      );
+    }
+
+    for (const [key, defense] of Object.entries(this.defense)) {
+      foundry.utils.setProperty(
+        this.defense,
+        `${key}.value`,
+        defense.override ?? this.#calculateDefense(key) + defense.mod,
+      );
+    }
   }
 
   /**
    * Calculates combat defense stats.
-   * @param {"block"|"parry"|"dodge"} type - The defense type to calculate.
+   * @param {"block"|"parry"|"dodge"} key - The defense key to calculate.
    * @returns {number} The final calculated defense value.
    */
-  #calculateDefense(type) {
-    const defenseData = this.defense[type];
-    const attributes = this.attributes;
+  #calculateDefense(key) {
+    const { skill, attribute } = ETHERIA.defenses[key];
+
     const exhaustionPenalty = (this.exhaustion ?? 0) * 3;
 
-    const accuracy = this.skills?.accuracy.value ?? 0;
-    const skill = this.skills?.[defenseData.skill]?.value ?? 0;
-    const skillBonus = Math.floor(skill / 3);
+    const accuracy = this.skills.accuracy?.value ?? 0;
+    const skillValue = this.skills[skill]?.value ?? 0;
+    const attrMod = this.attributes[attribute]?.mod ?? 0;
 
-    const attrMod = attributes[defenseData.attribute]?.mod ?? 0;
-
-    const total =
-      attrMod +
-      accuracy +
-      skillBonus +
-      (defenseData.mod ?? 0) -
-      exhaustionPenalty;
-
-    return defenseData.override !== null ? defenseData.override : total;
-  }
-
-  #staminaRecovery() {
-    const { stamina } = this.recovers;
-    const { constitution } = this.attributes;
-
-    const base = Math.floor(constitution.value / 2);
-    const attributeMod = constitution.mod;
-    const mod = stamina.mod || 0;
-
-    return stamina.override !== null
-      ? stamina.override
-      : base + attributeMod + mod;
-  }
-
-  #manaRecovery() {
-    const { mana } = this.recovers;
-    const { wisdom } = this.attributes;
-
-    const base = Math.floor(wisdom.value / 2);
-    const attributeMod = wisdom.mod;
-    const mod = mana.mod || 0;
-
-    return mana.override !== null ? mana.override : base + attributeMod + mod;
+    return attrMod + accuracy + Math.floor(skillValue / 3) - exhaustionPenalty;
   }
 
   #calcModifer(stat) {
     const lookupTable = [
-      { minStat: 30, mod: 10 },
-      { minStat: 29, mod: 9 },
-      { minStat: 27, mod: 8 },
-      { minStat: 25, mod: 7 },
-      { minStat: 23, mod: 6 },
-      { minStat: 21, mod: 5 },
-      { minStat: 19, mod: 4 },
-      { minStat: 17, mod: 3 },
-      { minStat: 15, mod: 2 },
-      { minStat: 13, mod: 1 },
-      { minStat: 11, mod: 0 },
-      { minStat: 8, mod: -1 },
-      { minStat: 5, mod: -2 },
-      { minStat: 1, mod: -3 },
-      { minStat: 0, mod: -10 },
+      { min: 30, mod: 10 },
+      { min: 29, mod: 9 },
+      { min: 27, mod: 8 },
+      { min: 25, mod: 7 },
+      { min: 23, mod: 6 },
+      { min: 21, mod: 5 },
+      { min: 19, mod: 4 },
+      { min: 17, mod: 3 },
+      { min: 15, mod: 2 },
+      { min: 13, mod: 1 },
+      { min: 11, mod: 0 },
+      { min: 8, mod: -1 },
+      { min: 5, mod: -2 },
+      { min: 1, mod: -3 },
+      { min: 0, mod: -10 },
     ];
-    const entry = lookupTable.find((i) => stat >= i.minStat);
+    const entry = lookupTable.find((i) => stat >= i.min);
     return entry ? entry.mod : -10;
   }
 
