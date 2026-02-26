@@ -5,7 +5,7 @@ import {
   MODULE_ID,
   TEMPLATE_PATH,
 } from "../constants.mjs";
-import { enrichHTML, prepareActiveEffectCategories } from "../utils.mjs";
+import { enrichHTML } from "../utils.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
 const { ActorSheet } = foundry.applications.sheets;
@@ -38,8 +38,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     actions: {
       createAbility: EtheriaCharacterSheet.#onCreateAbility,
       createEffect: EtheriaCharacterSheet.#onCreateEffect,
+      createItem: EtheriaCharacterSheet.#onCreateItem,
       createRace: EtheriaCharacterSheet.#onCreateRace,
       toggleEffect: EtheriaCharacterSheet.#onToggleEffect,
+      toggleEquip: EtheriaCharacterSheet.#onToggleEquip,
       viewDoc: EtheriaCharacterSheet.#onViewDoc,
       deleteDoc: EtheriaCharacterSheet.#onDeleteDoc,
     },
@@ -81,6 +83,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     notes: {
       template: `${TEMPLATES_PATH_CHARACTER}/notes.hbs`,
     },
+    inventory: {
+      template: `${TEMPLATES_PATH_CHARACTER}/invetory.hbs`,
+    },
   };
 
   /** @override */
@@ -89,6 +94,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       tabs: [
         { id: "character", label: "Character" },
         { id: "resistances", label: "Resistances" },
+        { id: "inventory", label: "Inventory" },
         { id: "abilities", label: "Abilities" },
         { id: "spheres", label: "Spheres" },
         { id: "effects", label: "Effects" },
@@ -259,10 +265,32 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
    * @type {PartContextCallback}
    */
   async _prepareEffectsContext(context, _options) {
-    context.effects = prepareActiveEffectCategories(
-      this.actor.allApplicableEffects(),
-    );
-    return context;
+    const categories = {
+      temporary: {
+        type: "temporary",
+        label: "UTS.Effect.Temporary",
+        effects: [],
+      },
+      passive: { type: "passive", label: "UTS.Effect.Passive", effects: [] },
+      inactive: { type: "inactive", label: "UTS.Effect.Inactive", effects: [] },
+    };
+
+    for (const e of this.actor.allApplicableEffects()) {
+      if (!e.active) {
+        if (e.parent instanceof Item) continue;
+        categories.inactive.effects.push(e);
+      } else
+        e.isTemporary
+          ? categories.temporary.effects.push(e)
+          : categories.passive.effects.push(e);
+    }
+
+    for (const c of Object.values(categories)) {
+      c.label = game.i18n.localize(c.label);
+      c.effects.sort((a, b) => (a.sort || 0) - (b.sort || 0));
+    }
+
+    context.effects = categories;
   }
 
   /**
@@ -316,6 +344,34 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       ),
     );
     context.resourcesChoices = this.actor.system.getResourcesChoices();
+  }
+
+  /**
+   * Prepare render context for the Inventory part.
+   * @type {PartContextCallback}
+   */
+  async _prepareInventoryContext(context, _options) {
+    const categories = {
+      equipped: {
+        type: "equipped",
+        label: "Equipped",
+        items: [],
+      },
+      unequipped: {
+        type: "unequipped",
+        label: "Unequipped",
+        items: [],
+      },
+    };
+
+    const { ability, race } = DOC_SUB_TYPES.items;
+
+    for (const i of this.actor.items) {
+      if ([ability, race].includes(i.type)) continue;
+      if (i.system.equipped) categories.equipped.items.push(i);
+      else categories.unequipped.items.push(i);
+    }
+    context.inventory = categories;
   }
 
   /**
@@ -413,10 +469,44 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
    * @this {EtheriaCharacterSheet}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
+  static async #onCreateItem(event, target) {
+    const { section } = target.closest("[data-section]")?.dataset ?? {};
+    const isEquipped = section === "equipped";
+
+    const { armor, weapon, consumable, misc } = DOC_SUB_TYPES.items;
+
+    /**@type {foundry.documents.Item} */
+    const cls = foundry.documents.Item.implementation;
+    return cls.createDialog(
+      {
+        system: { equipped: isEquipped },
+      },
+      {
+        parent: this.actor,
+        pack: this.actor.pack,
+      },
+      { types: [armor, weapon, consumable, misc] },
+    );
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
   static #onToggleEffect(_event, target) {
     const { docUuid } = target.closest("[data-doc-uuid]").dataset ?? {};
     const effect = foundry.utils.fromUuidSync(docUuid);
     effect.update({ disabled: !effect.disabled });
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onToggleEquip(_event, target) {
+    const { docUuid } = target.closest("[data-doc-uuid]").dataset ?? {};
+    const item = foundry.utils.fromUuidSync(docUuid);
+    item.update({ "system.equipped": !item.system.equipped });
   }
 
   /**

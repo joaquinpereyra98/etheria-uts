@@ -1,4 +1,4 @@
-import { enrichHTML, prepareActiveEffectCategories } from "../../utils.mjs";
+import { enrichHTML } from "../../utils.mjs";
 import {
   EFFECT_DATA_DEFAULT,
   MODULE_ID,
@@ -141,8 +141,35 @@ export default class EtheriaItemSheet extends HandlebarsApplicationMixin(
    * @type {PartContextCallback}
    */
   async _prepareEffectsContext(context, _options) {
-    context.effects = prepareActiveEffectCategories(this.item.effects);
-    return context;
+    const categories = {
+      temporary: {
+        type: "temporary",
+        label: game.i18n.localize("UTS.Effect.Temporary"),
+        effects: [],
+      },
+      passive: {
+        type: "passive",
+        label: game.i18n.localize("UTS.Effect.Passive"),
+        effects: [],
+      },
+      inactive: {
+        type: "inactive",
+        label: game.i18n.localize("UTS.Effect.Inactive"),
+        effects: [],
+      },
+    };
+
+    for (const e of this.item.effects) {
+      if (e.disabled) categories.inactive.effects.push(e);
+      else if (e.isTemporary) categories.temporary.effects.push(e);
+      else categories.passive.effects.push(e);
+    }
+
+    for (const c of Object.values(categories)) {
+      c.effects.sort((a, b) => (a.sort || 0) - (b.sort || 0));
+    }
+
+    context.effects = categories;
   }
 
   /** @inheritdoc */

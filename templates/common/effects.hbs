@@ -1,16 +1,16 @@
 <section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
   <div class="tab-container flexcol">
     {{#each effects as |section sid|}}
-    <section class="glass-panel skills-list stat-list flexcol" data-effect-type="{{section.type}}">
-      <div class="effect effects-header flexrow">
-        <div class="effect-label flexrow">
+    <section class="glass-panel stat-list flexcol" data-effect-type="{{section.type}}">
+      <div class="effect effects-header">
+        <div class="effect-label">
           {{localize section.label}}
         </div>
         <div class="effect-source">
           {{localize "EFFECT.FIELDS.origin.label"}}
         </div>
         <div class="effect-duration">{{ifThen (ne section.type "passive" ) (localize "EFFECT.TABS.duration") ""}}</div>
-        <div class="document-controls flexrow">
+        <div class="document-controls">
           <a class="effect-controls" data-action="createEffect"
             data-tooltip="{{localize 'DOCUMENT.Create' type=(localize 'DOCUMENT.ActiveEffect')}}"
             data-img="icons/svg/aura.svg">
@@ -20,14 +20,37 @@
       </div>
       <div class="effect-list">
         {{#each section.effects as |effect|}}
-        <div class="effect flexrow" data-doc-uuid="{{effect.uuid}}">
-          <div class="effect-label flexrow">
+        <div class="effect" data-doc-uuid="{{effect.uuid}}">
+          <div class="effect-label">
             <img class="effect-image" src="{{effect.img}}" height="24" width="24">
-            <div class="effect-name">{{effect.name}}</div>
+            <div class="flexcol">
+              <div class="effect-name">{{effect.name}}</div>
+              {{#if (eq @root.document.documentName "Item")}}
+              <div class="effect-condition">
+                <span class="tag" data-tooltip="Apply On: {{lookup @root.config.applyEffect effect.system.apply}}">
+                  {{#if (eq effect.system.apply "equip")}}
+                  <i class="fa-solid fa-user-shield"></i>
+                  {{else}}
+                  <i class="fa-solid fa-hand-sparkles"></i>
+                  {{/if}}
+                  {{lookup @root.config.applyEffect effect.system.apply}}
+                </span>
+                <span class="tag" data-tooltip="Apply To: {{lookup @root.config.targetEffect effect.system.target}}">
+                  {{#if (eq effect.system.target "self")}}
+                  <i class="fa-solid fa-street-view"></i>
+                  {{else}}
+                  <i class="fa-solid fa-crosshairs"></i>
+                  {{/if}}
+                  {{lookup @root.config.targetEffect effect.system.target}}
+                </span>
+              </div>
+              {{/if}}
+            </div>
           </div>
           <div class="effect-source">{{effect.sourceName}}</div>
           <div class="effect-duration">{{ifThen effect.isTemporary effect.duration.label ""}}</div>
-          <div class="document-controls flexrow">
+
+          <div class="document-controls">
             {{#if @root.editable}}
             <a class="effect-control" data-action="toggleEffect" data-tooltip="{{localize 'UTS.Effect.Toggle'}}">
               {{#if effect.disabled}}

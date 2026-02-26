@@ -9,13 +9,17 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
     };
   }
 
+  get metadata () {
+    return this.constructor.metadata;
+  }
+
   /**@override */
   static defineSchema() {
     const fields = foundry.data.fields;
 
     const schema = {};
     if (EtheriaItemData.metadata.isEquippable)
-      schema.isEquipped = new fields.BooleanField({
+      schema.equipped = new fields.BooleanField({
         initial: false,
         label: "is Equipped?",
       });

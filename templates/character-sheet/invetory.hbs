@@ -1,0 +1,65 @@
+<section class="tab{{#if tab.active}} active{{/if}} etheria-uts" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+  <div class="tab-container flexcol">
+    <section class="currencies-section">
+      <div class="currency-box stat-box flex-center glass-panel" data-tooltip="Argents">
+        <i class="fa-solid fa-coins"></i>
+         {{formInput systemFields.currencies.fields.argents value=system.currencies.argents
+        classes="etheria-input"}}
+      </div>
+    </section>
+    {{#each inventory as |section sid|}}
+    <section class="glass-panel stat-list flexcol" data-section="{{sid}}">
+
+      <div class="panel-header flexrow">
+        <div class="label">{{localize section.label}}</div>
+        <div class="controls">
+          <a class="clickable-anchor item-control" data-action="createItem" data-tooltip="Add Item">
+            <i class="fas fa-plus"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="inventory-items scrollable flexcol">
+        {{#each section.items as |item|}}
+        <div class="stat-row flexrow" data-doc-uuid="{{item.uuid}}">
+
+          <img class="stat-icon" src="{{item.img}}" alt="{{item.name}}">
+          <span class="stat-label">{{item.name}}</span>
+
+          <div class="mod-value">
+            {{#if item.system.charges}}
+            <span title="Uses Remaining">{{item.system.charges.value}} / {{item.system.charges.max}}</span>
+            {{/if}}
+          </div>
+
+          <div class="controls flexrow">
+            {{#if @root.editable}}
+
+            {{#if item.system.charges}}
+            <a class="toggle-equip clickable-anchor item-control" data-action="consumeItem" data-tooltip="Consume item">
+              <i class="{{item.system.metadata.icon}}"></i>
+            </a>
+            {{else}}
+            <a class="toggle-equip clickable-anchor item-control" data-action="toggleEquip"
+              data-tooltip="{{#if item.system.equipped}}Unequip{{else}}Equip{{/if}}">
+              <i class="{{item.system.metadata.icon}}"></i>
+            </a>
+            {{/if}}
+
+            <a class="clickable-anchor item-control" data-action="viewDoc" data-tooltip="Edit Item">
+              <i class="fas fa-edit"></i>
+            </a>
+
+            <a class="clickable-anchor item-control" data-action="deleteDoc" data-tooltip="Delete Item">
+              <i class="fas fa-trash"></i>
+            </a>
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+    {{/each}}
+
+  </div>
+</section>

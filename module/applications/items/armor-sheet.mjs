@@ -17,7 +17,7 @@ export default class EtheriaArmorSheet extends EtheriaItemSheet {
   async _prepareHeaderContext(context, _options) {
     const system = this.item.system;
     const fields = [
-      "isEquipped",
+      "equipped",
       "armorValue",
       "armorType",
       "requirementAttribute",

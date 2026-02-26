@@ -82,6 +82,10 @@ export default class EtheriaCharacterData extends TypeDataModel {
         description: new fields.HTMLField(),
         gmNotes: new fields.HTMLField(),
       }),
+
+      currencies: new fields.SchemaField({
+        argents: new fields.NumberField({integer: true, initial: 0, min: 0}),
+      })
     };
   }
 

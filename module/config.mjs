@@ -222,3 +222,13 @@ ETHERIA.armorType = {
   heavy: { label: "Heavy" },
   superHeavy: { label: "Super Heavy" },
 };
+
+ETHERIA.applyEffect = {
+  equip: "On Equip",
+  use: "On Use",
+};
+
+ETHERIA.targetEffect = {
+  self: "Self",
+  targets: "Targets",
+};
