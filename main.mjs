@@ -12,9 +12,12 @@ Hooks.once("init", () => {
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
   CONFIG.Item.documentClass = documents.EtheriaItem;
-
+  
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
+  CONFIG.ChatMessage.dataModels.base = data.messages.StandardData;
+  
+  CONFIG.ChatMessage.parts = data.messages.parts;
 
   for(const model of Object.values(data.items)) {
     CONFIG.Item.dataModels[model.metadata.type] = model

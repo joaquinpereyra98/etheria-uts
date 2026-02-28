@@ -39,6 +39,11 @@ export default class EtheriaAbilityData extends BoundAbilitiesMixin(EtheriaItemD
         value: new fields.NumberField({ integer: true }),
         resource: new fields.StringField(),
       }),
+      spheres: new fields.SetField(new fields.StringField({
+        required: true,
+        blank: true, 
+        choices: ETHERIA.magicSpheres,
+      }), { label: "Magic Spheras"}),
       range: new fields.StringField({ blank: true, label: "Range" }),
       area: new fields.StringField({ blank: true, label: "Area" }),
       damages: new fields.TypedObjectField(new DamageField()),
@@ -65,5 +70,9 @@ export default class EtheriaAbilityData extends BoundAbilitiesMixin(EtheriaItemD
         await doc.update({ "system.boundAbilities": updatedAbilities });
       }
     }
+  }
+
+  get isSpell() {
+    return !!this.spheres.size;
   }
 }
