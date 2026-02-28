@@ -192,11 +192,12 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
   async _prepareSecondaryStatsContext(context, _options) {
     const skills = this.actor.system.skills;
     context.skills = Object.entries(skills).reduce((acc, [key, data]) => {
-      acc[data.attribute] ??= {
-        label: ETHERIA.attributes[data.attribute]?.label,
+      const attributeKey = ETHERIA.skills[key].attribute;
+      acc[attributeKey] ??= {
+        label: ETHERIA.attributes[attributeKey]?.label,
         skills: {},
       };
-      acc[data.attribute].skills[key] = {
+      acc[attributeKey].skills[key] = {
         field: this.actor.system.schema.getField(`skills.${key}.value`),
         total: data.total,
         value: data.value,

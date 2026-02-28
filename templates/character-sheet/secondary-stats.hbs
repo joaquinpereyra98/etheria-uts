@@ -25,6 +25,7 @@
     </section>
     <hr class="etheria-hr">
     <section class="skills-secttion">
+      {{log skills}}
       {{#each skills as |attribute|}}
       <section class="glass-panel skills-list stat-list flexcol">
         <div class="panel-header">
@@ -37,7 +38,7 @@
           <div class="mod-value" data-tooltip="{{field.label}} Total">
             ({{numberFormat total sign=true}})
           </div>
-          <div>
+          <div class="controls">
             <button type="button" class="etheria-button icon" data-tooltip="Roll {{field.label}}">
               <i class="fa-solid fa-dice-d20"></i>
             </button>
