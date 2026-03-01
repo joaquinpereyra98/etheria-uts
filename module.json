@@ -33,23 +33,26 @@
     },
     "Item": {
       "ability": {
-        "htmlFields": ["description"]
+        "htmlFields": ["description.value", "description.gmNotes"]
       },
       "armor": {
-        "htmlFields": ["description"]
+        "htmlFields": ["description.value", "description.gmNotes"]
       },
       "consumable": {
-        "htmlFields": ["description"]
+        "htmlFields": ["description.value", "description.gmNotes"]
       },
       "misc": {
-        "htmlFields": ["description"]
+        "htmlFields": ["description.value", "description.gmNotes"]
       },
       "race": {
-        "htmlFields": ["description"]
+        "htmlFields": ["description.value", "description.gmNotes"]
       },
       "weapon": {
-        "htmlFields": ["description"]
+        "htmlFields": ["description.value", "description.gmNotes"]
       }
+    },
+    "ChatMessage": {
+      "roll": {}
     }
   },
   "relationships": {

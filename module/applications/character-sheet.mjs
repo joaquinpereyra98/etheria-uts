@@ -1,10 +1,5 @@
 import { ETHERIA } from "../config.mjs";
-import {
-  DOC_SUB_TYPES,
-  EFFECT_DATA_DEFAULT,
-  MODULE_ID,
-  TEMPLATE_PATH,
-} from "../constants.mjs";
+import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
 import { enrichHTML } from "../utils.mjs";
 
 const { HandlebarsApplicationMixin } = foundry.applications.api;
@@ -171,7 +166,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         key,
         {
           field: this.actor.system.schema.getField(`attributes.${key}.value`),
-          raw: foundry.utils.getProperty(this.actor.system._source, `attributes.${key}.value`),
+          raw: foundry.utils.getProperty(
+            this.actor.system._source,
+            `attributes.${key}.value`,
+          ),
           value: data.value,
           mod: data.mod,
         },
@@ -432,19 +430,14 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const { effectType } = target.closest("[data-effect-type]")?.dataset ?? {};
     const cls = foundry.documents.ActiveEffect.implementation;
 
-    const docData = foundry.utils.mergeObject(
-      EFFECT_DATA_DEFAULT,
-      {
-        name: cls.defaultName({
-          type: "base",
-          parent: this.document,
-        }),
-        img: cls.getDefaultArtwork()?.img,
-        disabled: effectType === "inactive",
-        origin: this.document.uuid,
-      },
-      { inplace: false },
-    );
+    const docData = {
+      name: cls.defaultName({
+        type: "base",
+        parent: this.document,
+      }),
+      disabled: effectType === "inactive",
+      origin: this.document.uuid,
+    };
 
     if (effectType === "temporary") {
       if (game.combat) {

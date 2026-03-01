@@ -54,16 +54,15 @@ export default class EtheriaActor extends Cls {
     const rollData = this.getRollData();
 
     const roll = foundry.dice.Roll.create(formula, rollData);
-    await roll.evaluate();
 
-    roll.toMessage({
-      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({
+    const messageData = {
+      flavor: `<b>Skill Check</b> - ${config.label}`,
+      speaker: ChatMessage.getSpeaker({
         actor: this,
       }),
-      flavor: `<b>Skill Check</b> - ${config.label}`,
-    });
+    };
 
-    return roll;
+    return await roll.toMessage(messageData);
   }
 
   /**
@@ -189,7 +188,9 @@ export default class EtheriaActor extends Cls {
         render: (_event, dialog) => {
           dialog.element.querySelectorAll(".selectable-skill").forEach((el) => {
             el.addEventListener("click", (ev) => {
-              const checkbox = ev.currentTarget.closest(".selectable-skill").querySelector('input[type="checkbox"]');
+              const checkbox = ev.currentTarget
+                .closest(".selectable-skill")
+                .querySelector('input[type="checkbox"]');
               checkbox.checked = !checkbox.checked;
             });
           });
@@ -200,12 +201,14 @@ export default class EtheriaActor extends Cls {
             icon: "fa-solid fa-bolt-lightning",
             action: "use",
             class: "etheria-button",
-            callback: (_event, _button, dialog) =>
-              Array.from(
-                dialog.element.querySelectorAll(".selectable-skill"),
-              ).map((el) => el.dataset.skillId),
+            callback: (_event, button, _dialog) => {
+              const formData = new foundry.applications.ux.FormDataExtended(button.form).object;
+              return Object.keys(formData).filter(k => formData[k]);
+            }
           },
         ],
       })) ?? [];
+
+    return await Promise.all(skillsIds.map(skillId => this.rollSkillCheck(skillId)));
   }
 }

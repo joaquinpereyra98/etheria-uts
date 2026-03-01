@@ -2,6 +2,7 @@ import * as data from "./module/data/_module.mjs";
 import * as documents from "./module/documents/_module.mjs";
 import * as applications from "./module/applications/_module.mjs";
 import * as hooks from "./module/hooks/_module.mjs";
+import * as dice from "./module/dice/_module.mjs";
 
 import { DOC_SUB_TYPES, MODULE_ID } from "./module/constants.mjs";
 import { ETHERIA } from "./module/config.mjs";
@@ -17,10 +18,9 @@ Hooks.once("init", () => {
   
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
+  CONFIG.ActiveEffect.typeLabels.base = foundry.documents.ActiveEffect.metadata.label;
   
-  CONFIG.ChatMessage.dataModels.standard = data.messages.StandardData;
-  
-  CONFIG.ChatMessage.parts = data.messages.parts;
+  CONFIG.ChatMessage.dataModels[DOC_SUB_TYPES.messages.roll] = data.messages.EtheriaRollMessage;
 
   for (const model of Object.values(data.items)) {
     CONFIG.Item.dataModels[model.metadata.type] = model;
@@ -28,6 +28,8 @@ Hooks.once("init", () => {
   }
 
   CONFIG.Actor.defaultType = DOC_SUB_TYPES.character;
+
+  CONFIG.Dice.rolls.unshift(dice.Etheriaroll);
 
   const { DocumentSheetConfig } = foundry.applications.apps;
 
