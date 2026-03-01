@@ -1,4 +1,4 @@
-import { TEMPLATE_PATH } from "../../constants.mjs";
+import { MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
 import MessagePart from "./parts/base.mjs";
 
 const { TypeDataModel } = foundry.abstract;
@@ -164,7 +164,7 @@ export default class EtheriaStandardData extends TypeDataModel {
     frame.dataset.messageId = id;
 
     const cssClasses = [
-      ryuutama.id,
+      MODULE_ID,
       "chat-message",
       "message",
       "flexcol",

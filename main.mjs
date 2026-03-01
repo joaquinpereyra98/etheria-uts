@@ -15,7 +15,8 @@ Hooks.once("init", () => {
   
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
-  CONFIG.ChatMessage.dataModels.base = data.messages.StandardData;
+  
+  CONFIG.ChatMessage.dataModels.standard = data.messages.StandardData;
   
   CONFIG.ChatMessage.parts = data.messages.parts;
 
