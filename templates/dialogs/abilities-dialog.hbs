@@ -1,0 +1,11 @@
+<section class="abilities-list flexcol">
+  {{#each abilities as |ability|}}
+  <div class="stat-box glass-panel selectable-ability" data-ability-id="{{ability.id}}">
+    <img class="stat-icon" src="{{ability.img}}" alt="{{ability.name}}">
+    <label class="stat-label">{{ability.name}}</label>
+    <div class="constrols">
+      <a class="open-doc fa-solid fa-globe" data-ability-uuid="{{ability.uuid}}"></a>
+    </div>
+  </div>
+  {{/each}}
+</section>

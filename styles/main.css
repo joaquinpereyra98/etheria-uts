@@ -935,6 +935,7 @@
               text-align: left;
             }
           }
+
           .etheria-checkboxes {
             margin: 10px 5px;
           }
@@ -942,6 +943,7 @@
 
         .ability-list {
           margin-bottom: 5px;
+
           .panel-header {
             .label {
               text-align: left;
@@ -1070,6 +1072,125 @@
           --size: 2rem;
         }
       }
+    }
+  }
+
+  &.action-bar {
+    --offset: 0;
+    transition: transform 0.3s ease-out;
+    transform: translateX(var(--offset));
+    margin-bottom: 10px;
+
+    >div {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      pointer-events: all;
+      width: 240px;
+      height: 66px;
+      background-repeat: no-repeat;
+      background-position: center;
+
+      background-size: contain;
+
+      border: none;
+      cursor: pointer;
+      background-color: transparent;
+      transition: all 0.3s ease;
+      filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.5));
+      opacity: 0.7;
+
+      &:hover {
+        filter: brightness(1.05) drop-shadow(0 0 8px gold);
+        transform: scale(1.05);
+        opacity: 1;
+      }
+
+      &:focus {
+        outline: none;
+        box-shadow: none;
+      }
+    }
+
+    .ability-button {
+      background-image: url("../assets/action-bar/abilities.webp");
+    }
+
+    .secondaries-button {
+      background-image: url("../assets/action-bar/secondaries.webp");
+    }
+  }
+
+  &.abilities-dialog {
+    .window-content {
+      padding: 0.5rem;
+    }
+
+    .abilities-list {
+      display: grid;
+      grid-template-columns: repeat(2, 150px);
+      max-height: 200px;
+      gap: 5px;
+    }
+
+    .selectable-ability {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+
+      .stat-label {
+        flex: 1;
+        cursor: inherit;
+      }
+
+      &.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+      }
+    }
+  }
+
+  &.skills-dialog {
+    .window-content {
+      padding: 0.5rem;
+
+      form.dialog-form {
+        height: 100%;
+        gap: 0.5rem;
+
+        .dialog-content {
+          overflow: hidden;
+
+          .skills-section {
+            padding-right: 0;
+            margin-right: 0;
+            --color-scrollbar: var(--bg-ternary);
+          }
+        }
+      }
+    }
+
+    .stat-row {
+      grid-template-columns: auto minmax(50px, 1fr) auto;
+
+      >* {
+        pointer-events: none;
+      }
+
+      &:has(.etheria-checkbox:checked) {
+        font-weight: bold;
+        .stat-label {
+          color: var(--accent) !important;
+        }
+      }
+    }
+
+    .skills-list {
+      margin: 10px;
     }
   }
 }

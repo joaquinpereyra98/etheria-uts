@@ -9,6 +9,8 @@ import { ETHERIA } from "./module/config.mjs";
 Hooks.once("init", () => {
   CONFIG.ETHERIA = ETHERIA;
 
+  CONFIG.ui[`${MODULE_ID}.ActionBar`] = applications.ux.ActionBar;
+
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
   CONFIG.Item.documentClass = documents.EtheriaItem;
@@ -16,8 +18,8 @@ Hooks.once("init", () => {
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
 
-  for(const model of Object.values(data.items)) {
-    CONFIG.Item.dataModels[model.metadata.type] = model
+  for (const model of Object.values(data.items)) {
+    CONFIG.Item.dataModels[model.metadata.type] = model;
     CONFIG.Item.typeIcons[model.metadata.type] = model.metadata.icon;
   }
 
@@ -45,15 +47,21 @@ Hooks.once("init", () => {
   ];
 
   for (const [type, sheet] of itemSheets) {
-    DocumentSheetConfig.registerSheet(foundry.documents.Item, MODULE_ID, sheet, {
-      types: [type],
-      makeDefault: true,
-    });
+    DocumentSheetConfig.registerSheet(
+      foundry.documents.Item,
+      MODULE_ID,
+      sheet,
+      {
+        types: [type],
+        makeDefault: true,
+      },
+    );
   }
 });
 
 Hooks.once("ready", () => {
   foundry.utils.setProperty(game, "system.grid.units", "Tiles");
-})
+  ui[`${MODULE_ID}.ActionBar`].render({ force: true });
+});
 
-Hooks.on("renderActiveEffectConfig", hooks.onRenderActiveEffectConfig)
+Hooks.on("renderActiveEffectConfig", hooks.onRenderActiveEffectConfig);
