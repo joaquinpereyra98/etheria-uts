@@ -1,0 +1,16 @@
+<section class="skills-section scrollable">
+  {{#each secondaries as |attribute|}}
+  <section class="glass-panel skills-list stat-list flexcol">
+    <div class="panel-header">
+      {{attribute.label}}
+    </div>
+    {{#each attribute.skills}}
+    <div class="stat-row selectable-skill">
+      <input type="checkbox" class="etheria-checkbox" name="{{@key}}">
+      <div class="stat-label">{{localize label}}</div>
+      <div class="mod-value">({{numberFormat total sign=true}})</div>
+    </div>
+    {{/each}}
+  </section>
+  {{/each}}
+</section>

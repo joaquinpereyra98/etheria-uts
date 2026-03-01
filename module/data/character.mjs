@@ -10,15 +10,6 @@ import { LocalDocumentField, FormulaField } from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
 import { ETHERIA } from "../config.mjs";
 
-/**
- * @typedef {object} MyCoolSchema
- * @property {number} level
- * @property {exhaustion} exhaustion
- */
-
-/**
- * @extends {foundry.abstract.TypeDataModel<MyCoolSchema, foundry.documents.Actor>}
- */
 export default class EtheriaCharacterData extends TypeDataModel {
   static defineSchema() {
     const { fields } = foundry.data;
@@ -151,6 +142,12 @@ export default class EtheriaCharacterData extends TypeDataModel {
     return attrMod + accuracy + Math.floor(skillValue / 3) - exhaustionPenalty;
   }
 
+  /**
+   * Calculates a numerical modifier based on a provided atribute
+   * @private
+   * @param {number} stat - The base stat.
+   * @returns {number} The corresponding modifier value.
+   */
   #calcModifer(stat) {
     const lookupTable = [
       { min: 30, mod: 10 },
@@ -194,7 +191,28 @@ export default class EtheriaCharacterData extends TypeDataModel {
     return Object.fromEntries(entries);
   }
 
-  get race() {
-    return foundry.utils.fromUuidSync(this.race);
+  /**
+   * Prepares data to be accessible within roll formulas.
+   * @returns {object} The prepared roll data.
+   */
+  getRollData() {
+    const data = foundry.utils.deepClone(this);
+
+    data.exhaustion = (data.exhaustion ?? 0) * 3;
+
+    for (let [k, v] of Object.entries(data.attributes)) {
+      const key = ETHERIA.attributes[k].abrr;
+      data[key] = v;
+    }
+
+    for (const [k, v] of Object.entries({
+      ...data.resources,
+      ...data.resourcesExtra,
+    })) {
+      data[k] = { value: v.value };
+      if (v.max !== null) data[k].max = v.max;
+    }
+
+    return data;
   }
 }
