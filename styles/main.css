@@ -1183,6 +1183,7 @@
 
       &:has(.etheria-checkbox:checked) {
         font-weight: bold;
+
         .stat-label {
           color: var(--accent) !important;
         }
@@ -1191,6 +1192,61 @@
 
     .skills-list {
       margin: 10px;
+    }
+  }
+
+  .etheria-item-card {
+    margin: 5px;
+    .item-header {
+      gap: 5px;
+
+      .img-portrait {
+        flex: 0 0 40px;
+        height: 40px;
+        padding: 2px;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-thin);
+        border: none;
+        object-fit: cover;
+      }
+
+      img.item-img {
+        aspect-ratio: 1;
+      }
+
+      .item-name {
+        font-size: 1rem;
+        font-weight: bold;
+      }
+    }
+
+    .item-actions {
+      gap: var(--gap-md);
+    }
+    .item-action {
+      display: flexs;
+      align-items: center;
+      gap: var(--gap-sm);
+
+      .img-portrait {
+        flex: 0 0 30px;
+        height: 30px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        i.icon {
+          font-size: 1.3rem;
+        }
+        img.item-img {
+          margin: 1px;
+          border-radius: var(--radius-sm);
+          box-shadow: var(--shadow-thin);
+          aspect-ratio: 1;
+        }
+      }
+      .action-label {
+        font-size: 1rem;
+      }
     }
   }
 }

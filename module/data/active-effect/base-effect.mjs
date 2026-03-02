@@ -63,12 +63,31 @@ export default class EtheriaBaseEffect extends foundry.abstract.TypeDataModel {
    * @type {boolean}
    */
   get isSuppressed() {
+    // If it's actors effect not suppressed
     if (!this.item) return false;
-    if (this.target === "targets") return true;
 
-    const isPassive = this.apply === "equip";
-    const notEquipped = !this.item.system.equipped;
+    // If it's an Action, it's suppressed by default
+    if (this.isAction) return true;
 
-    return isPassive && notEquipped;
+    // Static effects are suppressed if the item isn't equipped
+    return !this.item.system.equipped;
+  }
+
+  /**
+   * Defines the operational category of the effect.
+   * @type {string}
+   */
+  get category() {
+    const type = this.apply === "use" ? "action" : "static";
+    const recipient = this.target === "self" ? "Self" : "Target";
+    return `${type}${recipient}`;
+  }
+
+  /**
+   * Helper to identify if this effect requires an explicit action to trigger.
+   * @type {boolean}
+   */
+  get isAction() {
+    return this.apply === "use";
   }
 }

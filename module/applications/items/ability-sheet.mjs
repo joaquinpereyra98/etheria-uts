@@ -42,7 +42,7 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
    */
   async _prepareHeaderContext(context, _options) {
     const system = this.item.system;
-    const fields = ["actionType", "range", "area"];
+    const fields = ["actionType", "range", "area", "attribute"];
 
     context.itemFields = fields.reduce((obj, key) => {
       obj[key] = {

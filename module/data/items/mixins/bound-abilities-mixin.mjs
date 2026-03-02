@@ -186,17 +186,19 @@ export default function BoundAbilitiesMixin(Base) {
         if (itemsToDelete.length) {
           collection.documentClass.deleteDocuments(itemsToDelete, {
             parent: collection.model,
-            pack: collection.model.pack
-          })
+            pack: collection.model.pack,
+          });
 
           ui.notifications.warn(
             `Deleted ${itemsToDelete.length} bound abilities because their parent was deleted.`,
           );
         }
       } else {
-        const itemsToUpdate = await Promise.all(boundAbilities.map( u => foundry.utils.fromUuid(u)))
+        const itemsToUpdate = await Promise.all(
+          boundAbilities.map((u) => foundry.utils.fromUuid(u)),
+        );
         if (itemsToUpdate) {
-          itemsToUpdate.forEach(i => i.update({"system.bound": ""}));
+          itemsToUpdate.forEach((i) => i.update({ "system.bound": "" }));
         }
       }
     }
@@ -209,6 +211,26 @@ export default function BoundAbilitiesMixin(Base) {
       return Array.from(this.boundAbilities)
         .map((uuid) => fromUuidSync(uuid))
         .filter(Boolean);
+    }
+
+    /**@inheritdoc */
+    getCardActions() {
+      const actions = super.getCardActions();
+
+      if (this.boundAbilities.size > 0) {
+        for (const doc of this.boundAbilitiesDocs) {
+          actions[doc.id] = {
+            action: "useDoc",
+            label: `Use ${doc.name} ability`,
+            icon: doc.img,
+            dataset: {
+              docUuid: doc.uuid,
+            },
+          };
+        }
+      }
+
+      return actions;
     }
   };
 }

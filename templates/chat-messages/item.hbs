@@ -1,0 +1,39 @@
+<div class="etheria-item-card" data-doc-uuid="{{system.item.uuid}}">
+  <header class="item-header flexrow">
+    <div class="img-portrait">
+      <img class="item-img" src="{{system.item.img}}" alt="{{system.item.name}}" />
+    </div>
+    <div class="flexcol">
+      <span class="item-name">{{system.item.name}}</span>
+      {{#if document.flavor}}
+      <span class="flavor">{{{document.flavor}}}</span>
+      {{/if}}
+    </div>
+  </header>
+
+
+  {{#if description}}
+  <hr class="etheria-hr">
+  <div class="item-description">
+    {{{description}}}
+  </div>
+  {{/if}}
+
+  {{#if actions}}
+  <hr class="etheria-hr">
+  <div class="item-actions flexcol">
+    {{#each actions}}
+    <button class="item-action etheria-button" data-action="{{action}}">
+      <div class="img-portrait">
+        {{#if isIcon}}
+        <i class="icon {{icon}}"></i>
+        {{else}}
+        <img class="item-img" src="{{icon}}" alt="{{label}}" />
+        {{/if}}
+      </div>
+      <span class="action-label">{{label}}</span>
+    </button>
+    {{/each}}
+  </div>
+  {{/if}}
+</div>

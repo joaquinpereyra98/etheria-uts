@@ -1,15 +1,26 @@
+/**
+ * Schema definition for the actions field.
+ * @typedef {Object} CardAction A collection of action configurations.
+ * @property {string} actions.action - The unique identifier for the action.
+ * @property {string} [actions.label=""] - The display text for the action button.
+ * @property {string} [actions.icon=""] - The FontAwesome class for the icon.
+ * @property {Record<string, string>} [actions.dataset] - Additional data attributes to be injected into the DOM.
+ */
+
 export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
-  /** @inheritDoc */
+  /** Default metadata which applies to each instance of this Document sub-type */
   static get metadata() {
     return {
       icon: "",
       img: foundry.documents.Item.DEFAULT_ICON,
       type: "base",
       isEquippable: true,
+      hasAccuracyRoll: false,
     };
   }
 
-  get metadata () {
+  /** Default metadata which applies to each instance of this Document sub-type */
+  get metadata() {
     return this.constructor.metadata;
   }
 
@@ -28,5 +39,39 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
       gmNotes: new fields.HTMLField(),
     });
     return schema;
+  }
+
+  /**
+   * Returns the record of action objects for the Item Card Messages.
+   * @returns {Record<String, CardAction>}
+   */
+  getCardActions() {
+    const actions = {};
+    if (this.constructor.metadata.hasAccuracyRoll) {
+      actions.rollAccuracy = {
+        action: "rollAccuracy",
+        label: "Roll Accuracy",
+        icon: "fa-solid fa-crosshairs",
+      };
+    }
+
+    if (Object.keys(this.damages || {}).length > 0) {
+      actions.applyDamage = {
+        action: "rollDamage",
+        label: "Roll Damage",
+        icon: "fa-solid fa-explosion",
+      };
+    }
+
+    const actionsEffects = this.parent.getActionsEffect() ?? [];
+    if(actionsEffects.length > 0) {
+      actions.applyEffects = {
+        action: "applyEffects",
+        label: "Apply Effects",
+        icon: "fa-solid fa-sparkles",
+      };
+    }
+
+    return actions;
   }
 }

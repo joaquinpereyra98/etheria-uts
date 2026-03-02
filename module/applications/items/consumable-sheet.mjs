@@ -16,7 +16,7 @@ export default class EtheriaConsumableSheet extends EtheriaItemSheet {
    */
   async _prepareHeaderContext(context, _options) {
     const system = this.item.system;
-    const resources = ["charges"];
+    const resources = ["uses"];
     context.resources = resources.reduce((obj, key) => {
       obj[key] = {
         field: system.schema.getField(key),

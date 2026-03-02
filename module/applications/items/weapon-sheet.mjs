@@ -1,21 +1,39 @@
+import { TEMPLATE_PATH } from "../../constants.mjs";
+import { DamageData } from "../../data/shared/damage-field.mjs";
 import EtheriaItemSheet from "./_item-sheet.mjs";
 
 /**
  * @import {PartContextCallback} from "../_types.mjs";
  */
 
-export default class EtheriaArmorSheet extends EtheriaItemSheet {
-
-    /** @inheritdoc */
+export default class EtheriaWeaponSheet extends EtheriaItemSheet {
+  /** @inheritdoc */
   static DEFAULT_OPTIONS = {
-    window: {
-      icon: "fa-solid fa-axe"
-    }
+   actions: {
+      createDamage: EtheriaWeaponSheet.#onCreateDamage,
+      deleteDamage: EtheriaWeaponSheet.#onDeleteDamage,
+    },
   };
 
   /** @override */
   static PARTS = {
     ...super.PARTS,
+    mechanics: {
+      template: `${TEMPLATE_PATH}/item-sheet/weapon/mechanics.hbs`,
+      scrollable: [""],
+    },
+  };
+
+  /** @override */
+  static TABS = {
+    primary: {
+      tabs: [
+        { id: "notes", label: "Notes" },
+        { id: "mechanics", label: "Mechanics" },
+        { id: "effects", label: "Effects" },
+      ],
+      initial: "notes",
+    },
   };
 
   /**
@@ -24,14 +42,7 @@ export default class EtheriaArmorSheet extends EtheriaItemSheet {
    */
   async _prepareHeaderContext(context, _options) {
     const system = this.item.system;
-    const fields = [
-      "equipped",
-      "damageFormula",
-      "damageType",
-      "hands",
-      "attribute",
-      "actionType",
-    ];
+    const fields = ["equipped", "hands", "attribute", "actionType"];
 
     context.itemFields = fields.reduce((obj, key) => {
       obj[key] = {
@@ -40,5 +51,38 @@ export default class EtheriaArmorSheet extends EtheriaItemSheet {
       };
       return obj;
     }, {});
+  }
+
+  /**
+   * @this {EtheriaWeaponSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onCreateDamage() {
+    const existingKeys = Object.keys(this.item.system.damages);
+
+    const existingIndices = existingKeys
+      .map((k) => parseInt(k.split("-")[1]))
+      .filter((n) => !isNaN(n))
+      .sort((a, b) => a - b);
+
+    let newIndex = 0;
+    while (existingIndices.includes(newIndex)) {
+      newIndex++;
+    }
+
+    const key = `damage-${newIndex}`;
+
+    return this.item.update({
+      [`system.damages.${key}`]: new DamageData().toObject(),
+    });
+  }
+
+  /**
+   * @this {EtheriaWeaponSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onDeleteDamage(_event, target) {
+    const { damageId } = target.closest("[data-damage-id]")?.dataset ?? {};
+    return this.item.update({ [`system.damages.-=${damageId}`]: null });
   }
 }

@@ -15,5 +15,6 @@ export const DOC_SUB_TYPES = {
   },
   messages: {
     roll: `${MODULE_ID}.roll`,
+    item: `${MODULE_ID}.item`,
   }
 };

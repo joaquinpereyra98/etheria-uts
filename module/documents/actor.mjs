@@ -88,41 +88,36 @@ export default class EtheriaActor extends Cls {
    * @returns {Promise<Application>}
    */
   async openAbilitiesDialog() {
-    const abilities = this.itemTypes[DOC_SUB_TYPES.items.ability];
+    const abilities = this.itemTypes[DOC_SUB_TYPES.items.ability].toSorted(
+      (a, b) => a.name.localeCompare(b.name),
+    );
 
     const content = await foundry.applications.handlebars.renderTemplate(
       `${TEMPLATE_PATH}/dialogs/abilities-dialog.hbs`,
-      {
-        actor: this,
-        abilities: abilities.sort((a, b) => a.name.localeCompare(b.name)),
-      },
+      { actor: this, abilities },
     );
 
-    const abilitiesIds =
+    const selectedIds =
       (await foundry.applications.api.Dialog.wait({
-        rejectClose: false,
-        classes: [MODULE_ID, "abilities-dialog"],
         window: {
           title: `${this.name}: Abilities`,
           icon: "fa-solid fa-meteor",
         },
+        classes: [MODULE_ID, "abilities-dialog"],
         content,
-        render: (_event, dialog) => {
-          dialog.element
-            .querySelectorAll(".selectable-ability")
-            .forEach((el) => {
-              el.addEventListener("click", (ev) => {
-                ev.currentTarget.classList.toggle("active");
-              });
-            });
-          dialog.element.querySelectorAll(".open-doc").forEach((el) => {
-            el.addEventListener("click", async (ev) => {
+        render: (_, dialog) => {
+          dialog.element.addEventListener("click", async (ev) => {
+            const btn = ev.target.closest(
+              "[data-ability-uuid], .selectable-ability",
+            );
+            if (!btn) return;
+
+            if (btn.dataset.abilityUuid) {
               ev.stopPropagation();
-              const doc = await foundry.utils.fromUuid(
-                ev.currentTarget.dataset.abilityUuid,
-              );
-              doc.sheet.render({ force: true });
-            });
+              const doc = await fromUuid(btn.dataset.abilityUuid);
+              return doc?.sheet.render(true);
+            }
+            btn.classList.toggle("active");
           });
         },
         buttons: [
@@ -130,18 +125,18 @@ export default class EtheriaActor extends Cls {
             label: "Use",
             icon: "fa-solid fa-fire-flame-curved",
             action: "use",
-            class: "etheria-button",
-            callback: (_event, _button, dialog) =>
+            callback: (_, __, dialog) =>
               Array.from(
-                dialog.element.querySelectorAll(".selectable-ability"),
-              ).map((el) => el.dataset.abilityId),
+                dialog.element.querySelectorAll(".selectable-ability.active"),
+                (el) => el.dataset.abilityId,
+              ),
           },
         ],
+        rejectClose: false,
       })) ?? [];
 
-    const selectedAbilities = abilities.filter((doc) =>
-      abilitiesIds.includes(doc.id),
-    );
+    for (const id of selectedIds)
+      await abilities.find((a) => a.id === id)?.use();
   }
 
   /**
@@ -202,13 +197,17 @@ export default class EtheriaActor extends Cls {
             action: "use",
             class: "etheria-button",
             callback: (_event, button, _dialog) => {
-              const formData = new foundry.applications.ux.FormDataExtended(button.form).object;
-              return Object.keys(formData).filter(k => formData[k]);
-            }
+              const formData = new foundry.applications.ux.FormDataExtended(
+                button.form,
+              ).object;
+              return Object.keys(formData).filter((k) => formData[k]);
+            },
           },
         ],
       })) ?? [];
 
-    return await Promise.all(skillsIds.map(skillId => this.rollSkillCheck(skillId)));
+    return await Promise.all(
+      skillsIds.map((skillId) => this.rollSkillCheck(skillId)),
+    );
   }
 }

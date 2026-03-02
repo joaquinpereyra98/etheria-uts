@@ -13,12 +13,12 @@ export default class EtheriaActiveEffect
    * @returns {{img: string}} - Candidate ActiveEffect image.
    */
   static getDefaultArtwork(effectData = {}) {
-    return { img: this.DEFAULT_ICON };
+    return { img: EtheriaActiveEffect.DEFAULT_ICON };
   }
 
   /**@inheritdoc */
   async _preCreate(data, options, user) {
-    data.img ??= this.getDefaultArtwork(data);
+    data.img ??= EtheriaActiveEffect.getDefaultArtwork(data)?.img;
 
     const allowed = await super._preUpdate(data, options, user);
     if (allowed === false) return false;

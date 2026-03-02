@@ -27,15 +27,15 @@
           <span class="stat-label">{{item.name}}</span>
 
           <div class="mod-value">
-            {{#if item.system.charges}}
-            <span title="Uses Remaining">{{item.system.charges.value}} / {{item.system.charges.max}}</span>
+            {{#if item.system.uses}}
+            <span title="Uses Remaining">{{item.system.uses.value}} / {{item.system.uses.max}}</span>
             {{/if}}
           </div>
 
           <div class="controls flexrow">
             {{#if @root.editable}}
 
-            {{#if item.system.charges}}
+            {{#if item.system.uses}}
             <a class="toggle-equip clickable-anchor item-control" data-action="consumeItem" data-tooltip="Consume item">
               <i class="{{item.system.metadata.icon}}"></i>
             </a>

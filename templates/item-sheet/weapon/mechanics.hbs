@@ -1,0 +1,35 @@
+<section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
+ <div class="tab-container flexcol">
+    <div class="glass-panel stat-list ability-list">
+      <div class="panel-header flexrow">
+        <span class="label">Weapon Damage</span>
+        <div class="controls">
+          <a data-action="createDamage" class="fa-solid fa-plus clickable-anchor" data-tooltip="Add Damage"></a>
+        </div>
+      </div>
+
+      <div class="damage-items flexcol">
+        {{#each system.damages as |damage id|}}
+        <div class="stat-row" data-damage-id="{{id}}">
+
+          <div class="flexcol">
+            {{formInput damage.schema.fields.formula name=(concat "system.damages." id ".formula") placeholder="Damage
+            Formula"
+            value=damage.formula classes="etheria-input formula-input"}}
+          </div>
+
+          <div class="flexcol">
+            {{formInput damage.schema.fields.type name=(concat "system.damages." id ".type") value=damage.type
+            classes="etheria-input"}}
+          </div>
+
+          <div class="controls">
+            <a data-action="deleteDamage" data-id="{{id}}" class="fa-solid fa-trash clickable-anchor"
+              data-tooltip="Remove"></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+ </div>
+</section>
