@@ -1,0 +1,62 @@
+<div class="accuracy-message">
+  {{#if document.flavor}}
+  <span class="flavor">{{{document.flavor}}}</span>
+  {{/if}}
+
+  <section class="targets accordion flexcol">
+    <header class="targets-header flexrow accordion-header  {{ifThen accordionState " expanded" "" }}"
+      data-action="toggleAccordion">
+      <i class="accordion-chevron icon fa-solid fa-chevron-right"></i>
+      <span class="title">Targets</span>
+      {{#if (and isOwner evaluationIsIdle)}}
+      <a class="refresh-anchor" data-action="refreshTargets" data-tooltip="Update Targets from selection">
+        <i class="icon fa-solid fa-arrows-rotate"></i>
+      </a>
+      {{/if}}
+    </header>
+
+    <div class="target-list accordion-content">
+      <div class="wrappler">
+        {{#each targets}}
+        <div class="target-item flexrow" data-uuid="{{uuid}}">
+          <img src="{{doc.texture.src}}">
+          <span>{{doc.name}}</span>
+          {{#unless ../evaluationIsIdle}}
+          <i class="fa-regular {{icon}}"></i>
+          {{/unless}}
+        </div>
+        {{/each}}
+      </div>
+    </div>
+    <hr class="etheria-hr">
+  </section>
+
+  {{#if renderedRolls.length}}
+  <section class="base-rolls">
+    {{#each renderedRolls}}{{{this}}}{{/each}}
+  </section>
+  {{/if}}
+
+  <div class="item-actions flexcol">
+    {{#if isOwner}}
+    <button class="item-action etheria-button" data-action="promptGMForRoll">
+      {{#if evaluationIsIdle}}
+      <div class="img-portrait">
+        <i class="icon fa-solid fa-dice-d20"></i>
+      </div>
+      <span class="action-label">Roll Accuracy</span>
+      {{else if evaluationIsPending}}
+      <div class="img-portrait">
+        <i class="icon fa-solid fa-loader fa-spin"></i>
+      </div>
+      <span class="action-label">Waiting for GM Intervention...</span>
+      {{else}}
+      <div class="img-portrait">
+        <i class="icon fa-solid fa-circle-check"></i>
+      </div>
+      <span class="action-label">Evaluated</span>
+      {{/if}}
+    </button>
+    {{/if}}
+  </div>
+</div>

@@ -50,7 +50,7 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
     if (this.constructor.metadata.hasAccuracyRoll) {
       actions.rollAccuracy = {
         action: "rollAccuracy",
-        label: "Roll Accuracy",
+        label: "Check Accuracy",
         icon: "fa-solid fa-crosshairs",
       };
     }
@@ -58,7 +58,7 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
     if (Object.keys(this.damages || {}).length > 0) {
       actions.applyDamage = {
         action: "rollDamage",
-        label: "Roll Damage",
+        label: "Check Damage",
         icon: "fa-solid fa-explosion",
       };
     }

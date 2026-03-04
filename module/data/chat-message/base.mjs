@@ -1,17 +1,28 @@
-import { MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
+import { MODULE_ID, TEMPLATE_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
 
 const { handlebars } = foundry.applications;
 
 /**
+ * @typedef {Object} EtheriaMessageMetada
+ * @property {string} type
+ * @property {Record<string, foundry.applications.types.ApplicationClickAction>} actions
+ */
+
+/**
  * Base Data Model for all Etheria Chat Message subtypes.
- * Provides a standardized frame, header, and enrichment logic.
  */
 export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
-  /** @inheritDoc */
+  /**
+   * Default metadata for the Message Subtype.
+   * @returns {EtheriaMessageMetada}
+   * @see {EtheriaBaseMessage#_attachListeners}
+   */
   static get metadata() {
     return {
       type: "base",
-      actions: {},
+      actions: {
+        toggleAccordion: EtheriaBaseMessage.#onToggleAccordion,
+      },
     };
   }
 
@@ -33,16 +44,7 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
           ),
         }),
       ),
-      ...this._defineSchema(),
     };
-  }
-
-  /**
-   * Internal schema definition for subclasses to override.
-   * @returns {foundry.abstract.types.DataSchema}
-   */
-  static _defineSchema() {
-    return {};
   }
 
   /**
@@ -56,6 +58,15 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
   /* Rendering                                          */
   /* -------------------------------------------------- */
 
+  get _accordionState() {
+    return !!ui.chat[MODULE_ID]?.[this.parent.id];
+  }
+
+  set _accordionState(state) {
+    ui.chat[MODULE_ID] ??= {};
+    ui.chat[MODULE_ID][this.parent.id] = state;
+  }
+
   /**
    * Subclass-specific context preparation.
    * @param {object} context - The rendering context to be mutated.
@@ -63,6 +74,9 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
    */
   async _prepareContext(context) {
     context.system = foundry.utils.deepClone(this);
+    context.isOwner = this.parent.isOwner;
+    context.isGM = game.user.isGM;
+    context.accordionState = this._accordionState;
     return context;
   }
 
@@ -175,5 +189,15 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
     if (options.borderColor)
       frame.style.setProperty("border-color", options.borderColor);
     return frame;
+  }
+
+  /**
+   * Toggles the expanded state of the message accordion
+   * @param {PointerEvent} event - The click event
+   * @param {HTMLElement} target - The button/element clicked
+   */
+  static async #onToggleAccordion(_event, target) {
+    this._accordionState = !this._accordionState;
+    target.classList.toggle("expanded");
   }
 }

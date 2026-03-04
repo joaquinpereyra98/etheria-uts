@@ -21,10 +21,9 @@ Hooks.once("init", () => {
   CONFIG.ActiveEffect.typeLabels.base =
     foundry.documents.ActiveEffect.metadata.label;
 
-  CONFIG.ChatMessage.dataModels[DOC_SUB_TYPES.messages.roll] =
-    data.messages.EtheriaRollMessage;
-  CONFIG.ChatMessage.dataModels[DOC_SUB_TYPES.messages.item] =
-    data.messages.EtheriaItemMessage;
+  for (const model of Object.values(data.messages)) {
+    CONFIG.ChatMessage.dataModels[model.metadata.type] = model;
+  }
 
   for (const model of Object.values(data.items)) {
     CONFIG.Item.dataModels[model.metadata.type] = model;

@@ -72,6 +72,16 @@
     box-shadow: var(--shadow-thin);
 
     --button-focus-outline-color: var(--border-glow);
+
+    &[disabled] {
+      opacity: 0.8;
+      --button-background-color: var(--text-main);
+      --button-border-color: transparent;
+      --button-text-color: var(--bg-primary);
+      --button-hover-background-color: var(--button-background-color);
+      --button-hover-border-color: var(--button-border-color);
+      --button-hover-text-color: var(--button-text-color);
+    }
   }
 
   .etheria-checkboxes input[type=checkbox],
@@ -1195,8 +1205,89 @@
     }
   }
 
+  &.chat-message {
+    .message-header {
+      border-bottom: 1px solid var(--border-shadow);
+    }
+
+    .accordion {
+      .accordion-header {
+        cursor: pointer;
+        transition: border 0.3s ease;
+        border-bottom: 1px solid transparent;
+
+        &.expanded {
+          border-color: var(--border-shadow);
+
+          .accordion-chevron {
+            transform: rotate(90deg);
+          }
+
+          +.accordion-content {
+            grid-template-rows: 1fr;
+          }
+        }
+
+        i.icon {
+          font-size: 0.7rem;
+          transition: transform 0.3s ease;
+          flex: 0;
+        }
+
+      }
+
+      .accordion-content {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition: grid-template-rows 0.3s ease;
+        overflow: hidden;
+
+        .wrappler {
+          min-height: 0;
+        }
+
+      }
+    }
+
+    .item-actions {
+      gap: var(--gap-sm);
+      margin: 0 1rem;
+
+      .item-action {
+        display: flexs;
+        align-items: center;
+        gap: var(--gap-sm);
+
+        .img-portrait {
+          flex: 0 0 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          i.icon {
+            font-size: 1.1rem;
+          }
+
+          img.item-img {
+            margin: 1px;
+            border-radius: var(--radius-sm);
+            box-shadow: var(--shadow-thin);
+            aspect-ratio: 1;
+          }
+        }
+
+        .action-label {
+          font-size: 1rem;
+        }
+      }
+    }
+
+  }
+
   .etheria-item-card {
     margin: 5px;
+
     .item-header {
       gap: 5px;
 
@@ -1219,33 +1310,55 @@
         font-weight: bold;
       }
     }
+  }
 
-    .item-actions {
-      gap: var(--gap-md);
-    }
-    .item-action {
-      display: flexs;
-      align-items: center;
-      gap: var(--gap-sm);
+  .accuracy-message {
+    .targets {
+      .targets-header {
+        gap: var(--gap-md);
 
-      .img-portrait {
-        flex: 0 0 30px;
-        height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        i.icon {
-          font-size: 1.3rem;
+        .title {
+          text-align: center;
+          font-weight: bold;
+          font-size: 1rem;
         }
-        img.item-img {
+
+        .refresh-anchor {
+          flex: 0;
+          height: 14px;
+        }
+
+      }
+
+      .target-item {
+        gap: var(--gap-sm);
+        padding: 2px 5px;
+
+        img {
+          flex: 0 0 25px;
+          height: 25px;
           margin: 1px;
           border-radius: var(--radius-sm);
           box-shadow: var(--shadow-thin);
           aspect-ratio: 1;
         }
-      }
-      .action-label {
-        font-size: 1rem;
+
+        span {
+          font-size: 1rem;
+        }
+
+        i {
+          flex: 0 0 auto;
+          font-size: 1rem;
+        }
+
+        &:not(:first-child) {
+          margin-top: 2px;
+        }
+
+        &:hover {
+          background-color: var(--bg-widget);
+        }
       }
     }
   }

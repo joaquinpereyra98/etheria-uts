@@ -53,7 +53,8 @@
     },
     "ChatMessage": {
       "roll": {},
-      "item": {}
+      "item": {},
+      "accuracy": {}
     }
   },
   "relationships": {

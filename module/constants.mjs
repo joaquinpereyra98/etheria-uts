@@ -16,5 +16,26 @@ export const DOC_SUB_TYPES = {
   messages: {
     roll: `${MODULE_ID}.roll`,
     item: `${MODULE_ID}.item`,
-  }
+    accuracy: `${MODULE_ID}.accuracy`,
+  },
+};
+
+/**
+ * The possible states for an accuracy check.
+ * @enum {string}
+ */
+export const ACCURACY_STATES = {
+  PENDING: "pending",
+  HIT: "hit",
+  MISS: "miss",
+};
+
+/**
+ * States representing the lifecycle of a roll evaluation.
+ * @enum {string}
+ */
+export const EVALUATION_STATES = {
+  IDLE: "idle",
+  PENDING: "pending",
+  EVALUATED: "evaluated",
 };

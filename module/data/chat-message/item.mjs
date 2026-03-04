@@ -19,10 +19,10 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
     });
   }
 
-  /** @override */
-  static _defineSchema() {
+  /** @inheritdoc */
+  static defineSchema() {
     const { fields } = foundry.data;
-    return {
+    return foundry.utils.mergeObject(super.defineSchema(), {
       item: new fields.SchemaField({
         uuid: new fields.DocumentUUIDField({ type: "Item" }),
         img: new fields.StringField({
@@ -34,7 +34,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
           initial: "Unknown Item",
         }),
       }),
-    };
+    });
   }
 
   /* -------------------------------------------------- */
@@ -124,7 +124,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onRollDamage(_event, target) {
-     const item = await this.#getDocFromTarget(target);
+    const item = await this.#getDocFromTarget(target);
     if (!item) return;
     return await item.rollDamages?.();
   }

@@ -54,15 +54,22 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
 
     const formula = terms.join(" + ");
 
+    foundry.documents.ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      flavor: `<b>Accuracy Check</b> - ${this.name}`,
+      type: DOC_SUB_TYPES.messages.accuracy,
+    })
+
+    /*
     const rollData = this.getRollData();
 
     const roll = foundry.dice.Roll.create(formula, rollData);
     await roll.evaluate();
 
     return roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<b>Accuracy Check</b> - ${this.name}`,
+      
     });
+    */
   }
 
   /**
