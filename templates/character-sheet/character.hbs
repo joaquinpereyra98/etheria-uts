@@ -2,7 +2,7 @@
   <div class="tab-container flexcol">
     <section class="race-section glass-panel" data-doc-uuid="{{system.race.uuid}}">
       {{#if system.race}}
-      <div class="race-content" data-action="viewDoc" data-tooltip="Click to Edit Race">
+      <div class="race-content draggable" data-item-id="{{system.race.id}}" data-action="viewDoc" data-tooltip="Click to Edit Race">
         <div class="item-portrait race-portrait">
           <img src="{{system.race.img}}" alt="{{system.race.name}}">
         </div>

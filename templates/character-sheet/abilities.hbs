@@ -12,7 +12,7 @@
 
       <div class="abilities-items">
         {{#each category.items as |item i|}}
-        <div class="ability-card glass-panel" data-doc-uuid="{{item.uuid}}">
+        <div class="ability-card glass-panel draggable" data-item-id="{{item.id}}" data-doc-uuid="{{item.uuid}}">
           {{#if item.system.uses.max}}
           <div class="uses-badge">
             {{item.system.uses.value}} / {{item.system.uses.max}}

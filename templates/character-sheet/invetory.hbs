@@ -21,7 +21,7 @@
 
       <div class="inventory-items scrollable flexcol">
         {{#each section.items as |item|}}
-        <div class="stat-row flexrow" data-doc-uuid="{{item.uuid}}">
+        <div class="stat-row flexrow draggable" data-item-id="{{item.id}}" data-doc-uuid="{{item.uuid}}">
 
           <img class="stat-icon" src="{{item.img}}" alt="{{item.name}}">
           <span class="stat-label">{{item.name}}</span>
