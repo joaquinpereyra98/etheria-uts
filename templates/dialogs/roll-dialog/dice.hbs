@@ -1,0 +1,18 @@
+<form class="dice {{partClass}} step">
+  <div class="etheria-hr-text">Dice</div>
+  <div class="dice-terms">
+    {{#each terms as |term termIndex|}}
+      <div class="dice-term glass-panel">
+        <div class="dice-formula">{{die.number}}d{{die.faces}}</div>
+        <div class="dice-results">
+          {{#each die.results as |result resultIndex|}}
+            <div class="dice-result">
+              <input type="number" name="terms.{{../path}}.results.{{resultIndex}}.result" value="{{result.result}}"
+                min="1" max="{{../die.faces}}" class="etheria-input" />
+            </div>
+          {{/each}}
+        </div>
+      </div>
+    {{/each}}
+  </div>
+</form>

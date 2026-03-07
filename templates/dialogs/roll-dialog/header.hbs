@@ -1,0 +1,14 @@
+<section class="header">
+  <div class="flexrow">
+    <div class="glass-panel formula-preview">
+      {{{formulaHtml}}}
+    </div>
+
+    {{#if (gt step.index 0)}}
+    <span class="equal-span">=</span>
+    <div class="glass-panel total-preview">
+      {{roll.total}}
+    </div>
+    {{/if}}
+  </div>
+</section>

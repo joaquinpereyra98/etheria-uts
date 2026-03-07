@@ -1,3 +1,4 @@
+import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 import { DamageData } from "../data/shared/damage-field.mjs";
 
@@ -49,27 +50,22 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     const { attribute, metadata } = this.system;
     if (!metadata?.hasAccuracyRoll || !this.actor) return;
 
-    const terms = ["1d20", "@bonus.accuracy", "-(@exhaustion * 3)"];
-    if (attribute) terms.push(`@${attribute}.mod`);
+    const terms = ["1d20", "+ @acc", "- @exh"];
+    if (attribute) {
+      const attr = ETHERIA.attributes[attribute].abrr;
+      terms.push(`@${attr}.mod`);
+    }
 
-    const formula = terms.join(" + ");
+    const formula = terms.join(" ");
 
     foundry.documents.ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: `<b>Accuracy Check</b> - ${this.name}`,
       type: DOC_SUB_TYPES.messages.accuracy,
-    })
-
-    /*
-    const rollData = this.getRollData();
-
-    const roll = foundry.dice.Roll.create(formula, rollData);
-    await roll.evaluate();
-
-    return roll.toMessage({
-      
+      system: {
+        formula,
+      },
     });
-    */
   }
 
   /**

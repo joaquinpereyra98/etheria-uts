@@ -98,8 +98,31 @@ export default function EtheriaTargetedMessageMixin(Base) {
      * @type {foundry.applications.types.ApplicationClickAction}
      */
     static async #onPromptGMForRoll() {
-      new EtheriaRollDialog({roll: new foundry.dice.Roll("1d20+5+2")}).render(true);
-    
+      await this.parent.update({
+        "system.targets": this.targets.map((t) => ({
+          uuid: t.uuid,
+          result: ACCURACY_STATES.PENDING,
+        })),
+      });
+
+      const { targets, roll } = await EtheriaRollDialog.query(
+        game.users.activeGM,
+        {
+          targets: this.targets,
+          formula: this.formula,
+          rollData: this.parent.getRollData() ?? {},
+        },
+      );
+
+      const newTargets = targets.map((t) => ({
+        uuid: t.uuid,
+        result: t.isHit ? ACCURACY_STATES.HIT : ACCURACY_STATES.MISS,
+      }));
+
+      this.parent.update({
+        "system.targets": newTargets,
+        rolls: [roll],
+      });
     }
   }
 

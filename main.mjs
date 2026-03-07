@@ -4,7 +4,7 @@ import * as applications from "./module/applications/_module.mjs";
 import * as hooks from "./module/hooks/_module.mjs";
 import * as dice from "./module/dice/_module.mjs";
 
-import { DOC_SUB_TYPES, MODULE_ID } from "./module/constants.mjs";
+import { DOC_SUB_TYPES, MODULE_ID, queries } from "./module/constants.mjs";
 import { ETHERIA } from "./module/config.mjs";
 
 Hooks.once("init", () => {
@@ -33,6 +33,8 @@ Hooks.once("init", () => {
   CONFIG.Actor.defaultType = DOC_SUB_TYPES.character;
 
   CONFIG.Dice.rolls.unshift(dice.Etheriaroll);
+
+   CONFIG.queries[queries.rollDialog] = applications.dialog.EtheriaRollDialog._handleQuery;
 
   const { DocumentSheetConfig } = foundry.applications.apps;
 

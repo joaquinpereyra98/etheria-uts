@@ -7,7 +7,12 @@
     <header class="targets-header flexrow accordion-header  {{ifThen accordionState " expanded" "" }}"
       data-action="toggleAccordion">
       <i class="accordion-chevron icon fa-solid fa-chevron-right"></i>
-      <span class="title">Targets</span>
+
+      <div class="title-container">
+        <span class="title">Targets</span>
+        <span class="number">({{targets.size}})</span>
+      </div>
+
       {{#if (and isOwner evaluationIsIdle)}}
       <a class="refresh-anchor" data-action="refreshTargets" data-tooltip="Update Targets from selection">
         <i class="icon fa-solid fa-arrows-rotate"></i>
@@ -32,8 +37,9 @@
   </section>
 
   {{#if renderedRolls.length}}
-  <section class="base-rolls">
+  <section class="base-rolls">    
     {{#each renderedRolls}}{{{this}}}{{/each}}
+    <hr class="etheria-hr">
   </section>
   {{/if}}
 

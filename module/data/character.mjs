@@ -199,6 +199,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
     const data = foundry.utils.deepClone(this);
 
     data.exhaustion = (data.exhaustion ?? 0) * 3;
+    data.exh = data.exhaustion;
 
     for (let [k, v] of Object.entries(data.attributes)) {
       const key = ETHERIA.attributes[k].abrr;
@@ -212,6 +213,10 @@ export default class EtheriaCharacterData extends TypeDataModel {
       data[k] = { value: v.value };
       if (v.max !== null) data[k].max = v.max;
     }
+
+    data.acc = data.bonus.accuracy;
+    data.physical = data.bonus.physicalDamage;
+    data.magic = data.bonus.magicDamage;
 
     return data;
   }

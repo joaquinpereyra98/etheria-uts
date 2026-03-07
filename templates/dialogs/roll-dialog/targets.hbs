@@ -1,0 +1,16 @@
+<form class="targets step {{partClass}}">
+  <div class="etheria-hr-text">Targets</div>
+  <div class="targets-list">
+    {{#each targets}}
+    <div class="target-row flexrow glass-panel">
+      <img class="target-img" src="{{doc.texture.src}}" title="{{doc.name}}" />
+      <label class="target-name">{{doc.name}}</label>
+      <div class="target-hit-control">
+        <label class="toggle-switch">
+          <input class="etheria-checkbox" type="checkbox" name="targets.{{@index}}.isHit" {{checked isHit}}/>
+        </label>
+      </div>
+    </div>
+    {{/each}}
+  </div>
+</form>
