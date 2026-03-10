@@ -22,6 +22,13 @@ export default class DamageField extends EmbeddedDataField {
  * Data model that stores information on a single damage part.
  */
 export class DamageData extends foundry.abstract.DataModel {
+  constructor(data, options) {
+    super(data, options);
+    /**@type {String} */
+    this.formula;
+    /**@type {keyof ETHERIA.damageTypes | keyof ETHERIA.healingTypes} */
+    this.type;
+  }
   /** @override */
   static defineSchema() {
     return {

@@ -4,7 +4,7 @@ import {
   EVALUATION_STATES,
   TEMPLATE_PATH,
 } from "../../constants.mjs";
-  import EtheriaTargetedMessageMixin from "./mixin/targeted-messages.mjs";
+import EtheriaTargetedMessageMixin from "./mixin/targeted-messages.mjs";
 import EtheriaRollMessage from "./rolls.mjs";
 
 export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin(
@@ -18,6 +18,7 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
         promptGMForRoll: EtherriaAccuracyMessage.#onPromptGMForRoll,
         reEvaluateRoll: EtherriaAccuracyMessage.#onReEvaluateRoll,
         rollDefense: EtherriaAccuracyMessage.#onRollDefense,
+        applyDamage: EtherriaAccuracyMessage.#onApplyDamage,
       },
     });
   }
@@ -209,5 +210,38 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
 
     const { type } = target.dataset;
     await token.actor.rollDefense(type);
+  }
+
+  /**
+   * Applies the damage from the message's damage rolls to a targeted actor.
+   * It iterates through each damage roll, determines the damage type, and calls
+   * the actor's `applyDamage` method.
+   * @this {EtherriaAccuracyMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onApplyDamage(_event, target) {
+    const { uuid } = target.closest("[data-uuid]")?.dataset ?? {};
+    if (!uuid) return;
+
+    /**@type {foundry.documents.TokenDocument} */
+    const token = await foundry.utils.fromUuid(uuid);
+    if (!token?.actor) return;
+
+    const damageRollsData = this.damages.rolls;
+    if (!damageRollsData?.length) {
+      ui.notifications.info("This attack has no damage to apply.");
+      return;
+    }
+
+    for (const rollData of damageRollsData) {
+      const roll = foundry.dice.Roll.fromData(rollData);
+      if (!roll._evaluated) continue;
+
+      const baseDamage = roll.total;
+      if (baseDamage <= 0) continue;
+
+      const damageType = roll.options?.damageType ?? "untyped";
+      await token.actor.applyDamage(baseDamage, damageType);
+    }
   }
 }

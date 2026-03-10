@@ -1,6 +1,7 @@
 import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 import { DamageData } from "../data/shared/damage-field.mjs";
+import DamageRoll from "../dice/damage-roll.mjs";
 
 export default class EtheriaItem extends foundry.documents.Item.implementation {
   /**@inheritdoc */
@@ -54,8 +55,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    * @returns {Promise<ChatMessage|void>} The created ChatMessage document
    */
   async rollAccuracy() {
-    const { Roll } = foundry.dice;
-    const rollData = this.getRollData();
+    const rollData = this.getRollData() ?? {};
 
     const { attribute, metadata } = this.system;
     if (!metadata?.hasAccuracyRoll || !this.actor) return;
@@ -70,11 +70,10 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     const damages = Object.values(this.system.damages || {}) ?? [];
     const damagesRolls = damages.map((dmg) => {
       const fomula = dmg.type ? `${dmg.formula}[${dmg.type}]` : dmg.formula;
-      return Roll.create(fomula, rollData);
+      return DamageRoll.create(fomula, rollData, { damageType: dmg.type });
     });
 
-    const accRoll = Roll.create(terms.join(" "), rollData);
-
+    const accRoll = foundry.dice.Roll.create(terms.join(" "), rollData);
     foundry.documents.ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: `<b>Accuracy Check</b> - ${this.name}`,

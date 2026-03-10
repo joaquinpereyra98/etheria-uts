@@ -1,9 +1,12 @@
 import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
 
-/**@type {typeof foundry.documents.Actor} */
 const Cls = foundry.documents.Actor.implementation;
 
+/**
+ * The implementation for the Actor document
+ * @extends {foundry.documents.Actor}
+ */
 export default class EtheriaActor extends Cls {
   /**@override */
   static get TYPES() {
@@ -108,6 +111,98 @@ export default class EtheriaActor extends Cls {
     });
 
     return roll;
+  }
+
+  /**
+   * Applies damage to the actor, reducing it by the actor's resistances.
+   * @param {number} baseDamage - The initial amount of damage before resistances.
+   * @param {keyof ETHERIA.damageTypes} damageType - The key of the damage type from `ETHERIA.damageTypes`.
+   * @param {object} [options={}] - Optional parameters.
+   * @param {boolean} [options.chatMessage=true] - Whether to create a chat message with the result.
+   * @returns {Promise<{finalDamage: number, applied: boolean}>} An object containing the final damage and if it was applied.
+   */
+  async applyDamage(baseDamage, damageType, { chatMessage = true } = {}) {
+
+    if(ETHERIA.healingTypes[damageType]) {
+      return await this.applyHeal(baseDamage, damageType, { chatMessage });
+    }
+
+    const damageConfig = ETHERIA.damageTypes[damageType];
+    if (!damageConfig) {
+      ui.notifications.warn(`Etheria | Unknown damage type provided: ${damageType}`);
+      return { finalDamage: baseDamage, applied: false };
+    }
+
+    const resistances = this.system.resistances ?? {};
+    const specificResistance = resistances[damageType]?.value ?? 0;
+    const allResistance = resistances.all?.value ?? 0;
+    const totalResistance = specificResistance + allResistance;
+
+    const finalDamage = Math.max(0, baseDamage - totalResistance);
+
+    if (finalDamage > 0) {
+      const currentHp = this.system.resources.hp.value;
+      await this.update({ "system.resources.hp.value": currentHp - finalDamage });
+    }
+
+    if (chatMessage) {
+      const content = `
+        <div class="etheria-chat-card">
+          <p><strong>${this.name}</strong> takes <strong>${finalDamage}</strong> ${damageConfig.label} damage.</p>
+          <small style="display: block; opacity: 0.7;">(${baseDamage} base - ${totalResistance} resisted)</small>
+        </div>`;
+      /**@type {typeof foundry.documents.ChatMessage} */
+      const CLS = foundry.documents.ChatMessage.implementation;
+      await CLS.create({
+        speaker: CLS.getSpeaker({ actor: this }),
+        content: content,
+      });
+    }
+
+    return { finalDamage, applied: finalDamage > 0 };
+  }
+
+/**
+   * Apply healing to this Actor and optionally create a chat message.
+   * @param {number} baseHeal - The amount of healing to be applied.
+   * @param {keyof ETHERIA.healingTypes} [healingType="heal"] - The key of the healing type configuration.
+   * @param {object} [options={}] - Optional parameters.
+   * @param {boolean} [options.chatMessage=true] - Whether to create a chat message with the result.
+   * @returns {Promise<{finalHeal: number, applied: boolean, overflow: number}>} An object containing the final healing amount and if it was applied.
+   * @protected
+   */
+  async applyHeal(baseHeal, healingType = "heal", { chatMessage = true } = {}) {
+    const healConfig = ETHERIA.healingTypes[healingType];
+    const hp = this.system.resources.hp;
+    
+    const missingHp = Math.max(0, hp.max - hp.value);
+    const finalHeal = Math.min(baseHeal, missingHp);
+    const overflow = baseHeal - finalHeal;
+
+    await this.update({ "system.resources.hp.value": hp.value + finalHeal });
+
+    if (chatMessage) {
+      const label = healConfig?.label ?? healingType;
+      let content = `
+        <div class="etheria-chat-card">
+          <p><strong>${this.name}</strong> receives <strong>${finalHeal}</strong> ${label} points.</p>
+      `;
+      
+      if (overflow > 0) {
+        content += `<small style="display: block; opacity: 0.7;">(${overflow} healing exceeded max HP)</small>`;
+      }
+      
+      content += `</div>`;
+
+      /**@type {typeof foundry.documents.ChatMessage} */
+      const CLS = foundry.documents.ChatMessage.implementation;
+      await CLS.create({
+        speaker: CLS.getSpeaker({ actor: this }),
+        content,
+      });
+    }
+
+    return { finalHeal, applied: finalHeal > 0, overflow };
   }
 
   /**

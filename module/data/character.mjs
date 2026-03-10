@@ -63,7 +63,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
         magicDamage: new fields.NumberField({ integer: true, initial: 0 }),
       }),
 
-      resistances: new fields.SchemaField(createResistancesFields({ min: 0 })),
+      resistances: new fields.SchemaField(createResistancesFields()),
 
       magicSpheres: new fields.SchemaField(createSphereFields({ min: 0 })),
 

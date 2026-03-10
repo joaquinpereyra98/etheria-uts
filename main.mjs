@@ -33,8 +33,10 @@ Hooks.once("init", () => {
   CONFIG.Actor.defaultType = DOC_SUB_TYPES.character;
 
   CONFIG.Dice.rolls.unshift(dice.Etheriaroll);
+  CONFIG.Dice.rolls.push(dice.EtheriaDamageRoll);
 
-   CONFIG.queries[queries.rollDialog] = applications.dialog.EtheriaRollDialog._handleQuery;
+  CONFIG.queries[queries.rollDialog] =
+    applications.dialog.EtheriaRollDialog._handleQuery;
 
   const { DocumentSheetConfig } = foundry.applications.apps;
 

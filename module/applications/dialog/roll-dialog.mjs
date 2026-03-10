@@ -1,4 +1,5 @@
 import { MODULE_ID, queries, TEMPLATE_PATH } from "../../constants.mjs";
+import DamageRoll from "../../dice/damage-roll.mjs";
 import { getDiceWithPaths } from "../../utils.mjs";
 
 const { Application, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -30,13 +31,14 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     super(options);
     const { roll, resolve, messageId, type } = options;
 
-    this.#type = type;
+    this.#rollType = type;
     this.#messageId = messageId;
 
     this.#roll = roll;
-    this.#rollData = roll?.data;
+    this.#rollData = roll?.data ?? {};
     this.#originalFormula = roll?.formula;
-    
+    this.#rollOptions = roll.options ?? {};
+
     if (!this.#roll)
       throw new Error("EtheriaRollDialog requires a 'Roll' object");
 
@@ -97,9 +99,13 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   /* -------------------------------------------- */
   /* Application Properties                       */
   /* -------------------------------------------- */
-  
-  /**@type {String} */
-  #type;
+
+  /**@type {Object} */
+  #rollOptions;
+
+  get rollOptions() {
+    return this.#rollOptions;
+  }
 
   /**@type {String} */
   #originalFormula;
@@ -111,9 +117,28 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   /**@type {Object} */
   #rollData;
 
+  get rollData() {
+    return this.#rollData;
+  }
+
   /**@type {foundry.dice.Roll} */
   #roll;
 
+  /**@type {"accuracy"|"damages"} */
+  #rollType;
+
+  get rollType() {
+    return this.#rollType;
+  }
+
+  get RollClass() {
+    return {
+      accuracy: foundry.dice.Roll,
+      damages: DamageRoll,
+    }[this.rollType];
+  }
+
+  /**@type {Object} */
   #modifiers = {
     additives: "",
     multipliers: "",
@@ -190,7 +215,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    * @param {object} options - The options for preparing the part context.
    * @protected
    */
-  _prepareHeaderContext(context, options) {
+  _prepareHeaderContext(context, _options) {
     const { additive, multiplier, percentage } = this.#getModifierTotals();
     let formulaHtml = `<span class="formula-base">${this.originalFormula.replace(/\s+/g, "")}</span>`;
 
@@ -400,7 +425,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     for (const [key, value] of Object.entries(data)) {
       foundry.utils.setProperty(json, key, value);
     }
-    this.#roll = foundry.dice.Roll.fromData(json);
+    this.#roll = this.RollClass.fromData(json);
     await this.#roll.evaluate();
     this.render();
   }
@@ -432,7 +457,11 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
         formula = `round((${formula})*(${percentageBonus}))`;
       }
 
-      this.#roll = foundry.dice.Roll.create(formula, this.#rollData);
+      this.#roll = this.RollClass.create(
+        formula,
+        this.#rollData,
+        this.rollOptions,
+      );
       await this.#roll.evaluate();
     }
     this.#currentStepIndex++;
@@ -448,10 +477,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     const currentStep = this.STEPS[this.#currentStepIndex];
 
     if (currentStep.id === "dice") {
-      this.#roll = foundry.dice.Roll.create(
-        this.originalFormula,
-        this.#rollData,
-      );
+      this.#roll = this.RollClass.create(this.originalFormula, this.#rollData);
     }
     this.#currentStepIndex--;
     this.render();
