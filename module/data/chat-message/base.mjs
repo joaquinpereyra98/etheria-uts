@@ -1,4 +1,4 @@
-import { MODULE_ID, TEMPLATE_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
+import { MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
 
 const { handlebars } = foundry.applications;
 

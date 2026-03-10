@@ -1,5 +1,3 @@
-import EtheriaRollDialog from "../../../applications/dialog/roll-dialog.mjs";
-import { ACCURACY_STATES } from "../../../constants.mjs";
 import EtheriaBaseMessage from "../base.mjs";
 
 /**
@@ -14,26 +12,15 @@ export default function EtheriaTargetedMessageMixin(Base) {
       return foundry.utils.mergeObject(super.metadata, {
         actions: {
           refreshTargets: EtheriaTargetedMessage.#onRefreshTargets,
-          promptGMForRoll: EtheriaTargetedMessage.#onPromptGMForRoll,
         },
       });
     }
 
     /** @inheritdoc */
     static defineSchema() {
-      const { fields } = foundry.data;
+      const { SetField, DocumentUUIDField } = foundry.data.fields;
       return foundry.utils.mergeObject(super.defineSchema(), {
-        targets: new fields.SetField(
-          new fields.SchemaField({
-            uuid: new fields.DocumentUUIDField({ type: "Token" }),
-            result: new fields.StringField({
-              required: true,
-              choices: Object.values(ACCURACY_STATES),
-              initial: ACCURACY_STATES.PENDING,
-              label: "Attack Result",
-            }),
-          }),
-        ),
+        targets: new SetField(new DocumentUUIDField({ type: "Token" })),
       });
     }
 
@@ -44,30 +31,12 @@ export default function EtheriaTargetedMessageMixin(Base) {
     async _prepareContext(context) {
       await super._prepareContext(context);
 
-      context.targets = this.targets
-        .map((data) => ({
-          uuid: data.uuid,
-          result: data.result,
-          icon: this._getTargetIcon(data.result),
-          doc: fromUuidSync(data.uuid),
+      context.targets =  this.targets
+        .map((uuid) => ({
+          uuid: uuid,
+          doc: fromUuidSync(uuid),
         }))
         .filter((t) => !!t.doc);
-    }
-
-    /**
-     * Helper to determine the icon for a target result.
-     * @param {string} result
-     * @returns {string}
-     */
-    _getTargetIcon(result) {
-      switch (result) {
-        case ACCURACY_STATES.HIT:
-          return "fa-check hit";
-        case ACCURACY_STATES.MISS:
-          return "fa-xmark miss";
-        default:
-          return "fa-clock";
-      }
     }
 
     /**
@@ -76,52 +45,8 @@ export default function EtheriaTargetedMessageMixin(Base) {
      * @type {foundry.applications.types.ApplicationClickAction}
      */
     static async #onRefreshTargets() {
-      const currentUuids = this.targets.filter(
-        (t) => t.result !== ACCURACY_STATES.PENDING,
-      );
-
-      const newTargets = game.user.targets
-        .filter((t) => !currentUuids.has(t.document.uuid))
-        .map((t) => ({
-          uuid: t.document.uuid,
-          result: ACCURACY_STATES.PENDING,
-        }));
-
       await this.parent.update({
-        "system.targets": [...currentUuids, ...newTargets],
-      });
-    }
-
-    /**
-     *
-     * @this {EtheriaTargetedMessage}
-     * @type {foundry.applications.types.ApplicationClickAction}
-     */
-    static async #onPromptGMForRoll() {
-      await this.parent.update({
-        "system.targets": this.targets.map((t) => ({
-          uuid: t.uuid,
-          result: ACCURACY_STATES.PENDING,
-        })),
-      });
-
-      const { targets, roll } = await EtheriaRollDialog.query(
-        game.users.activeGM,
-        {
-          targets: this.targets,
-          formula: this.formula,
-          rollData: this.parent.getRollData() ?? {},
-        },
-      );
-
-      const newTargets = targets.map((t) => ({
-        uuid: t.uuid,
-        result: t.isHit ? ACCURACY_STATES.HIT : ACCURACY_STATES.MISS,
-      }));
-
-      this.parent.update({
-        "system.targets": newTargets,
-        rolls: [roll],
+        "system.targets": game.user.targets.map((t) => t.document.uuid),
       });
     }
   }

@@ -4,7 +4,7 @@
   {{/if}}
 
   <section class="targets accordion flexcol">
-    <header class="targets-header flexrow accordion-header  {{ifThen accordionState " expanded" "" }}"
+    <header class="targets-header flexrow accordion-header {{ifThen accordionState 'expanded' '' }}"
       data-action="toggleAccordion">
       <i class="accordion-chevron icon fa-solid fa-chevron-right"></i>
 
@@ -13,7 +13,7 @@
         <span class="number">({{targets.size}})</span>
       </div>
 
-      {{#if (and isOwner evaluationIsIdle)}}
+      {{#if isOwner}}
       <a class="refresh-anchor" data-action="refreshTargets" data-tooltip="Update Targets from selection">
         <i class="icon fa-solid fa-arrows-rotate"></i>
       </a>
@@ -25,9 +25,19 @@
         {{#each targets}}
         <div class="target-item flexrow" data-uuid="{{uuid}}">
           <img src="{{doc.texture.src}}">
-          <span>{{doc.name}}</span>
-          {{#unless ../evaluationIsIdle}}
-          <i class="fa-regular {{icon}}"></i>
+          <span class="item-label">{{doc.name}}</span>
+          <div class="target-controls">
+            {{#if ../acc.isEvaluated}}
+            <a class="fa-solid fa-shield-halved" data-tooltip="Roll Block ({{doc.actor.system.defense.block.value}})" data-action="rollDefense" data-type="block"></a>
+            <a class="fa-solid fa-swords" data-tooltip="Roll Parry ({{doc.actor.system.defense.parry.value}})" data-action="rollDefense" data-type="parry"></a>
+            <a class="fa-solid fa-person-running" data-tooltip="Roll Dodge ({{doc.actor.system.defense.dodge.value}})" data-action="rollDefense" data-type="dodge"></a>
+            {{/if}}
+             {{#if ../damages.isEvaluated}}
+            <div class="vertical"></div>
+            <a class="fa-solid fa-burst" data-tooltip="Apply Damage" data-action="applyDamage"></a>
+            {{/if}}
+          </div>
+          {{#unless ../isIdle}}
           {{/unless}}
         </div>
         {{/each}}
@@ -37,7 +47,7 @@
   </section>
 
   {{#if renderedRolls.length}}
-  <section class="base-rolls">    
+  <section class="base-rolls">
     {{#each renderedRolls}}{{{this}}}{{/each}}
     <hr class="etheria-hr">
   </section>
@@ -45,24 +55,30 @@
 
   <div class="item-actions flexcol">
     {{#if isOwner}}
-    <button class="item-action etheria-button" data-action="promptGMForRoll">
-      {{#if evaluationIsIdle}}
-      <div class="img-portrait">
-        <i class="icon fa-solid fa-dice-d20"></i>
-      </div>
-      <span class="action-label">Roll Accuracy</span>
-      {{else if evaluationIsPending}}
-      <div class="img-portrait">
-        <i class="icon fa-solid fa-loader fa-spin"></i>
-      </div>
-      <span class="action-label">Waiting for GM Intervention...</span>
-      {{else}}
-      <div class="img-portrait">
-        <i class="icon fa-solid fa-circle-check"></i>
-      </div>
-      <span class="action-label">Evaluated</span>
+    <div class="action-row">
+      <button class="item-action etheria-button" data-type="accuracy" data-action="promptGMForRoll" {{disabled (not acc.isIdle)}}>
+        <div class="img-portrait">
+          <i class="icon fa-solid {{acc.icon}}"></i>
+        </div>
+        <span class="action-label">{{acc.buttonLabel}}</span>
+      </button>
+      {{#if (and isGM acc.isEvaluated)}}
+      <a class="action-anchor icon fa-solid fa-arrow-rotate-right" data-tooltip="Re-Evaluate Roll"
+        data-action="reEvaluateRoll" data-type="accuracy"></a>
       {{/if}}
-    </button>
+    </div>
+     <div class="action-row">
+      <button class="item-action etheria-button" data-type="damages" data-action="promptGMForRoll" {{disabled (not damages.isIdle)}}>
+        <div class="img-portrait">
+          <i class="icon fa-solid {{damages.icon}}"></i>
+        </div>
+        <span class="action-label">{{damages.buttonLabel}}</span>
+      </button>
+      {{#if (and isGM damages.isEvaluated)}}
+      <a class="action-anchor icon fa-solid fa-arrow-rotate-right" data-tooltip="Re-Evaluate Roll"
+        data-action="reEvaluateRoll" data-type="damages"></a>
+      {{/if}}
+    </div>
     {{/if}}
   </div>
 </div>

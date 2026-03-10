@@ -1,5 +1,4 @@
 import { DOC_SUB_TYPES, TEMPLATE_PATH } from "../../constants.mjs";
-import FormulaField from "../fields/formula-field.mjs";
 import EtheriaBaseMessage from "./base.mjs";
 
 export default class EtheriaRollMessage extends EtheriaBaseMessage {
@@ -13,9 +12,7 @@ export default class EtheriaRollMessage extends EtheriaBaseMessage {
 
   /** @inheritdoc */
   static defineSchema() {
-    return foundry.utils.mergeObject(super.defineSchema(), {
-      formula: new FormulaField(),
-    });
+    return foundry.utils.mergeObject(super.defineSchema(), {});
   }
 
   /**

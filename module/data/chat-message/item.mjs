@@ -12,7 +12,6 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
       type: DOC_SUB_TYPES.messages.item,
       actions: {
         rollAccuracy: EtheriaItemMessage.#onRollAccuracy,
-        rollDamage: EtheriaItemMessage.#onRollDamage,
         useItem: EtheriaItemMessage.#onUseItem,
         applyEffect: EtheriaItemMessage.#onApplyEffect,
       },
@@ -123,20 +122,14 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static async #onRollDamage(_event, target) {
-    const item = await this.#getDocFromTarget(target);
-    if (!item) return;
-    return await item.rollDamages?.();
+  static #onUseItem(event, target) {
+    //TODO: create a to use Item for consume resources
   }
-
   /**
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static #onUseItem(event, target) {}
-  /**
-   * @this {EtheriaItemMessage}
-   * @type {foundry.applications.types.ApplicationClickAction}
-   */
-  static #onApplyEffect(event, target) {}
+  static #onApplyEffect(event, target) {
+    //TODO: create a applyEffect messge
+  }
 }

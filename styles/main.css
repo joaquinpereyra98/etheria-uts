@@ -1280,8 +1280,9 @@
       margin: 0 1rem;
 
       .item-action {
-        display: flexs;
+        display: flex;
         align-items: center;
+        text-wrap: nowrap;
         gap: var(--gap-sm);
 
         .img-portrait {
@@ -1305,6 +1306,23 @@
 
         .action-label {
           font-size: 1rem;
+        }
+      }
+
+      .action-row {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--gap-sm);
+        flex-wrap: nowrap;
+          .action-anchor {
+          flex: 0 0 auto;
+          opacity: 0.3;
+          transition: opacity 0.3s ease;
+
+          &:hover {
+            opacity: 1;
+          }
         }
       }
     }
@@ -1356,7 +1374,6 @@
             }
           }
 
-
           .refresh-anchor {
             flex: 0;
             height: 14px;
@@ -1377,13 +1394,22 @@
             aspect-ratio: 1;
           }
 
-          span {
+          .item-label {
             font-size: 1rem;
           }
 
-          i {
+          .target-controls {
+            display: flex;
+            gap: var(--gap-sm);
+            align-items: center;
             flex: 0 0 auto;
+            flex-wrap: nowrap;
             font-size: 1rem;
+            .vertical {
+              height: 20px;
+              border-left: 1px solid var(--border-shadow);
+            }
+
           }
 
           &:not(:first-child) {
@@ -1540,36 +1566,6 @@
         }
       }
 
-    }
-
-    form.targets {
-      .targets-list {
-        display: flex;
-        flex-direction: column;
-        gap: var(--gap-md);
-        padding: 5px;
-
-        .target-row {
-          padding: 0 var(--gap-sm);
-          gap: var(--gap-sm);
-        }
-
-        .target-img {
-          flex: 0 0 35px;
-          width: 35px;
-          height: 36px;
-          margin: 5px 0;
-          border: none;
-          border-radius: var(--radius-sm);
-          box-shadow: var(--shadow-thin);
-          object-fit: cover;
-        }
-
-        .target-hit-control {
-          flex: 0 0 auto;
-        }
-
-      }
     }
 
     footer.form-footer {

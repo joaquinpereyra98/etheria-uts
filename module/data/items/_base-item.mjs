@@ -55,14 +55,6 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
       };
     }
 
-    if (Object.keys(this.damages || {}).length > 0) {
-      actions.applyDamage = {
-        action: "rollDamage",
-        label: "Check Damage",
-        icon: "fa-solid fa-explosion",
-      };
-    }
-
     const actionsEffects = this.parent.getActionsEffect() ?? [];
     if(actionsEffects.length > 0) {
       actions.applyEffects = {

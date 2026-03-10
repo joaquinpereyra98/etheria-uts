@@ -1,9 +1,10 @@
+import EtheriaRollDialog from "../../applications/dialog/roll-dialog.mjs";
 import {
   DOC_SUB_TYPES,
   EVALUATION_STATES,
   TEMPLATE_PATH,
 } from "../../constants.mjs";
-import EtheriaTargetedMessageMixin from "./mixin/targeted-messages.mjs";
+  import EtheriaTargetedMessageMixin from "./mixin/targeted-messages.mjs";
 import EtheriaRollMessage from "./rolls.mjs";
 
 export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin(
@@ -13,6 +14,11 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
   static get metadata() {
     return foundry.utils.mergeObject(super.metadata, {
       type: DOC_SUB_TYPES.messages.accuracy,
+      actions: {
+        promptGMForRoll: EtherriaAccuracyMessage.#onPromptGMForRoll,
+        reEvaluateRoll: EtherriaAccuracyMessage.#onReEvaluateRoll,
+        rollDefense: EtherriaAccuracyMessage.#onRollDefense,
+      },
     });
   }
 
@@ -20,10 +26,21 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
   static defineSchema() {
     const { fields } = foundry.data;
     return foundry.utils.mergeObject(super.defineSchema(), {
-      evaluation: new fields.StringField({
-        required: true,
-        choices: Object.values(EVALUATION_STATES),
-        initial: EVALUATION_STATES.IDLE,
+      accuracy: new fields.SchemaField({
+        rolls: new fields.ArrayField(new fields.JSONField()),
+        evaluation: new fields.StringField({
+          required: true,
+          choices: Object.values(EVALUATION_STATES),
+          initial: EVALUATION_STATES.IDLE,
+        }),
+      }),
+      damages: new fields.SchemaField({
+        rolls: new fields.ArrayField(new fields.JSONField()),
+        evaluation: new fields.StringField({
+          required: true,
+          choices: Object.values(EVALUATION_STATES),
+          initial: EVALUATION_STATES.IDLE,
+        }),
       }),
     });
   }
@@ -31,8 +48,57 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
   /** @override */
   async _prepareContext(context) {
     await super._prepareContext(context);
-    context.evaluationIsIdle = this.evaluation === EVALUATION_STATES.IDLE;
-    context.evaluationIsPending = this.evaluation === EVALUATION_STATES.PENDING;
+    context.isIdle = this.evaluation === EVALUATION_STATES.IDLE;
+    context.isPending = this.evaluation === EVALUATION_STATES.PENDING;
+    context.isEvaluated = this.evaluation === EVALUATION_STATES.EVALUATED;
+
+    const accAction = {
+      icon: "fa-dice-d20",
+      label: "Roll Accuracy",
+      disabled: false,
+    };
+
+    if (context.isPending) {
+      if (context.isGM) {
+        accAction.label = "Open prompt for GM Again";
+      } else {
+        accAction.icon = "fa-loader fa-spin";
+        accAction.label = "Waiting for GM Intervention...";
+        accAction.disabled = true;
+      }
+    } else if (context.isEvaluated) {
+      accAction.icon = "fa-circle-check";
+      accAction.label = "Accuracy Evaluated";
+      accAction.disabled = true;
+    }
+
+    context.accAction = accAction;
+
+    context.acc = this._getRollContext(this.accuracy.evaluation, "Accuracy");
+    context.damages = this._getRollContext(this.damages.evaluation, "Damages");
+  }
+
+  _getRollContext(state, label) {
+    const isIdle = state === EVALUATION_STATES.IDLE;
+    const isPending = state === EVALUATION_STATES.PENDING;
+    const isEvaluated = state === EVALUATION_STATES.EVALUATED;
+    const icon = isIdle
+      ? "fa-dice-d20"
+      : isPending
+        ? "fa-loader fa-spin"
+        : "fa-circle-check";
+    const buttonLabel = isIdle
+      ? `Roll ${label}`
+      : isPending
+        ? "Waiting..."
+        : `${label} Evaluated`;
+    return {
+      isIdle,
+      isPending,
+      isEvaluated,
+      icon,
+      buttonLabel,
+    };
   }
 
   /** @inheritdoc */
@@ -43,5 +109,105 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
       context,
     );
     element.insertAdjacentHTML("beforeend", html);
+  }
+
+  /**
+   *
+   * @this {EtherriaAccuracyMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onPromptGMForRoll(_event, target) {
+    if (game.users.activeGM === null) {
+      ui.notifications.warn("No active GM found");
+      return;
+    }
+
+    const { type } = target.dataset;
+
+    const currentPropmt = foundry.applications.instances
+      .values()
+      .find((a) => a.messageId === this.parent.id);
+
+    if (currentPropmt) {
+      return currentPropmt.render({ force: true });
+    }
+
+    await this.parent.update({
+      [`system.${type}.evaluation`]: EVALUATION_STATES.PENDING,
+    });
+
+    const rollsToEvaluate = this[type].rolls.map((r) =>
+      foundry.dice.Roll.fromData(r),
+    );
+
+    const evaluatedRolls = [];
+
+    for (const rollToEvaluate of rollsToEvaluate) {
+      const { roll } = await EtheriaRollDialog.query(game.users.activeGM, {
+        roll: rollToEvaluate,
+        messageId: this.parent.id,
+        type,
+        window: {
+          title: `Config Roll: ${type.capitalize()}`,
+        },
+      });
+
+      evaluatedRolls.push(roll);
+    }
+
+    const otherType = type === "accuracy" ? "damages" : "accuracy";
+    const otherRolls = this[otherType].rolls;
+
+    const allRolls = (
+      type === "accuracy"
+        ? [...evaluatedRolls, ...otherRolls]
+        : [...otherRolls, ...evaluatedRolls]
+    ).filter((r) => r.evaluated || r._evaluated);
+
+    await this.parent.update({
+      [`system.${type}.evaluation`]: EVALUATION_STATES.EVALUATED,
+      [`system.${type}.rolls`]: evaluatedRolls,
+      rolls: allRolls,
+    });
+  }
+
+  /**
+   * Handles the re-evaluation of a dice roll.
+   * @this {EtherriaAccuracyMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onReEvaluateRoll(event, target) {
+    if (!event.shiftKey) {
+      const confirm = await foundry.applications.api.Dialog.confirm({
+        title: "Re-evaluate Roll",
+        content: `
+          <p>Are you sure you want to re-evaluate this roll?</p>
+          <p><strong>Warning:</strong> The current roll data will be permanently overwritten to finish.</p>
+        `,
+      });
+
+      if (!confirm) return;
+    }
+
+    return await EtherriaAccuracyMessage.#onPromptGMForRoll.call(
+      this,
+      event,
+      target,
+    );
+  }
+
+  /**
+   *
+   * @this {EtherriaAccuracyMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRollDefense(_event, target) {
+    const { uuid } = target.closest("[data-uuid]")?.dataset ?? {};
+    /**@type {foundry.documents.TokenDocument} */
+    const token = await foundry.utils.fromUuid(uuid);
+    if (!token?.actor) return;
+
+    const { type } = target.dataset;
+    await token.actor.rollDefense(type);
   }
 }

@@ -57,7 +57,7 @@ export default class EtheriaActor extends Cls {
 
     const messageData = {
       flavor: `<b>Skill Check</b> - ${config.label}`,
-      speaker: ChatMessage.getSpeaker({
+      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({
         actor: this,
       }),
     };
@@ -76,8 +76,35 @@ export default class EtheriaActor extends Cls {
     await roll.evaluate();
 
     roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this }),
+      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({ actor: this }),
       flavor: `<b>Roll Advancement</b> - ${type.capitalize()}`,
+    });
+
+    return roll;
+  }
+
+  /**
+   * Roll method for character defenses.
+   * @param {keyof ETHERIA.defenses} defenseType - The key for the defense type.
+   *                               This key is expected to exist in `ETHERIA.defenses` and `this.system.defenses`.
+   * @returns {Promise<foundry.dice.Roll>} The evaluated Roll object.
+   */ 
+  async rollDefense(defenseType) {
+    const config = ETHERIA.defenses[defenseType];
+    if (!config) {
+      ui.notifications.warn(`Etheria | Defense configuration not found for type: ${defenseType}`);
+      return;
+    }
+
+    const formula = `1d20 + @defense.${defenseType}.value`;
+    const rollData = this.getRollData();
+
+    const roll = foundry.dice.Roll.create(formula, rollData);
+    await roll.evaluate();
+
+    roll.toMessage({
+      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({ actor: this }),
+      flavor: `<b>Defense Roll</b> - ${config.label}`,
     });
 
     return roll;

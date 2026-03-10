@@ -5,11 +5,10 @@ const { Application, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
  * @typedef _RollDialogConfiguration
- * @property {foundry.dice.Roll} [roll] - An existing Roll instance.
- * @property {string} [formula] - A roll formula used to create a new Roll if one isn't provided.
- * @property {object} [rollData] - Contextual data for the roll formula (e.g., actor attributes).
- * @property {String[]} [targets=[]] - Array of targeted tokens uuid to evaluate against.
- * @property {Function} [resolve] - Callback function to resolve the dialog's Promise.
+ * @property {foundry.dice.Roll} roll - An existing Roll instance.
+ * @property {Function} resolve - Callback function to resolve the dialog's Promise.
+ * @property {string} messageId - The id of the message
+ * @property {"accuracy"|"damages"} type - the type of roll
  */
 
 /**
@@ -28,24 +27,18 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
 ) {
   /**@param {RollDialogConfiguration} options  */
   constructor(options) {
-    const { roll, formula, rollData, targets, resolve, ...rest } = options;
-    super(rest);
+    super(options);
+    const { roll, resolve, messageId, type } = options;
 
-    this.#rollData = roll?.data ?? rollData;
-    this.#originalFormula = roll?.formula ?? formula;
+    this.#type = type;
+    this.#messageId = messageId;
 
-    if (!this.#originalFormula)
-      throw new Error(
-        "EtheriaRollDialog requires either a 'roll' object or a 'formula' string.",
-      );
-
-    this.#roll =
-      roll ?? foundry.dice.Roll.create(this.#originalFormula, this.#rollData);
-
-    this.#targets = Array.from(targets).map((target) => ({
-      doc: foundry.utils.fromUuidSync(target.uuid),
-      isHit: false,
-    }));
+    this.#roll = roll;
+    this.#rollData = roll?.data;
+    this.#originalFormula = roll?.formula;
+    
+    if (!this.#roll)
+      throw new Error("EtheriaRollDialog requires a 'Roll' object");
 
     this._resolve = resolve;
   }
@@ -55,6 +48,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    */
   static DEFAULT_OPTIONS = {
     classes: [MODULE_ID, "roll-dialog"],
+    id: `${EtheriaRollDialog.name}-{id}`,
     tag: "div",
     window: {
       icon: "fa-solid fa-dice-d20",
@@ -97,22 +91,15 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
         },
       },
     },
-    targets: {
-      template: `${ROLL_DIALOG_PATH}/targets.hbs`,
-      scrollable: [""],
-      forms: {
-        form: {
-          handler: EtheriaRollDialog.#onTargetsSubmitForm,
-          submitOnChange: true,
-        },
-      },
-    },
     footer: { template: "templates/generic/form-footer.hbs" },
   };
 
   /* -------------------------------------------- */
   /* Application Properties                       */
   /* -------------------------------------------- */
+  
+  /**@type {String} */
+  #type;
 
   /**@type {String} */
   #originalFormula;
@@ -133,9 +120,6 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     percentages: "",
   };
 
-  /**@type {{doc: foundry.documents.TokenDocument, isHit: Boolean}[]} */
-  #targets;
-
   /**
    * The sequence of steps for the dialog workflow.
    * @type {Array<{id: string, label: string, index: number}>}
@@ -144,11 +128,26 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     return [
       { id: "modifiers", label: "Modifiers", index: 0 },
       { id: "dice", label: "Dice Results", index: 1 },
-      { id: "targets", label: "Targets", index: 2 },
     ];
   }
 
   #currentStepIndex = 0;
+
+  /**@type {String} */
+  #messageId;
+
+  get messageId() {
+    return this.#messageId;
+  }
+
+  /* -------------------------------------------- */
+
+  /** @inheritDoc */
+  _initializeApplicationOptions(options) {
+    options = super._initializeApplicationOptions(options);
+    options.uniqueId = `${options.type}-${options.messageId}`;
+    return options;
+  }
 
   /* -------------------------------------------- */
   /* Context Preparation                          */
@@ -161,7 +160,6 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     context.formula = this.#roll.formula;
 
     context.modifiers = this.#modifiers;
-    context.targets = this.#targets;
 
     context.step = this.STEPS[this.#currentStepIndex];
     context.isFirstStep = this.#currentStepIndex === 0;
@@ -220,7 +218,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    * @param {object} options - The options for preparing the part context.
    * @protected
    */
-  _prepareDiceContext(context, options) {
+  _prepareDiceContext(context, _options) {
     context.terms = getDiceWithPaths(this.#roll.toJSON().terms);
   }
 
@@ -230,7 +228,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    * @param {object} options - The options for preparing the part context.
    * @protected
    */
-  _prepareFooterContext(context, options) {
+  _prepareFooterContext(context, _options) {
     const buttons = [];
     if (!context.isFirstStep) {
       buttons.push({
@@ -407,16 +405,6 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     this.render();
   }
 
-  /**
-   *
-   * @this {EtheriaRollDialog}
-   * @type {foundry.applications.types.ApplicationFormSubmission}
-   */
-  static async #onTargetsSubmitForm(_event, _form, formData) {
-    const data = foundry.utils.expandObject(formData.object);
-    foundry.utils.mergeObject(this.#targets, data.targets);
-  }
-
   /* -------------------------------------------- */
 
   /**
@@ -477,10 +465,6 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   static async #onResolveDialog() {
     this._resolve({
       roll: this.#roll.toJSON(),
-      targets: this.#targets.map((t) => ({
-        uuid: t.doc.uuid,
-        isHit: t.isHit,
-      })),
     });
     this.close();
   }
@@ -488,7 +472,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   /**
    * A helper factory method to create and render the dialog, returning a Promise.
    * @param {RollDialogConfiguration} [options={}] - Options to configure the dialog.
-   * @returns {Promise<{roll: foundry.dice.Roll, targets: {uuid: String, isHit: Boolean}[]}>}
+   * @returns {Promise<{roll: foundry.dice.Roll}>}
    */
   static async wait(options = {}) {
     return new Promise((resolve) => {
@@ -501,7 +485,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    * Present an asynchronous query to a specific User for response.
    * @param {foundry.documents.User|string} user - A User instance or a User id
    * @param {RollDialogConfiguration} options - Options to configure the dialog.
-   * @returns {Promise<{roll: foundry.dice.Roll, targets: {uuid: String, isHit: Boolean}[]}>}
+   * @returns {Promise<{roll: foundry.dice.Roll}>}
    */
   static async query(user, options = {}) {
     if (typeof user === "string") {

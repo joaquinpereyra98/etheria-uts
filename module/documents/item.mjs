@@ -25,6 +25,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    * @returns {Promise<ChatMessage>} The created ChatMessage document.
    */
   async use() {
+    const actions = this.system.getCardActions?.() ?? {};
     const chatData = {
       type: DOC_SUB_TYPES.messages.item,
       flavor: `${this.actor.name} uses ${this.name}!`,
@@ -35,11 +36,17 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
           name: this.name,
           img: this.img,
         },
-        actions: this.system.getCardActions?.(),
+        actions,
       },
     };
-
-    return foundry.documents.ChatMessage.create(chatData);
+    const keys = Object.keys(actions);
+    if (keys.length === 1) {
+      const msg = await foundry.documents.ChatMessage.create(chatData);
+      await this[keys[0]]?.();
+      return msg;
+    } else {
+      return foundry.documents.ChatMessage.create(chatData);
+    }
   }
 
   /**
@@ -47,6 +54,9 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    * @returns {Promise<ChatMessage|void>} The created ChatMessage document
    */
   async rollAccuracy() {
+    const { Roll } = foundry.dice;
+    const rollData = this.getRollData();
+
     const { attribute, metadata } = this.system;
     if (!metadata?.hasAccuracyRoll || !this.actor) return;
 
@@ -56,14 +66,22 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       terms.push(`@${attr}.mod`);
     }
 
-    const formula = terms.join(" ");
+    /**@type {DamageData[]} */
+    const damages = Object.values(this.system.damages || {}) ?? [];
+    const damagesRolls = damages.map((dmg) => {
+      const fomula = dmg.type ? `${dmg.formula}[${dmg.type}]` : dmg.formula;
+      return Roll.create(fomula, rollData);
+    });
+
+    const accRoll = Roll.create(terms.join(" "), rollData);
 
     foundry.documents.ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: `<b>Accuracy Check</b> - ${this.name}`,
       type: DOC_SUB_TYPES.messages.accuracy,
       system: {
-        formula,
+        "accuracy.rolls": [accRoll],
+        "damages.rolls": damagesRolls,
       },
     });
   }
