@@ -76,3 +76,4 @@ Hooks.once("ready", () => {
 });
 
 Hooks.on("renderActiveEffectConfig", hooks.onRenderActiveEffectConfig);
+Hooks.on("hotbarDrop", hooks.onHotbatDrop);
