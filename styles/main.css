@@ -297,6 +297,7 @@
         padding: 1px;
 
         img.portrait-img {
+          cursor: pointer;
           border-radius: var(--radius-md);
           box-shadow: var(--shadow-thin);
           border: none;
@@ -1311,6 +1312,7 @@
         border-radius: var(--radius-sm);
         box-shadow: var(--shadow-thin);
         aspect-ratio: 1;
+        cursor: pointer;
       }
 
       .item-label {
@@ -1412,6 +1414,7 @@
 
         img.item-img {
           aspect-ratio: 1;
+          cursor: pointer;
         }
 
         .item-name {

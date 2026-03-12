@@ -22,6 +22,7 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
       type: "base",
       actions: {
         toggleAccordion: EtheriaBaseMessage.#onToggleAccordion,
+        openDoc: EtheriaBaseMessage.#onOpenDoc,
       },
     };
   }
@@ -209,8 +210,8 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
 
   /**
    * Toggles the expanded state of the message accordion
-   * @param {PointerEvent} event - The click event
-   * @param {HTMLElement} target - The button/element clicked
+   * @this {EtheriaItemMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onToggleAccordion(_event, target) {
     const accordionId = target.dataset.accordionId || "default";
@@ -218,6 +219,33 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
     currentState[accordionId] = !currentState[accordionId];
 
     this._accordionState = currentState;
-    target.closest(".accordion")?.classList.toggle("expanded", currentState[accordionId]);
+    target
+      .closest(".accordion")
+      ?.classList.toggle("expanded", currentState[accordionId]);
+  }
+
+  /**
+   * Handles the opening of a document sheet from a UI element.
+   * @this {EtheriaItemMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onOpenDoc(_event, target) {
+    const { uuid } = target.closest("[data-uuid]")?.dataset ?? {};
+    if (!uuid) return;
+
+    const doc = await foundry.utils.fromUuid(uuid);
+    if (!doc) return;
+    if (
+      doc instanceof foundry.documents.TokenDocument &&
+      doc.object?.isVisible
+    ) {
+      canvas.animatePan({
+        x: doc.object.x,
+        y: doc.object.y,
+        scale: Math.max(canvas.stage.scale.x, canvas.dimensions.scale.default),
+      });
+    } else {
+      doc.sheet.render({ force: true });
+    }
   }
 }

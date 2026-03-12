@@ -7,14 +7,14 @@
     </header>
     <div class="card-content">
       {{#each effects.self}}
-      <a class="effect-box" data-tooltip="{{name}}">
-        <img class="item-img" src="{{img}}" alt="{{name}}" />
+      <a class="effect-box" data-uuid="{{uuid}}" data-tooltip="{{name}}">
+        <img class="item-img" {{#if visible}}data-action="openDoc"{{/if}} src="{{img}}" alt="{{name}}" />
       </a>
       {{/each}}
     </div>
 
-    <div class="list-item flexrow" data-uuid="{{speakerActor.uuid}}">
-      <img class="item-img" src="{{speakerActor.img}}" alt="{{speakerActor.name}}">
+    <div class="list-item flexrow"  data-uuid="{{speakerActor.uuid}}">
+      <img class="item-img" {{#if speakerActor.visible}}data-action="openDoc"{{/if}} src="{{speakerActor.img}}" alt="{{speakerActor.name}}">
       <span class="item-label">{{speakerActor.name}}
         <span class="muted">(Self)</span>
       </span>
@@ -33,8 +33,8 @@
     </header>
     <div class="card-content">
       {{#each effects.target}}
-      <a class="effect-box" data-tooltip="{{name}}">
-        <img class="item-img" src="{{img}}" alt="{{name}}" />
+      <a class="effect-box" data-uuid="{{uuid}}" data-tooltip="{{name}}">
+        <img class="item-img" {{#if visible}}data-action="openDoc"{{/if}} src="{{img}}" alt="{{name}}" />
       </a>
       {{/each}}
     </div>
@@ -57,7 +57,7 @@
       <div class="accordion-content">
         {{#each targets as |target|}}
         <div class="list-item flexrow" data-uuid="{{target.uuid}}">
-          <img class="item-img" src="{{target.doc.texture.src}}" alt="{{target.doc.name}}">
+          <img class="item-img" {{#if target.doc.visible}}data-action="openDoc"{{/if}} src="{{target.doc.texture.src}}" alt="{{target.doc.name}}">
           <span class="item-label">{{target.doc.name}}</span>
           <div class="item-controls flex0">
             <a class="fa-solid fa-download" data-tooltip="Apply Effect" data-action="applyTarget"></a>
