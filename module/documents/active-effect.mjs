@@ -18,7 +18,10 @@ export default class EtheriaActiveEffect
 
   /**@inheritdoc */
   async _preCreate(data, options, user) {
-    data.img ??= EtheriaActiveEffect.getDefaultArtwork(data)?.img;
+    
+    this.updateSource({
+      img: EtheriaActiveEffect.getDefaultArtwork(data)?.img,
+    });
 
     const allowed = await super._preUpdate(data, options, user);
     if (allowed === false) return false;

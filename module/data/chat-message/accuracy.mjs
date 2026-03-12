@@ -7,7 +7,7 @@ import {
 import EtheriaTargetedMessageMixin from "./mixin/targeted-messages.mjs";
 import EtheriaRollMessage from "./rolls.mjs";
 
-export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin(
+export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
   EtheriaRollMessage,
 ) {
   /** @inheritDoc */
@@ -15,10 +15,10 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
     return foundry.utils.mergeObject(super.metadata, {
       type: DOC_SUB_TYPES.messages.accuracy,
       actions: {
-        promptGMForRoll: EtherriaAccuracyMessage.#onPromptGMForRoll,
-        reEvaluateRoll: EtherriaAccuracyMessage.#onReEvaluateRoll,
-        rollDefense: EtherriaAccuracyMessage.#onRollDefense,
-        applyDamage: EtherriaAccuracyMessage.#onApplyDamage,
+        promptGMForRoll: EtheriaAccuracyMessage.#onPromptGMForRoll,
+        reEvaluateRoll: EtheriaAccuracyMessage.#onReEvaluateRoll,
+        rollDefense: EtheriaAccuracyMessage.#onRollDefense,
+        applyDamage: EtheriaAccuracyMessage.#onApplyDamage,
       },
     });
   }
@@ -114,7 +114,7 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
 
   /**
    *
-   * @this {EtherriaAccuracyMessage}
+   * @this {EtheriaAccuracyMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onPromptGMForRoll(_event, target) {
@@ -174,7 +174,7 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
 
   /**
    * Handles the re-evaluation of a dice roll.
-   * @this {EtherriaAccuracyMessage}
+   * @this {EtheriaAccuracyMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onReEvaluateRoll(event, target) {
@@ -190,7 +190,7 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
       if (!confirm) return;
     }
 
-    return await EtherriaAccuracyMessage.#onPromptGMForRoll.call(
+    return await EtheriaAccuracyMessage.#onPromptGMForRoll.call(
       this,
       event,
       target,
@@ -199,7 +199,7 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
 
   /**
    *
-   * @this {EtherriaAccuracyMessage}
+   * @this {EtheriaAccuracyMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onRollDefense(_event, target) {
@@ -216,7 +216,7 @@ export default class EtherriaAccuracyMessage extends EtheriaTargetedMessageMixin
    * Applies the damage from the message's damage rolls to a targeted actor.
    * It iterates through each damage roll, determines the damage type, and calls
    * the actor's `applyDamage` method.
-   * @this {EtherriaAccuracyMessage}
+   * @this {EtheriaAccuracyMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onApplyDamage(_event, target) {

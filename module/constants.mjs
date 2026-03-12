@@ -21,6 +21,7 @@ export const DOC_SUB_TYPES = {
     roll: `${MODULE_ID}.roll`,
     item: `${MODULE_ID}.item`,
     accuracy: `${MODULE_ID}.accuracy`,
+    effect: `${MODULE_ID}.effect`,
   },
 };
 

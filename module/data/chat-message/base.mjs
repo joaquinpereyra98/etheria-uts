@@ -57,14 +57,29 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
   /* -------------------------------------------------- */
   /* Rendering                                          */
   /* -------------------------------------------------- */
-
+  /**
+   * Returns the state object for this specific message.
+   * @returns {Record<string, boolean>}
+   */
   get _accordionState() {
-    return !!ui.chat[MODULE_ID]?.[this.parent.id];
+    return ui.chat[MODULE_ID]?.[this.parent.id] ?? {};
   }
 
+  /**
+   * @param {Record<string, boolean>} state
+   */
   set _accordionState(state) {
     ui.chat[MODULE_ID] ??= {};
     ui.chat[MODULE_ID][this.parent.id] = state;
+  }
+
+  /**
+   * Helper to check a specific accordion's state
+   * @param {string} key
+   * @returns {boolean}
+   */
+  isExpanded(key) {
+    return !!this._accordionState[key];
   }
 
   /**
@@ -76,6 +91,7 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
     context.system = foundry.utils.deepClone(this);
     context.isOwner = this.parent.isOwner;
     context.isGM = game.user.isGM;
+    context.speakerActor = this.parent.speakerActor;
     context.accordionState = this._accordionState;
     return context;
   }
@@ -197,7 +213,11 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
    * @param {HTMLElement} target - The button/element clicked
    */
   static async #onToggleAccordion(_event, target) {
-    this._accordionState = !this._accordionState;
-    target.classList.toggle("expanded");
+    const accordionId = target.dataset.accordionId || "default";
+    const currentState = this._accordionState;
+    currentState[accordionId] = !currentState[accordionId];
+
+    this._accordionState = currentState;
+    target.closest(".accordion")?.classList.toggle("expanded", currentState[accordionId]);
   }
 }

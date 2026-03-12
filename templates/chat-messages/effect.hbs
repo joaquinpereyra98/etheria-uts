@@ -1,0 +1,71 @@
+<div class="effect-message">
+  {{!-- Self Effects --}}
+  {{#if effects.self.length}}
+  <div class="card-section">
+    <header class="card-header">
+      <div class="etheria-hr-text">Self Effects</div>
+    </header>
+    <div class="card-content">
+      {{#each effects.self}}
+      <a class="effect-box" data-tooltip="{{name}}">
+        <img class="item-img" src="{{img}}" alt="{{name}}" />
+      </a>
+      {{/each}}
+    </div>
+
+    <div class="list-item flexrow" data-uuid="{{speakerActor.uuid}}">
+      <img class="item-img" src="{{speakerActor.img}}" alt="{{speakerActor.name}}">
+      <span class="item-label">{{speakerActor.name}}
+        <span class="muted">(Self)</span>
+      </span>
+      <div class="item-controls flex0">
+        <a class="fa-solid fa-download" data-tooltip="Apply Effect" data-action="applySelf"></a>
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- Target Section --}}
+  {{#if effects.target.length}}
+  <div class="card-section">
+    <header class="card-header">
+      <div class="etheria-hr-text">Target Effects</div>
+    </header>
+    <div class="card-content">
+      {{#each effects.target}}
+      <a class="effect-box" data-tooltip="{{name}}">
+        <img class="item-img" src="{{img}}" alt="{{name}}" />
+      </a>
+      {{/each}}
+    </div>
+
+    <section class="accordion flexcol {{ifThen accordionState.targets 'expanded' ''}}">
+      <header class="flexrow accordion-header" data-action="toggleAccordion" data-accordion-id="targets">
+        <i class="accordion-chevron icon fa-solid fa-chevron-right"></i>
+        <div class="title-container">
+          <span class="title">Targets</span>
+          <span class="number">({{targets.size}})</span>
+        </div>
+
+        {{#if isOwner}}
+        <a class="refresh-anchor" data-action="refreshTargets" data-tooltip="Update Targets">
+          <i class="fa-solid fa-arrows-rotate"></i>
+        </a>
+        {{/if}}
+      </header>
+
+      <div class="accordion-content">
+        {{#each targets as |target|}}
+        <div class="list-item flexrow" data-uuid="{{target.uuid}}">
+          <img class="item-img" src="{{target.doc.texture.src}}" alt="{{target.doc.name}}">
+          <span class="item-label">{{target.doc.name}}</span>
+          <div class="item-controls flex0">
+            <a class="fa-solid fa-download" data-tooltip="Apply Effect" data-action="applyTarget"></a>
+          </div>
+        </div>
+        {{/each}}
+      </div>
+    </section>
+  </div>
+  {{/if}}
+</div>

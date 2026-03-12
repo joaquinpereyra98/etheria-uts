@@ -27,27 +27,24 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    */
   async use() {
     const actions = this.system.getCardActions?.() ?? {};
+    const keys = Object.keys(actions);
+
     const chatData = {
       type: DOC_SUB_TYPES.messages.item,
       flavor: `${this.actor.name} uses ${this.name}!`,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       system: {
-        item: {
-          uuid: this.uuid,
-          name: this.name,
-          img: this.img,
-        },
         actions,
+        item: { uuid: this.uuid, name: this.name, img: this.img },
       },
     };
-    const keys = Object.keys(actions);
-    if (keys.length === 1) {
-      const msg = await foundry.documents.ChatMessage.create(chatData);
-      await this[keys[0]]?.();
-      return msg;
-    } else {
-      return foundry.documents.ChatMessage.create(chatData);
-    }
+
+    const msg =
+      await foundry.documents.ChatMessage.implementation.create(chatData);
+
+    if (keys.length === 1) await this[keys[0]]?.();
+
+    return msg;
   }
 
   /**
@@ -81,6 +78,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       system: {
         "accuracy.rolls": [accRoll],
         "damages.rolls": damagesRolls,
+        targets: game.user.targets.map((t) => t.document.uuid),
       },
     });
   }
@@ -110,14 +108,49 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       }),
     );
 
-    const cls = foundry.utils.getDocumentClass("ChatMessage");
-    return cls.create({
+    const CLS = foundry.documents.ChatMessage.implementation;
+    return CLS.create({
       author: game.user.id,
       sound: CONFIG.sounds.dice,
       type: DOC_SUB_TYPES.messages.roll,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: `<b>Damage Roll</b> - ${this.name}`,
       rolls,
+    });
+  }
+
+  /**
+   * Applies the effects of this item.
+   * @returns {Promise<ChatMessage|null>} The created ChatMessage document.
+   */
+  async applyEffect() {
+    const effects = this.getActionsEffect() ?? [];
+
+    const selfEffects = effects.filter(
+      (ef) => ef.system.target === "self",
+    );
+    const targetsEffects = effects.filter(
+      (ef) => ef.system.target === "targets",
+    );
+
+    if (!selfEffects.length && !targetsEffects.length) {
+      ui.notifications.warn(
+        `Etheria | ${this.name} does not have a actions effects defined.`,
+      );
+      return null;
+    }
+
+    const CLS = foundry.documents.ChatMessage.implementation;
+    return CLS.create({
+      speaker: CLS.getSpeaker({ actor: this.actor }),
+      type: DOC_SUB_TYPES.messages.effect,
+      system: {
+        effects: {
+          self: selfEffects.map((ef) => ef.uuid),
+          target: targetsEffects.map((ef) => ef.uuid),
+        },
+        targets: game.user.targets.map((t) => t.document.uuid),
+      },
     });
   }
 }

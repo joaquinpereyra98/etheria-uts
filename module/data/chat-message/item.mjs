@@ -1,3 +1,4 @@
+import { ETHERIA } from "../../config.mjs";
 import { DOC_SUB_TYPES, TEMPLATE_PATH } from "../../constants.mjs";
 import EtheriaBaseMessage from "./base.mjs";
 
@@ -13,7 +14,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
       actions: {
         rollAccuracy: EtheriaItemMessage.#onRollAccuracy,
         useItem: EtheriaItemMessage.#onUseItem,
-        applyEffect: EtheriaItemMessage.#onApplyEffect,
+        applyEffects: EtheriaItemMessage.#onApplyEffects,
       },
     });
   }
@@ -45,7 +46,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
   async _prepareContext(context) {
     await super._prepareContext(context);
 
-    const item = await fromUuid(this.itemUuid);
+    const item = await fromUuid(this.item.uuid);
 
     context.item = item;
     context.description = item
@@ -125,11 +126,14 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
   static #onUseItem(event, target) {
     //TODO: create a to use Item for consume resources
   }
+
   /**
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static #onApplyEffect(event, target) {
-    //TODO: create a applyEffect messge
+  static async #onApplyEffects(event, target) {
+    const item = await foundry.utils.fromUuid(this.item.uuid);
+    if (!item) return;
+    item.applyEffect();
   }
 }
