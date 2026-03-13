@@ -19,11 +19,13 @@ export default class EtheriaActiveEffect
   /**@inheritdoc */
   async _preCreate(data, options, user) {
     
-    this.updateSource({
-      img: EtheriaActiveEffect.getDefaultArtwork(data)?.img,
-    });
+    if(!data.img) {
+      this.updateSource({
+        img: EtheriaActiveEffect.getDefaultArtwork(data)?.img,
+      });
+    }
 
-    const allowed = await super._preUpdate(data, options, user);
+    const allowed = await super._preCreate(data, options, user);
     if (allowed === false) return false;
   }
 }

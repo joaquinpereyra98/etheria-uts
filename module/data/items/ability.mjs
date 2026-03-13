@@ -30,8 +30,8 @@ export default class EtheriaAbilityData extends EtheriaItemData {
       }),
       uses: new fields.SchemaField(
         {
-          value: new fields.NumberField({ integer: true, min: 0 }),
-          max: new fields.NumberField({ integer: true, min: 0 }),
+          value: new fields.NumberField({ integer: true, min: 0, required: true }),
+          max: new fields.NumberField({ integer: true, min: 0, required: true }),
         },
         { label: "Uses" },
       ),

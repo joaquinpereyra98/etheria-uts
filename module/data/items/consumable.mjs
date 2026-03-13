@@ -18,8 +18,8 @@ export default class EtheriaConsumableData extends EtheriaItemData {
       ...super.defineSchema({ isEquippable: false }),
       uses: new fields.SchemaField(
         {
-          value: new fields.NumberField({ initial: 1, min: 0 }),
-          max: new fields.NumberField({ initial: 1, min: 0 }),
+          value: new fields.NumberField({ initial: 1, min: 0, required: true }),
+          max: new fields.NumberField({ initial: 1, min: 0, required: true }),
         },
         { label: "Uses" },
       ),

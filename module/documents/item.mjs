@@ -149,8 +149,8 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       type: DOC_SUB_TYPES.messages.effect,
       system: {
         effects: {
-          self: selfEffects.map((ef) => ef.uuid),
-          target: targetsEffects.map((ef) => ef.uuid),
+          self: selfEffects.filter(ef => !ef.disabled).map((ef) => ef.uuid),
+          target: targetsEffects.filter(ef => !ef.disabled).map((ef) => ef.uuid),
         },
         targets: game.user.targets.map((t) => t.document.uuid),
       },
@@ -173,7 +173,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
         ui.notifications.warn("Etheria | This item has no uses left.");
         return false;
       }
-      updates["system.uses.value"] = uses.value - 1;
+      updates["system.uses.value"] = (uses.value ?? 0) - 1;
     }
 
     const cost = this.system.cost;
@@ -222,16 +222,18 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       cardContent.push(` <p>The ${this.actor.name} spent <b>${cost.value} ${resourceLabel}</b>.</p>`);
     }
 
-    const CLS = foundry.documents.ChatMessage.implementation;
-    await CLS.create({
-      speaker: CLS.getSpeaker({ actor: this.actor }),
-      type: "base",
-      content: `<div class="etheria-chat-card">
-            <div class="card-content">
-                ${cardContent.join("")}
-            </div>
-        </div>`,
-    });
+    if(cardContent.length) {
+      const CLS = foundry.documents.ChatMessage.implementation;
+      await CLS.create({
+        speaker: CLS.getSpeaker({ actor: this.actor }),
+        type: "base",
+        content: `<div class="etheria-chat-card">
+              <div class="card-content">
+                  ${cardContent.join("")}
+              </div>
+          </div>`,
+      });
+    }
 
     return true;
   }
