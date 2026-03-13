@@ -47,6 +47,18 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
    */
   getCardActions() {
     const actions = {};
+
+    const haveUses =
+      this.uses && this.uses.value !== null && this.uses.max !== null;
+    const haveCost = this.cost?.value && this.cost?.resource;
+    if (haveUses || haveCost) {
+      actions.consumeItem = {
+        action: "consumeItem",
+        label: "Consume",
+        icon: "fa-solid fa-flask-round-potion",
+      };
+    }
+
     if (this.constructor.metadata.hasAccuracyRoll) {
       actions.rollAccuracy = {
         action: "rollAccuracy",
@@ -56,7 +68,7 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
     }
 
     const actionsEffects = this.parent.getActionsEffect() ?? [];
-    if(actionsEffects.length > 0) {
+    if (actionsEffects.length > 0) {
       actions.applyEffects = {
         action: "applyEffects",
         label: "Apply Effects",

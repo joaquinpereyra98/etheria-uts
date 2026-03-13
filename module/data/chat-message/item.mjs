@@ -1,4 +1,3 @@
-import { ETHERIA } from "../../config.mjs";
 import { DOC_SUB_TYPES, TEMPLATE_PATH } from "../../constants.mjs";
 import EtheriaBaseMessage from "./base.mjs";
 
@@ -13,7 +12,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
       type: DOC_SUB_TYPES.messages.item,
       actions: {
         rollAccuracy: EtheriaItemMessage.#onRollAccuracy,
-        useItem: EtheriaItemMessage.#onUseItem,
+        consumeItem: EtheriaItemMessage.#onConsumeItem,
         applyEffects: EtheriaItemMessage.#onApplyEffects,
       },
     });
@@ -82,39 +81,11 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
   /* -------------------------------------------- */
 
   /**
-   * Retrieves the document from item card.
-   * @param {HTMLElement} target
-   * @returns {Promise<foundry.abstract.Document|null>}
-   */
-  async #getDocFromTarget(target) {
-    const card = target.closest(".etheria-item-card");
-    const docUuid = card?.dataset?.docUuid;
-
-    if (!docUuid) {
-      ui.notifications.warn(
-        "Etheria | Could not find a document UUID on the clicked element.",
-      );
-      return null;
-    }
-
-    const doc = await foundry.utils.fromUuid(docUuid);
-
-    if (!doc) {
-      ui.notifications.warn(
-        `Etheria | Document with UUID "${docUuid}" could not be found in the database.`,
-      );
-      return null;
-    }
-
-    return doc;
-  }
-
-  /**
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static async #onRollAccuracy(_event, target) {
-    const item = await this.#getDocFromTarget(target);
+  static async #onRollAccuracy(_event, _target) {
+    const item = await foundry.utils.fromUuid(this.item.uuid);
     if (!item) return;
     return await item.rollAccuracy?.();
   }
@@ -123,15 +94,17 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static #onUseItem(event, target) {
-    //TODO: create a to use Item for consume resources
+  static async #onConsumeItem(_event, _target) {
+    const item = await foundry.utils.fromUuid(this.item.uuid);
+    if ( !item ) return;
+    await item.consume();
   }
 
   /**
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static async #onApplyEffects(event, target) {
+  static async #onApplyEffects(_event, _target) {
     const item = await foundry.utils.fromUuid(this.item.uuid);
     if (!item) return;
     item.applyEffect();
