@@ -1,6 +1,7 @@
 {
   "name": "etheria-uts",
   "version": "1.0.0",
+  "type": "module",
   "scripts": {
     "build": "rollup -c && node ./tools/YML-to-LDB.mjs",
     "compilePacks": "node ./tools/YML-to-LDB.mjs",
