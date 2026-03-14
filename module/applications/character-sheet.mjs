@@ -31,6 +31,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       width: 600,
     },
     actions: {
+      toggleMode: EtheriaCharacterSheet.#toggleMode,
       createAbility: EtheriaCharacterSheet.#onCreateAbility,
       createEffect: EtheriaCharacterSheet.#onCreateEffect,
       createItem: EtheriaCharacterSheet.#onCreateItem,
@@ -105,6 +106,29 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
   };
 
   /* -------------------------------------------- */
+  /* Modes                                        */
+  /* -------------------------------------------- */
+
+  /**
+   * Available sheet modes.
+   * @enum {number}
+   */
+  static MODES = {
+    PLAY: 1,
+    EDIT: 2,
+  };
+
+  _mode = EtheriaCharacterSheet.MODES.PLAY;
+
+  /**
+   * Is this sheet in Play Mode?
+   * @returns {boolean}
+   */
+  get isPlayMode() {
+    return this._mode === EtheriaCharacterSheet.MODES.PLAY;
+  }
+
+  /* -------------------------------------------- */
   /* Context Preparation                          */
   /* -------------------------------------------- */
 
@@ -114,6 +138,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
     return {
       ...context,
+      isPlayMode: this.isPlayMode,
       config: CONFIG.ETHERIA,
       actor: this.actor,
       system: this.actor.system,
@@ -141,7 +166,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const { system } = this.actor;
 
     const mapResources = (sourcePath) => {
-      const source = system[sourcePath] || {};
+      const source = this.isPlayMode
+        ? system[sourcePath]
+        : system._source[sourcePath] || {};
       return Object.fromEntries(
         Object.entries(source).map(([key, data]) => [
           key,
@@ -165,16 +192,19 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
    */
   async _prepareCharacterContext(context, _options) {
     const attributes = this.actor.system.attributes;
+
+    const getRaw = (key) =>
+      foundry.utils.getProperty(
+        this.actor.system._source,
+        `attributes.${key}.value`,
+      );
+
     context.attributes = Object.fromEntries(
       Object.entries(attributes).map(([key, data]) => [
         key,
         {
           field: this.actor.system.schema.getField(`attributes.${key}.value`),
-          raw: foundry.utils.getProperty(
-            this.actor.system._source,
-            `attributes.${key}.value`,
-          ),
-          value: data.value,
+          value: this.isPlayMode ? data.value : getRaw(key),
           mod: data.mod,
         },
       ]),
@@ -182,7 +212,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
     context.exhaustion = {
       field: this.actor.system.schema.getField("exhaustion"),
-      value: this.actor.system.exhaustion,
+      value: this.isPlayMode
+        ? this.actor.system.exhaustion
+        : this.actor.system._source.exhaustion,
       mod: this.actor.system.exhaustion * -3,
     };
   }
@@ -193,6 +225,12 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
    */
   async _prepareSecondaryStatsContext(context, _options) {
     const skills = this.actor.system.skills;
+    const getRaw = (key) =>
+      foundry.utils.getProperty(
+        this.actor.system._source,
+        `skills.${key}.value`,
+      );
+
     context.skills = Object.entries(skills).reduce((acc, [key, data]) => {
       const attributeKey = ETHERIA.skills[key].attribute;
       acc[attributeKey] ??= {
@@ -202,7 +240,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       acc[attributeKey].skills[key] = {
         field: this.actor.system.schema.getField(`skills.${key}.value`),
         total: data.total,
-        value: data.value,
+        value: this.isPlayMode ? data.value : getRaw(key),
       };
       return acc;
     }, {});
@@ -247,12 +285,18 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
    * @type {PartContextCallback}
    */
   async _prepareSpheresContext(context, _options) {
+    const getRaw = (key) =>
+      foundry.utils.getProperty(
+        this.actor.system._source,
+        `magicSpheres.${key}`,
+      );
+
     const magicSpheres = this.actor.system.magicSpheres;
     context.magicSpheres = Object.entries(magicSpheres).reduce(
       (acc, [key, data]) => {
         const context = {
           field: this.actor.system.schema.getField(`magicSpheres.${key}`),
-          value: data,
+          value: this.isPlayMode ? data : getRaw(key),
           icon: ETHERIA.magicSpheres[key]?.icon ?? "",
         };
 
@@ -378,6 +422,20 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     context.inventory = categories;
   }
 
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #toggleMode() {
+    if (!this.isEditable)
+      return console.error(
+        "You can't switch to Edit mode if the sheet is uneditable",
+      );
+
+    const { EDIT, PLAY } = EtheriaCharacterSheet.MODES;
+    this._mode = this.isPlayMode ? EDIT : PLAY;
+    this.render();
+  }
   /**
    * @this {EtheriaCharacterSheet}
    * @type {foundry.applications.types.ApplicationClickAction}

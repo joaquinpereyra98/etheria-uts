@@ -1,6 +1,6 @@
 <section class="tab{{#if tab.active}} active{{/if}} scrollable" data-group="{{tab.group}}" data-tab="{{tab.id}}">
   <div class="tab-container flexcol">
-     <section class="bonus-section">
+    <section class="bonus-section">
       <div class="stat-box flex-center glass-panel">
         <label class="stat-label">Is Caster?</label>
         {{formInput systemFields.details.fields.isCaster value=system.details.isCaster classes="etheria-checkbox"}}
@@ -10,17 +10,20 @@
     <section class="bonus-section">
       <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Accuracy Bonus">
         <i class="fa-solid fa-bullseye-arrow"></i>
-        {{formInput systemFields.bonus.fields.accuracy value=system.bonus.accuracy classes="etheria-input"}}
+        {{formInput systemFields.bonus.fields.accuracy value=system.bonus.accuracy classes="etheria-input"
+        disabled=isPlayMode}}
       </div>
 
       <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Pysical Damage Bonus">
         <i class="fa-solid fa-sword"></i>
-        {{formInput systemFields.bonus.fields.physicalDamage value=system.bonus.physicalDamage classes="etheria-input"}}
+        {{formInput systemFields.bonus.fields.physicalDamage value=system.bonus.physicalDamage classes="etheria-input"
+        disabled=isPlayMode}}
       </div>
 
       <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Magic Aamage Bonus">
         <i class="fa-solid fa-fire-flame"></i>
-        {{formInput systemFields.bonus.fields.magicDamage value=system.bonus.magicDamage classes="etheria-input"}}
+        {{formInput systemFields.bonus.fields.magicDamage value=system.bonus.magicDamage classes="etheria-input"
+        disabled=isPlayMode}}
       </div>
     </section>
     <hr class="etheria-hr">
@@ -33,12 +36,14 @@
         {{#each attribute.skills}}
         <div class="stat-row">
           <div class="stat-label" data-tooltip="{{field.label}}">{{localize field.label}}</div>
-          <div>{{formInput field value=value classes="etheria-input" dataset=(object tooltip=(concat field.label " Value"))}}</div>
+          <div>{{formInput field value=value classes="etheria-input" dataset=(object tooltip=(concat field.label "
+            Value")) disabled=@root.isPlayMode}}</div>
           <div class="mod-value" data-tooltip="{{field.label}} Total">
             ({{numberFormat total sign=true}})
           </div>
           <div class="controls">
-            <button type="button" class="etheria-button icon" data-tooltip="Roll {{field.label}}" data-action="rollSkill" data-skill="{{@key}}">
+            <button type="button" class="etheria-button icon" data-tooltip="Roll {{field.label}}"
+              data-action="rollSkill" data-skill="{{@key}}">
               <i class="fa-solid fa-dice-d20"></i>
             </button>
           </div>

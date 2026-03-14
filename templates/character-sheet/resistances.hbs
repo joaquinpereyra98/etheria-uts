@@ -4,7 +4,7 @@
       <div class="stat-box flex-center glass-panel" data-tooltip="Resistance to All Damage">
         <i class="fa-solid fa-shield-heart"></i>
         <label class="stat-label">{{resistances.all.field.label}}</label>
-        {{formInput resistances.all.field value=resistances.all.value classes="etheria-input"}}
+        {{formInput resistances.all.field value=resistances.all.value classes="etheria-input" disabled=isPlayMode}}
       </div>
     </section>
     <hr class="etheria-hr">
@@ -13,7 +13,7 @@
       <div class="stat-box flex-center glass-panel" data-tooltip="{{field.label}} Resistance">
         <img class="stat-icon" src="{{icon}}" alt="field.label">
         <label class="stat-label">{{field.label}}</label>
-        {{formInput field value=value classes="etheria-input"}}
+        {{formInput field value=value classes="etheria-input" disabled=@root.isPlayMode}}
       </div>
       {{/each}}
     </section>
@@ -23,7 +23,7 @@
       <div class="stat-box flex-center glass-panel" data-tooltip="{{field.label}} Resistance">
         <img class="stat-icon" src="{{icon}}" alt="field.label">
         <label class="stat-label">{{field.label}}</label>
-        {{formInput field value=value classes="etheria-input"}}
+        {{formInput field value=value classes="etheria-input" disabled=@root.isPlayMode}}
       </div>
       {{/each}}
     </section>

@@ -1,7 +1,7 @@
 <div class="resource-field flexcol glass-panel {{classes}}">
   <div class="resource-header flexrow">
     {{#if fields.label}}
-      {{formInput fields.label value=data.label}}
+      {{formInput fields.label value=data.label disabled=disabled}}
     {{else}}
       <label class="resource-label">
         {{localize label}}
@@ -10,10 +10,10 @@
   </div>
 
   <div class="resource-inputs flexrow">
-    {{formInput fields.value value=data.value}}
+    {{formInput fields.value value=data.value classes="etheria-input"}}
 
     {{#if (ne data.max null)}}
-      {{formInput fields.max value=data.max}}
+      {{formInput fields.max value=data.max disabled=disabled classes="etheria-input"}}
     {{/if}}
   </div>
 

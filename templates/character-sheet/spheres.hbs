@@ -5,7 +5,7 @@
       <div class="stat-box flex-center glass-panel" data-tooltip="{{field.label}} Sphere">
         <img class="stat-icon" src="{{icon}}" alt="field.label">
         <label class="stat-label">{{field.label}}</label>
-        {{formInput field value=value classes="etheria-input"}}
+        {{formInput field value=value classes="etheria-input" disabled=@root.isPlayMode}}
       </div>
       {{/each}}
     </section>

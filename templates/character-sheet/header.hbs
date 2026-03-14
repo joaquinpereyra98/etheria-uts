@@ -1,17 +1,22 @@
 <header class="sheet-header flexrow">
+  <a class="icon mode-toggler" data-action="toggleMode">
+    <i class="mode-icon fa-solid fa-wrench {{ifThen isPlayMode "" "active"}}"></i>
+    <i class="toggler fa-solid fa-toggle-large-{{ifThen isPlayMode "on" "off"}}"></i>
+    <i class="mode-icon fa-solid fa-gamepad-modern {{ifThen isPlayMode "active" ""}}"></i>
+  </a>
   <div class="portrait flex-center">
     <img class="portrait-img" src="{{document.img}}" alt="{{document.name}}" data-action="editImage" data-edit="img" />
   </div>
   <div class="header-fields flexcol">
 
     <div class="name-level-row flexrow">
-      {{formInput fields.name value=document.name classes="header-input input-name"}}
+      {{formInput fields.name value=(ifThen isPlayMode document.name document._source.name) classes="header-input input-name" disabled=isPlayMode}}
       <div class="flexcol resource-field glass-panel level-name">
         <div class="resource-header flexrow">
           <label class="resource-label">Level</label>
         </div>
         <div class="resource-inputs flexrow">
-          {{formInput system.schema.fields.level value=system.level}}
+          {{formInput system.schema.fields.level value=(ifThen isPlayMode system.level system._source.level) value=system.level disabled=isPlayMode classes="etheria-input"}}
         </div>
       </div>
     </div>
@@ -20,7 +25,7 @@
       {{#each resources }}
       {{#unless (and (eq @key "mana") (not ../system.details.isCaster))}}
       {{> "modules/etheria-uts/templates/character-sheet/partials/resource-field.hbs"
-      label=field.label data=value fields=field.fields }}
+      label=field.label data=value fields=field.fields disabled=@root.isPlayMode}}
       {{/unless}}
       {{/each}}
     </div>
