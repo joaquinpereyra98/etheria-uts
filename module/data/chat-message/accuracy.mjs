@@ -171,6 +171,8 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
       [`system.${type}.rolls`]: evaluatedRolls,
       rolls: allRolls,
     });
+
+    game.audio.play(CONFIG.sounds.dice, { context: game.audio.interface });
   }
 
   /**

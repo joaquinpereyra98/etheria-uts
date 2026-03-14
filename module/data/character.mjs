@@ -214,9 +214,9 @@ export default class EtheriaCharacterData extends TypeDataModel {
       if (v.max !== null) data[k].max = v.max;
     }
 
-    data.acc = data.bonus.accuracy;
-    data.physical = data.bonus.physicalDamage;
-    data.magic = data.bonus.magicDamage;
+    data.acc = data.bonus.accuracy ?? 0;
+    data.physical = data.bonus.physicalDamage ?? 0;
+    data.magic = data.bonus.magicDamage ?? 0;
 
     return data;
   }

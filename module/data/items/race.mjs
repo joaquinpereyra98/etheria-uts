@@ -28,8 +28,14 @@ export default class EtheriaRaceData extends BoundAbilitiesMixin(
     const allowed = await super._preUpdate(data, options, user);
     if (allowed === false) return false;
 
-    const parent = options?.parent;
-    if (parent instanceof foundry.documents.Actor && parent?.system.race) {
+    const parent = this.parent.parent;
+      
+    const parentIsActor =
+      parent instanceof foundry.documents.Actor ||
+      parent instanceof foundry.documents.ActorDelta;
+
+    if (parentIsActor && parent?.system.race) {
+
       const question = game.i18n.localize("AreYouSure");
       const warning =
         "Changing your race will <strong>permanently overwrite</strong> your current racial data. All existing racial traits and progress will be lost. This action is <strong>irreversible</strong>.";
@@ -37,10 +43,13 @@ export default class EtheriaRaceData extends BoundAbilitiesMixin(
         window: { title: "GAME.ReturnSetup" },
         content: `<p><strong>${question}</strong> ${warning}</p>`,
       });
+
       if (!confirm) return false;
+
       Object.assign(options[MODULE_ID], {
         overrideRace: true,
       });
+
     }
   }
 
@@ -49,13 +58,17 @@ export default class EtheriaRaceData extends BoundAbilitiesMixin(
     super._onCreate(data, options, userId);
     if (game.user.id !== userId) return;
 
-    const actor = options.parent;
-    if (!(actor instanceof foundry.documents.Actor)) return;
+    const parent = this.parent.parent;
+    const parentIsActor =
+      parent instanceof foundry.documents.Actor ||
+      parent instanceof foundry.documents.ActorDelta;
+    if (!parentIsActor) return;
 
-    if (options[MODULE_ID]?.overrideRace && actor.system.race) {
-      fromUuidSync(actor.system.race)?.delete();
+    const oldRaceUuid = parent.system.race;
+    if (options[MODULE_ID]?.overrideRace && oldRaceUuid) {
+      fromUuidSync(oldRaceUuid)?.delete();
     }
 
-    actor.update({ "system.race": this.parent.id });
+    parent.update({ "system.race": this.parent.id });
   }
 }

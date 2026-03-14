@@ -63,7 +63,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     const terms = ["1d20", "+ @acc", "- @exh"];
     if (attribute) {
       const attr = ETHERIA.attributes[attribute].abrr;
-      terms.push(`@${attr}.mod`);
+      terms.push(`+ @${attr}.mod`);
     }
 
     /**@type {DamageData[]} */
@@ -149,8 +149,10 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       type: DOC_SUB_TYPES.messages.effect,
       system: {
         effects: {
-          self: selfEffects.filter(ef => !ef.disabled).map((ef) => ef.uuid),
-          target: targetsEffects.filter(ef => !ef.disabled).map((ef) => ef.uuid),
+          self: selfEffects.filter((ef) => !ef.disabled).map((ef) => ef.uuid),
+          target: targetsEffects
+            .filter((ef) => !ef.disabled)
+            .map((ef) => ef.uuid),
         },
         targets: game.user.targets.map((t) => t.document.uuid),
       },
@@ -211,18 +213,22 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     }
 
     const cardContent = [];
-    if (!foundry.utils.isEmpty(updates)){
-      await this.update(updates)
-      cardContent.push(` <p>The ${this.actor.name} used a charge of ${this.name} Item.</p>`);
-    };
+    if (!foundry.utils.isEmpty(updates)) {
+      await this.update(updates);
+      cardContent.push(
+        ` <p>The ${this.actor.name} used a charge of ${this.name} Item.</p>`,
+      );
+    }
     if (!foundry.utils.isEmpty(actorUpdates)) {
       await this.actor.update(actorUpdates);
       const resourcesChoices = this.actor.system.getResourcesChoices();
       const resourceLabel = resourcesChoices[cost.resource];
-      cardContent.push(` <p>The ${this.actor.name} spent <b>${cost.value} ${resourceLabel}</b>.</p>`);
+      cardContent.push(
+        ` <p>The ${this.actor.name} spent <b>${cost.value} ${resourceLabel}</b>.</p>`,
+      );
     }
 
-    if(cardContent.length) {
+    if (cardContent.length) {
       const CLS = foundry.documents.ChatMessage.implementation;
       await CLS.create({
         speaker: CLS.getSpeaker({ actor: this.actor }),
