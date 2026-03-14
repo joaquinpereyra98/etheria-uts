@@ -147,6 +147,33 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     };
   }
 
+  /**@inheritdoc */
+  _prepareTabs(group) {
+    const isCastingTab =
+      group === "primary" && this.tabGroups[group] === "spheres";
+
+    if (isCastingTab && !this.actor.system.details.isCaster) {
+      this.tabGroups[group] = "character";
+    }
+
+    return super._prepareTabs(group);
+  }
+
+  /**@override */
+  _getTabsConfig(group) {
+    const config = this.constructor.TABS[group];
+    if (!config) return null;
+
+    if (group === "primary" && !this.actor.system.details.isCaster) {
+      return {
+        ...config,
+        tabs: config.tabs.filter((t) => t.id !== "spheres"),
+      };
+    }
+
+    return config;
+  }
+
   /** @override */
   async _preparePartContext(partId, context, options) {
     context = await super._preparePartContext(partId, context, options);
