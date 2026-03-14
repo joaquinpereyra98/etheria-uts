@@ -43,6 +43,7 @@ jobs:
           zip --recurse-paths ./module.zip module.json README.md LICENSE main.mjs
           
           if [ -d "assets" ]; then zip -r ./module.zip assets/; fi
+          if [ -d "lang" ]; then zip -r ./module.zip lang/; fi
           if [ -d "styles" ]; then zip -r ./module.zip styles/; fi
           if [ -d "templates" ]; then zip -r ./module.zip templates/; fi
           if [ -d "packs" ]; then zip -r ./module.zip packs/; fi

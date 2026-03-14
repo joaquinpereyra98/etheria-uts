@@ -49,6 +49,7 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
   /** @override */
   async _prepareContext(context) {
     await super._prepareContext(context);
+    context.hasDamage = this.damages.rolls.length > 0;
     context.isIdle = this.evaluation === EVALUATION_STATES.IDLE;
     context.isPending = this.evaluation === EVALUATION_STATES.PENDING;
     context.isEvaluated = this.evaluation === EVALUATION_STATES.EVALUATED;

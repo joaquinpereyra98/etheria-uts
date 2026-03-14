@@ -4,8 +4,7 @@
   {{/if}}
 
   <section class="accordion {{ifThen accordionState.targets 'expanded' ''}}">
-    <header class="flexrow accordion-header" data-action="toggleAccordion"
-      data-accordion-id="targets">
+    <header class="flexrow accordion-header" data-action="toggleAccordion" data-accordion-id="targets">
       <i class="accordion-chevron icon fa-solid fa-chevron-right"></i>
 
       <div class="title-container">
@@ -68,6 +67,7 @@
         data-action="reEvaluateRoll" data-type="accuracy"></a>
       {{/if}}
     </div>
+    {{#if hasDamage}}
     <div class="action-row">
       <button class="item-action etheria-button" data-type="damages" data-action="promptGMForRoll" {{disabled (not
         damages.isIdle)}}>
@@ -81,6 +81,7 @@
         data-action="reEvaluateRoll" data-type="damages"></a>
       {{/if}}
     </div>
+    {{/if}}
     {{/if}}
   </div>
 </div>
