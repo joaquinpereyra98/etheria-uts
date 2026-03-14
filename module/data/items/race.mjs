@@ -11,6 +11,7 @@ export default class EtheriaRaceData extends BoundAbilitiesMixin(
       icon: "fa-solid fa-person-rays",
       img: `${ASSETS_PATH}/items-icons/viking-head.svg`,
       type: DOC_SUB_TYPES.items.race,
+      isEquippable: false,
     });
   }
 
@@ -29,7 +30,7 @@ export default class EtheriaRaceData extends BoundAbilitiesMixin(
     if (allowed === false) return false;
 
     const parent = this.parent.parent;
-      
+
     const parentIsActor =
       parent instanceof foundry.documents.Actor ||
       parent instanceof foundry.documents.ActorDelta;

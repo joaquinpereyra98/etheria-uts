@@ -19,10 +19,42 @@ export default class EtheriaActor extends Cls {
   }
 
   /**
+   * Recovers a specified character resource (stamina or mana) based on current recovery stats.
+   * @param {'stamina'|'mana'} resourceKey - The key of the resource to recover.
+   * @returns {Promise<void>}
+   */
+  async recoverResource(resourceKey) {
+    const { resources, recovers, details, _source } = this.system;
+    const resource = resources[resourceKey];
+    const recoveryAmount = recovers[resourceKey];
+
+    if (!resource || !recoveryAmount || resource.value >= resource.max) return;
+
+    if (resourceKey === "mana" && !details.isCaster) {
+      return ui.notifications.warn(
+        "You do not have the ability to recover mana.",
+      );
+    }
+
+    const currentValue = _source.resources[resourceKey].value;
+    const newValue = Math.clamp(currentValue + recoveryAmount, 0, resource.max);
+
+    const diff = newValue - currentValue;
+
+    if (diff > 0) {
+      ui.notifications.info(`Etheria | ${this.name} recovered ${diff} ${resourceKey}.`);
+
+      return this.update({
+        [`system.resources.${resourceKey}.value`]: newValue,
+      });
+    }
+  }
+
+  /**
    * Roll method for character rolls.
    * @param {string} attributeKey - The key for the attribute (e.g., 'strength' or 'str').
    */
-  async rollAttributesCheck(attributeKey) {
+  async rollAttribute(attributeKey) {
     const entry = Object.entries(ETHERIA.attributes).find(
       ([k, v]) =>
         k === attributeKey.toLowerCase() ||
@@ -51,7 +83,7 @@ export default class EtheriaActor extends Cls {
    * Roll method for character rolls.
    * @param {keyof ETHERIA.skills} skillKey - The key for the skill
    */
-  async rollSkillCheck(skillKey) {
+  async rollSkill(skillKey) {
     const config = ETHERIA.skills[skillKey];
     const formula = `1d20 + @skills.${skillKey}.total + @bonus.accuracy - (@exhaustion * 3)`;
     const rollData = this.getRollData();
@@ -79,7 +111,9 @@ export default class EtheriaActor extends Cls {
     await roll.evaluate();
 
     roll.toMessage({
-      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({ actor: this }),
+      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({
+        actor: this,
+      }),
       flavor: `<b>Roll Advancement</b> - ${type.capitalize()}`,
     });
 
@@ -91,11 +125,13 @@ export default class EtheriaActor extends Cls {
    * @param {keyof ETHERIA.defenses} defenseType - The key for the defense type.
    *                               This key is expected to exist in `ETHERIA.defenses` and `this.system.defenses`.
    * @returns {Promise<foundry.dice.Roll>} The evaluated Roll object.
-   */ 
+   */
   async rollDefense(defenseType) {
     const config = ETHERIA.defenses[defenseType];
     if (!config) {
-      ui.notifications.warn(`Etheria | Defense configuration not found for type: ${defenseType}`);
+      ui.notifications.warn(
+        `Etheria | Defense configuration not found for type: ${defenseType}`,
+      );
       return;
     }
 
@@ -106,7 +142,9 @@ export default class EtheriaActor extends Cls {
     await roll.evaluate();
 
     roll.toMessage({
-      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({ actor: this }),
+      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({
+        actor: this,
+      }),
       flavor: `<b>Defense Roll</b> - ${config.label}`,
     });
 
@@ -122,14 +160,15 @@ export default class EtheriaActor extends Cls {
    * @returns {Promise<{finalDamage: number, applied: boolean}>} An object containing the final damage and if it was applied.
    */
   async applyDamage(baseDamage, damageType, { chatMessage = true } = {}) {
-
-    if(ETHERIA.healingTypes[damageType]) {
+    if (ETHERIA.healingTypes[damageType]) {
       return await this.applyHeal(baseDamage, damageType, { chatMessage });
     }
 
     const damageConfig = ETHERIA.damageTypes[damageType];
     if (!damageConfig) {
-      ui.notifications.warn(`Etheria | Unknown damage type provided: ${damageType}`);
+      ui.notifications.warn(
+        `Etheria | Unknown damage type provided: ${damageType}`,
+      );
       return { finalDamage: baseDamage, applied: false };
     }
 
@@ -142,7 +181,9 @@ export default class EtheriaActor extends Cls {
 
     if (finalDamage > 0) {
       const currentHp = this.system.resources.hp.value;
-      await this.update({ "system.resources.hp.value": currentHp - finalDamage });
+      await this.update({
+        "system.resources.hp.value": currentHp - finalDamage,
+      });
     }
 
     if (chatMessage) {
@@ -162,7 +203,7 @@ export default class EtheriaActor extends Cls {
     return { finalDamage, applied: finalDamage > 0 };
   }
 
-/**
+  /**
    * Apply healing to this Actor and optionally create a chat message.
    * @param {number} baseHeal - The amount of healing to be applied.
    * @param {keyof ETHERIA.healingTypes} [healingType="heal"] - The key of the healing type configuration.
@@ -174,7 +215,7 @@ export default class EtheriaActor extends Cls {
   async applyHeal(baseHeal, healingType = "heal", { chatMessage = true } = {}) {
     const healConfig = ETHERIA.healingTypes[healingType];
     const hp = this.system.resources.hp;
-    
+
     const missingHp = Math.max(0, hp.max - hp.value);
     const finalHeal = Math.min(baseHeal, missingHp);
     const overflow = baseHeal - finalHeal;
@@ -187,11 +228,11 @@ export default class EtheriaActor extends Cls {
         <div class="etheria-chat-card">
           <p><strong>${this.name}</strong> receives <strong>${finalHeal}</strong> ${label} points.</p>
       `;
-      
+
       if (overflow > 0) {
         content += `<small style="display: block; opacity: 0.7;">(${overflow} healing exceeded max HP)</small>`;
       }
-      
+
       content += `</div>`;
 
       /**@type {typeof foundry.documents.ChatMessage} */

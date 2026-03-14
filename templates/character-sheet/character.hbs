@@ -2,7 +2,8 @@
   <div class="tab-container flexcol">
     <section class="race-section glass-panel" data-doc-uuid="{{system.race.uuid}}">
       {{#if system.race}}
-      <div class="race-content draggable" data-item-id="{{system.race.id}}" data-action="viewDoc" data-tooltip="Click to Edit Race">
+      <div class="race-content draggable" data-item-id="{{system.race.id}}" data-action="viewDoc"
+        data-tooltip="Click to Edit Race">
         <div class="item-portrait race-portrait">
           <img src="{{system.race.img}}" alt="{{system.race.name}}">
         </div>
@@ -45,15 +46,19 @@
       </div>
     </section>
     <section class="glass-panel attributes-list stat-list flexcol">
-      {{#each attributes }}
+      {{#each attributes}}
       <div class="stat-row">
         <div class="stat-label">{{localize field.label}}</div>
         <div data-tooltip="{{field.label}} Value">{{formInput field value=value classes="etheria-input"}}</div>
+        <div data-tooltip="{{field.label}} Value {{#if (ne value raw)}}| Effective: {{value}}{{/if}}">
+          {{formInput field value=raw classes="etheria-input"}}
+        </div>
         <div class="mod-value" data-tooltip="{{field.label}} Modifier">
           {{numberFormat mod sign=true}}
         </div>
         <div>
-          <button type="button" class="etheria-button" data-tooltip="Roll {{field.label}}">
+          <button type="button" class="etheria-button" data-tooltip="Roll {{field.label}}" data-action="rollAttribute"
+            data-attribute="{{@key}}">
             <i class="fa-solid fa-dice-d20"></i> Roll
           </button>
         </div>
@@ -61,22 +66,27 @@
       {{/each}}
     </section>
     <section class="recovery-section">
-      <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Stamina">
+      <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Stamina"
+        data-action="recoverResource" data-resource="stamina">
         <i class="fa-solid fa-heart-circle-bolt"></i>
         <span>
           {{numberFormat actor.system.recovers.stamina.value sign=true}}
         </span>
       </button>
-      <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Mana">
+      {{#if system.details.isCaster}}
+      <button class="recover-btn flex-center etheria-button" data-tooltip="Recover Mana" data-action="recoverResource"
+        data-resource="mana">
         <i class="fa-solid fa-fire-flame"></i>
         <span>
           {{numberFormat actor.system.recovers.mana.value sign=true}}
         </span>
       </button>
+      {{/if}}
     </section>
     <section class="dice-resources-section">
       <div class="roll-box stat-box flex-center glass-panel">
-        <a class="clickable-anchor icon-layer" data-tooltip="Roll Health Advancement">
+        <a class="clickable-anchor icon-layer" data-tooltip="Roll Health Advancement" data-action="rollAdvancement"
+          data-type="health">
           <i class="fa-solid fa-heart"></i>
           <i class="sub-icon fa-duotone fa-light fa-dice-d20"></i>
         </a>
@@ -85,7 +95,8 @@
       </div>
 
       <div class="roll-box stat-box flex-center glass-panel">
-        <a class="clickable-anchor icon-layer" data-tooltip="Roll Resource Advancement">
+        <a class="clickable-anchor icon-layer" data-tooltip="Roll Resource Advancement" data-action="rollAdvancement"
+          data-type="resource">
           <i class="fa-solid fa-sparkles"></i>
           <i class="sub-icon fa-duotone fa-light fa-dice-d20"></i>
         </a>

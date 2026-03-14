@@ -2,13 +2,13 @@
   <div class="tab-container flexcol">
     <section class="html-box glass-panel">
       <h4>Description</h4>
-      {{formInput description.field value=description.value enrich=description.enrich toggled=true}}
+      {{formInput description.field value=description.value enriched=description.enrich toggled=true}}
     </section>
     {{#if user.isGM}}
     <hr class="etheria-hr">
     <section class="html-box glass-panel">
     <h4>GM Notes</h4>
-      {{formInput gmNotes.field value=gmNotes.value enrich=gmNotes.enrich toggled=true}}
+      {{formInput gmNotes.field value=gmNotes.value enriched=gmNotes.enrich toggled=true}}
     </section>
     {{/if}}
   </div>

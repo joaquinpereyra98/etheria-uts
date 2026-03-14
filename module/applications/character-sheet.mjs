@@ -39,6 +39,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       toggleEquip: EtheriaCharacterSheet.#onToggleEquip,
       viewDoc: EtheriaCharacterSheet.#onViewDoc,
       deleteDoc: EtheriaCharacterSheet.#onDeleteDoc,
+      rollAttribute: EtheriaCharacterSheet.#onRollAttribute,
+      rollSkill: EtheriaCharacterSheet.#onRollSkill,
+      rollAdvancement: EtheriaCharacterSheet.#onRollAdvancement,
+      recoverResource: EtheriaCharacterSheet.#onRecoverResource,
     },
   };
 
@@ -523,5 +527,45 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const doc = foundry.utils.fromUuidSync(docUuid);
     if (event.shiftKey) return doc.delete();
     return doc.deleteDialog();
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRollAttribute(_event, target) {
+    const { attribute } = target.closest("[data-attribute]").dataset ?? {};
+    if (!attribute) return;
+    return await this.actor.rollAttribute(attribute);
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRollSkill(_event, target) {
+    const { skill } = target.closest("[data-skill]").dataset ?? {};
+    if (!skill) return;
+    return await this.actor.rollSkill(skill);
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRollAdvancement(_event, target) {
+    const { type } = target.closest("[data-type]").dataset ?? {};
+    if (!type) return;
+    return await this.actor.rollAdvancement(type);
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRecoverResource(_event, target) {
+    const { resource } = target.closest("[data-resource]").dataset ?? {};
+    if (!resource) return;
+    return await this.actor.recoverResource(resource);
   }
 }

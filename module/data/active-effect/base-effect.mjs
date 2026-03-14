@@ -69,8 +69,13 @@ export default class EtheriaBaseEffect extends foundry.abstract.TypeDataModel {
     // If it's an Action, it's suppressed by default
     if (this.isAction) return true;
 
-    // Static effects are suppressed if the item isn't equipped
-    return !this.item.system.equipped;
+    // Static effects are suppressed if the equippable item isn't equipped.
+    if(this.item.system.hasOwnProperty("equipped")) {
+      return !this.item.system.equipped;
+    }
+
+    //Not suppresed by default
+    return false;
   }
 
   /**

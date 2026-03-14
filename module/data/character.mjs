@@ -33,6 +33,11 @@ export default class EtheriaCharacterData extends TypeDataModel {
           valueOptions: { min: 0 },
           maxOptions: { min: 0, nullable: true, initial: null },
         }),
+        mana: new ResourceSchemaField({
+          schemaOptions: { label: "Mana" },
+          valueOptions: { min: 0 },
+          maxOptions: { min: 0 },
+        }),
       }),
 
       resourcesExtra: new fields.TypedObjectField(

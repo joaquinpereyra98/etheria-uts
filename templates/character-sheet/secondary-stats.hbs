@@ -38,7 +38,7 @@
             ({{numberFormat total sign=true}})
           </div>
           <div class="controls">
-            <button type="button" class="etheria-button icon" data-tooltip="Roll {{field.label}}">
+            <button type="button" class="etheria-button icon" data-tooltip="Roll {{field.label}}" data-action="rollSkill" data-skill="{{@key}}">
               <i class="fa-solid fa-dice-d20"></i>
             </button>
           </div>
@@ -56,11 +56,11 @@
       </div>
       <div class="resource-row">
         <div class="input-group">
-          <input type="text" class="resource-name etheria-input" placeholder="e.g. Mana">
+          <input type="text" class="resource-name etheria-input" placeholder="e.g. Ki">
         </div>
 
         <div class="input-group">
-          <input type="text" class="resource-key etheria-input" placeholder="e.g. mana_points">
+          <input type="text" class="resource-key etheria-input" placeholder="e.g. ki_points">
         </div>
 
         <div class="controls flex-center">

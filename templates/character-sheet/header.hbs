@@ -18,8 +18,10 @@
     <hr class="etheria-hr">
     <div class="resources-fields flexrow">
       {{#each resources }}
-      {{> "modules/etheria-uts/templates/character-sheet/partials/resource-field.hbs" label=field.label data=value
-      fields=field.fields}}
+      {{#unless (and (eq @key "mana") (not ../system.details.isCaster))}}
+      {{> "modules/etheria-uts/templates/character-sheet/partials/resource-field.hbs"
+      label=field.label data=value fields=field.fields }}
+      {{/unless}}
       {{/each}}
     </div>
   </div>

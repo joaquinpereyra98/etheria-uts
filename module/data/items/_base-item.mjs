@@ -29,11 +29,12 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
     const fields = foundry.data.fields;
 
     const schema = {};
-    if (EtheriaItemData.metadata.isEquippable)
+    if (this.metadata.isEquippable) {
       schema.equipped = new fields.BooleanField({
         initial: false,
         label: "is Equipped?",
       });
+    }
     schema.description = new fields.SchemaField({
       value: new fields.HTMLField(),
       gmNotes: new fields.HTMLField(),
