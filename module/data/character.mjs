@@ -9,6 +9,7 @@ import {
 import { LocalDocumentField, FormulaField } from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
 import { ETHERIA } from "../config.mjs";
+import { DOC_SUB_TYPES } from "../constants.mjs";
 
 export default class EtheriaCharacterData extends TypeDataModel {
   static defineSchema() {
@@ -43,7 +44,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
       resourcesExtra: new fields.TypedObjectField(
         new ResourceSchemaField({
           maxOptions: { min: 0, nullable: true, initial: null },
-          customLabel: true,
+          schemaOptions: { customLabel: true },
         }),
       ),
 
@@ -103,6 +104,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
     for (const [key, attribute] of Object.entries(this.attributes)) {
       this.attributes[key].mod = this.#calcModifer(attribute.value);
     }
+
+    this.#calcArmor();
 
     for (const [key, skill] of Object.entries(this.skills)) {
       const attrKey = ETHERIA.skills[key].attribute;
@@ -173,6 +176,16 @@ export default class EtheriaCharacterData extends TypeDataModel {
     ];
     const entry = lookupTable.find((i) => stat >= i.min);
     return entry ? entry.mod : -10;
+  }
+
+  #calcArmor() {
+    const armors = this.parent.itemTypes[DOC_SUB_TYPES.items.armor] ?? [];
+    const armorMod = armors.reduce((acc, armor) => {
+      if (armor.system.equipped) acc += armor.system.armorValue ?? 0;
+      return acc;
+    }, 0);
+
+    this.resources.armor.value += armorMod;
   }
 
   /**

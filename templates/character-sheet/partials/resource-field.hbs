@@ -1,19 +1,19 @@
 <div class="resource-field flexcol glass-panel {{classes}}">
   <div class="resource-header flexrow">
-    {{#if fields.label}}
-      {{formInput fields.label value=data.label disabled=disabled}}
-    {{else}}
-      <label class="resource-label">
-        {{localize label}}
-      </label>
-    {{/if}}
+    <label class="resource-label">
+      {{ifThen label label data.label}}
+    </label>
   </div>
 
   <div class="resource-inputs flexrow">
-    {{formInput fields.value value=data.value classes="etheria-input"}}
-
+    {{#if isArmor}}
+    <input class="etheria-input" type="number" name="{{path}}.value" value="{{data.value}}" step="1" {{disabled
+      disabled}}>
+    {{else}}
+    <input class="etheria-input" type="number" name="{{path}}.value" value="{{data.value}}" step="1">
+    {{/if}}
     {{#if (ne data.max null)}}
-      {{formInput fields.max value=data.max disabled=disabled classes="etheria-input"}}
+    <input class="etheria-input" type="number" name="{{path}}.max" value="{{data.max}}" step="1" {{disabled disabled}}>
     {{/if}}
   </div>
 

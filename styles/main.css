@@ -230,6 +230,14 @@
         font-size: 0.9rem;
         margin-top: 2px;
         color: var(--text-muted);
+
+        .label-input {
+          --input-height: 1.2rem;
+          font-size: 0.9rem;
+          text-align: center;
+          border-bottom: 1px solid var(--border-glow);
+          border-radius: 0;
+        }
       }
 
       .resource-inputs {
@@ -325,6 +333,7 @@
             color: var(--text-main);
             box-shadow: var(--shadow-thin);
             border: none;
+
             &:disabled {
               opacity: 0.8;
             }

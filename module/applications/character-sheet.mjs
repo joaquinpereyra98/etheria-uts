@@ -44,6 +44,8 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       rollSkill: EtheriaCharacterSheet.#onRollSkill,
       rollAdvancement: EtheriaCharacterSheet.#onRollAdvancement,
       recoverResource: EtheriaCharacterSheet.#onRecoverResource,
+      createResource: EtheriaCharacterSheet.#onCreateResource,
+      deleteResource: EtheriaCharacterSheet.#onDeleteResource,
     },
   };
 
@@ -201,6 +203,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
           key,
           {
             field: system.schema.getField(`${sourcePath}.${key}`),
+            path: `system.${sourcePath}.${key}`,
             value: data,
           },
         ]),
@@ -652,5 +655,56 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const { resource } = target.closest("[data-resource]").dataset ?? {};
     if (!resource) return;
     return await this.actor.recoverResource(resource);
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onCreateResource(_event, target) {
+    const row = target.closest(".create-row");
+    const keyInput = row.querySelector("input.resource-key");
+    const nameInput = row.querySelector("input.resource-name");
+
+    const key = keyInput.value.trim().slugify({ strict: true });
+    const label = nameInput.value.trim() || key || "New Resource";
+
+    if (!key) {
+      return ui.notifications.warn(
+        "A unique key is required to create a resource",
+      );
+    }
+
+    if (foundry.utils.hasProperty(this.actor.system, `resourcesExtra.${key}`)) {
+      return ui.notifications.error("A resource with that key already exists.");
+    }
+
+    await this.actor.update({
+      [`system.resourcesExtra.${key}`]: {
+        value: 0,
+        max: 0,
+        label: label,
+      },
+    });
+  }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onDeleteResource(event, target) {
+    const { key } = target.dataset ?? {};
+    if (!key) return;
+    if(!event.shiftKey){
+      const response = await foundry.applications.api.Dialog.confirm({
+        content: "Are you sure you want to delete this resource?",
+      });
+      if(!response) return;
+    }
+
+    this.actor.update({
+      [`system.resourcesExtra.-=${key}`]: null,
+    });
+
   }
 }

@@ -59,7 +59,7 @@
         <div class="header-label">Data Key</div>
         <div></div>
       </div>
-      <div class="resource-row">
+      <div class="resource-row create-row">
         <div class="input-group">
           <input type="text" class="resource-name etheria-input" placeholder="e.g. Ki">
         </div>
@@ -78,13 +78,13 @@
       {{#each system.resourcesExtra}}
       <div class="resource-row">
         <div class="input-group">
-          <input type="text" class="resource-name etheria-input" value="{{label}}">
+          {{formInput ../systemFields.resourcesExtra.element.fields.label name=(concat "system.resourcesExtra."@key ".label") value=label classes="etheria-input"}}
         </div>
         <div class="input-group">
           <input type="text" class="resource-name etheria-input" value="{{@key}}" disabled>
         </div>
         <div class="controls flex-center">
-          <a class="delete-resource" data-key="{{key}}"><i class="fas fa-trash"></i></a>
+          <a class="delete-resource" data-action="deleteResource" data-key="{{@key}}"><i class="fas fa-trash"></i></a>
         </div>
       </div>
       {{/each}}
