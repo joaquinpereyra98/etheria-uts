@@ -1,3 +1,5 @@
+import { MODULE_ID } from "../constants.mjs";
+
 /**
  * A hook event that fires whenever an ActiveEffectConfig is rendered.
  * @param {foundry.applications.sheets.ActiveEffectConfig} application - The Application instance being rendered
@@ -6,32 +8,42 @@
  * @param {foundry.applications.types.ApplicationRenderOptions} options - The application rendering options
  */
 export default function onRenderActiveEffectConfig(application, element) {
-  const effect = application.document;
-  const systemFields = effect.system.schema.fields;
+  const { document: effect } = application;
+  const { fields } = effect.system.schema;
 
-  const targetContainer =
-    element.querySelector('.tab[data-tab="details"]') ||
-    element.querySelector("section");
-  if (!targetContainer) return;
+  const detailsTab =
+    element.querySelector('.tab[data-tab="details"]');
+    if (detailsTab) {
+    const html = ["apply", "target"]
+      .map(
+        (key) =>
+          fields[key].toFormGroup(
+            {},
+            { value: effect.system[key], name: `system.${key}` },
+          ).outerHTML,
+      )
+      .join("");
 
-  const applyHTML = systemFields.apply.toFormGroup(
-    {},
-    {
-      value: effect.system.apply,
-      name: "system.apply",
-    },
-  ).outerHTML;
+    detailsTab.insertAdjacentHTML("afterbegin", html);
+  }
 
-  const targetHTML = systemFields.target.toFormGroup(
-    {},
-    {
-      value: effect.system.target,
-      name: "system.target",
-    },
-  ).outerHTML;
+  const changesTab = element.querySelector("section[data-tab='changes']");
+  const keys = effect.target?.system?.changesKeys;
 
-  targetContainer.insertAdjacentHTML("afterbegin", `
-    ${applyHTML}
-    ${targetHTML}
-  `);
+  if (changesTab && keys) {
+    const listId = `${MODULE_ID}-attribute-key-list`;
+    const options = [...keys]
+      .sort((a, b) => a.localeCompare(b))
+      .map((key) => `<option value="${key}">`)
+      .join("");
+  
+    changesTab.insertAdjacentHTML(
+      "beforeend",
+      `<datalist id="${listId}">${options}</datalist>`,
+    );
+    changesTab
+      .querySelectorAll(".key input")
+      .forEach((i) => i.setAttribute("list", listId));
+  }
+
 }

@@ -85,6 +85,12 @@ export default class EtheriaCharacterData extends TypeDataModel {
     };
   }
 
+  #changesKeys = [];
+
+  get changesKeys() {
+    return this.#changesKeys;
+  }
+
   /**@override */
   prepareBaseData() {
     this.recovers = {
@@ -97,6 +103,10 @@ export default class EtheriaCharacterData extends TypeDataModel {
       parry: { mod: 0, override: null },
       dodge: { mod: 0, override: null },
     };
+
+    this.#changesKeys = Object.keys(
+      foundry.utils.flattenObject({ system: { ...this } }),
+    );
   }
 
   /**@override */
