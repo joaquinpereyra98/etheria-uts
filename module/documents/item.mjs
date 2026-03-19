@@ -59,21 +59,27 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
 
     const { attribute, metadata } = this.system;
     if (!metadata?.hasAccuracyRoll || !this.actor) return;
+    
+    let accFlavor = `Accuracy Check`;
 
     const terms = ["1d20", "+ @acc", "- @exh"];
     if (attribute) {
-      const attr = ETHERIA.attributes[attribute].abrr;
-      terms.push(`+ @${attr}.mod`);
+      const {abrr, label} = ETHERIA.attributes[attribute];
+      terms.push(`+ @${abrr}.mod`);
+      accFlavor = `${accFlavor} - (${label})`;
     }
+
+    const dmgFlavor = `Damage Roll`;
 
     /**@type {DamageData[]} */
     const damages = Object.values(this.system.damages || {}) ?? [];
     const damagesRolls = damages.map((dmg) => {
-      const fomula = dmg.type ? `${dmg.formula}[${dmg.type}]` : dmg.formula;
-      return DamageRoll.create(fomula, rollData, { damageType: dmg.type });
+      const dmgLabel = ETHERIA.damageTypes[dmg.type]?.label ?? dmg.type;
+      const formula = dmg.type ? `${dmg.formula}[${dmgLabel}]` : dmg.formula;
+      return DamageRoll.create(formula, rollData, { damageType: dmg.type, flavor: `${dmgFlavor} - (${dmgLabel})`});
     });
 
-    const accRoll = foundry.dice.Roll.create(terms.join(" "), rollData);
+    const accRoll = foundry.dice.Roll.create(terms.join(" "), rollData, { flavor: accFlavor });
     foundry.documents.ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       flavor: `<b>Accuracy Check</b> - ${this.name}`,

@@ -214,7 +214,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
    * @returns {object} The prepared roll data.
    */
   getRollData() {
-    const data = foundry.utils.deepClone(this);
+    const data = { ...this };
 
     data.exhaustion = (data.exhaustion ?? 0) * 3;
     data.exh = data.exhaustion;

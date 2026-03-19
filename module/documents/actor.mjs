@@ -1,3 +1,4 @@
+import EtheriaAbilitiesDialog from "../applications/dialog/abilities-dialog.mjs";
 import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
 
@@ -12,6 +13,26 @@ export default class EtheriaActor extends Cls {
   static get TYPES() {
     return super.TYPES.filter((k) => !["token", "chess"].includes(k));
   }
+
+  /**
+   * The cached instance of the abilities dialog.
+   * @type {EtheriaAbilitiesDialog|null}
+   */
+  #abilitiesDialog;
+
+  /**
+   * Gets the abilities dialog instance.
+   * @returns {EtheriaAbilitiesDialog}
+   */
+  get abilitiesDialog() {
+    if (!this.#abilitiesDialog) {
+      this.#abilitiesDialog = new EtheriaAbilitiesDialog({
+        actor: this,
+      });
+    }
+    return this.#abilitiesDialog;
+  }
+
 
   /**@inheritdoc */
   getRollData() {
@@ -42,7 +63,9 @@ export default class EtheriaActor extends Cls {
     const diff = newValue - currentValue;
 
     if (diff > 0) {
-      ui.notifications.info(`Etheria | ${this.name} recovered ${diff} ${resourceKey}.`);
+      ui.notifications.info(
+        `Etheria | ${this.name} recovered ${diff} ${resourceKey}.`,
+      );
 
       return this.update({
         [`system.resources.${resourceKey}.value`]: newValue,
@@ -85,7 +108,7 @@ export default class EtheriaActor extends Cls {
    */
   async rollSkill(skillKey) {
     const config = ETHERIA.skills[skillKey];
-    const formula = `1d20 + @skills.${skillKey}.total + @bonus.accuracy - (@exhaustion * 3)`;
+    const formula = `1d20 + @skills.${skillKey}.total + @bonus.accuracy - @exh`;
     const rollData = this.getRollData();
 
     const roll = foundry.dice.Roll.create(formula, rollData);
@@ -251,55 +274,8 @@ export default class EtheriaActor extends Cls {
    * @returns {Promise<Application>}
    */
   async openAbilitiesDialog() {
-    const abilities = this.itemTypes[DOC_SUB_TYPES.items.ability].toSorted(
-      (a, b) => a.name.localeCompare(b.name),
-    );
-
-    const content = await foundry.applications.handlebars.renderTemplate(
-      `${TEMPLATE_PATH}/dialogs/abilities-dialog.hbs`,
-      { actor: this, abilities },
-    );
-
-    const selectedIds =
-      (await foundry.applications.api.Dialog.wait({
-        window: {
-          title: `${this.name}: Abilities`,
-          icon: "fa-solid fa-meteor",
-        },
-        classes: [MODULE_ID, "abilities-dialog"],
-        content,
-        render: (_, dialog) => {
-          dialog.element.addEventListener("click", async (ev) => {
-            const btn = ev.target.closest(
-              "[data-ability-uuid], .selectable-ability",
-            );
-            if (!btn) return;
-
-            if (btn.dataset.abilityUuid) {
-              ev.stopPropagation();
-              const doc = await fromUuid(btn.dataset.abilityUuid);
-              return doc?.sheet.render(true);
-            }
-            btn.classList.toggle("active");
-          });
-        },
-        buttons: [
-          {
-            label: "Use",
-            icon: "fa-solid fa-fire-flame-curved",
-            action: "use",
-            callback: (_, __, dialog) =>
-              Array.from(
-                dialog.element.querySelectorAll(".selectable-ability.active"),
-                (el) => el.dataset.abilityId,
-              ),
-          },
-        ],
-        rejectClose: false,
-      })) ?? [];
-
-    for (const id of selectedIds)
-      await abilities.find((a) => a.id === id)?.use();
+    const dialog = this.abilitiesDialog;
+    return await dialog.render({ force: true });
   }
 
   /**
@@ -370,7 +346,7 @@ export default class EtheriaActor extends Cls {
       })) ?? [];
 
     return await Promise.all(
-      skillsIds.map((skillId) => this.rollSkillCheck(skillId)),
+      skillsIds.map((skillId) => this.rollSkill(skillId)),
     );
   }
 }

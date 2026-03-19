@@ -1200,15 +1200,66 @@
   }
 
   &.abilities-dialog {
+
     .window-content {
       padding: 0.5rem;
     }
 
-    .abilities-list {
+    .window-content,
+    .categories-container {
+      gap: 0.2rem;
+    }
+
+    .accordion {
+      display: grid;
+      grid-template-rows: auto 0fr;
+      transition: grid-template-rows 0.3s ease;
+      overflow: hidden;
+
+      &.expanded {
+        grid-template-rows: auto 1fr;
+
+        .accordion-chevron {
+          transform: rotate(90deg);
+        }
+      }
+    }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      padding: 5px 10px;
+      margin: 5px;
+      gap: 10px;
+      cursor: pointer;
+      border-radius: var(--radius-sm);
+
+      .label {
+        flex: 1;
+        font-size: 1.2rem;
+        line-height: 1.2rem;
+      }
+
+      .accordion-chevron {
+        flex: 0;
+        font-size: 0.7rem;
+        transition: transform 0.3s ease;
+      }
+
+      .number-abilities {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+    }
+
+    .accordion-content {
       display: grid;
       grid-template-columns: repeat(2, 150px);
-      max-height: 200px;
       gap: 5px;
+      margin: 0 10px;
+      min-height: 0;
+      max-height: 200px;
+      overflow: hidden;
     }
 
     .selectable-ability {
@@ -1218,15 +1269,24 @@
       transition: all 0.2s ease;
       border: 1px solid transparent;
 
-      .stat-label {
-        flex: 1;
-        cursor: inherit;
-      }
-
       &.active {
         border-color: var(--accent);
         box-shadow: 0 0 10px var(--accent);
       }
+
+      &:hover {
+        box-shadow: 0 0 5px var(--accent);
+      }
+
+      .stat-label {
+        flex: 1;
+        cursor: inherit;
+      }
+    }
+
+    .form-footer button {
+      width: 100%;
+      font-size: 1.2rem;
     }
   }
 

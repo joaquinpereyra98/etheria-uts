@@ -1,11 +1,25 @@
-<section class="abilities-list flexcol">
-  {{#each abilities as |ability|}}
-  <div class="stat-box glass-panel selectable-ability" data-ability-id="{{ability.id}}">
-    <img class="stat-icon" src="{{ability.img}}" alt="{{ability.name}}">
-    <label class="stat-label">{{ability.name}}</label>
-    <div class="constrols">
-      <a class="open-doc fa-solid fa-globe" data-ability-uuid="{{ability.uuid}}"></a>
+<section class="flexcol categories-container">
+  {{#each abilities as |category key|}}
+  <div class="ability-category accordion {{ifThen category.accordion "expanded" ""}}">
+    <div class="category-title accordion-header glass-panel" data-category="{{key}}" data-action="toggleAccordion">
+      <i class="fa-solid fa-chevron-right accordion-chevron"></i>
+      <div class="label">{{category.label}}</div>
+      <div class="controls">
+        <span class="number-abilities">({{category.items.length}})</span>
+      </div>
+    </div>
+    <div class="abilities-list abilities-items accordion-content">
+      {{#each category.items as |ability i|}}
+      <div class="stat-box glass-panel selectable-ability" data-ability-id="{{ability.id}}" data-action="toggleAbility">
+        <img class="stat-icon" src="{{ability.img}}" alt="{{ability.name}}">
+        <label class="stat-label">{{ability.name}}</label>
+        <div class="controls">
+          <a class="open-doc fa-solid fa-globe" data-ability-uuid="{{ability.uuid}}" data-action="openSheet"></a>
+        </div>
+      </div>
+      {{/each}}
     </div>
   </div>
   {{/each}}
+  <hr class="etheria-hr">
 </section>
