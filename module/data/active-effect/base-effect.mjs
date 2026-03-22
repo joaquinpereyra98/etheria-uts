@@ -23,17 +23,26 @@ export default class EtheriaBaseEffect extends foundry.abstract.TypeDataModel {
         choices: ETHERIA.targetEffect,
         initial: "self",
       }),
+
+      stacks: new fields.NumberField({
+        required: true,
+        integer: false,
+        positive: false,
+        min: 0,
+        label: "Stacks",
+        hint: "Current intensity of the effect."
+      }),
     };
   }
 
   /**@inheritdoc */
-  async _preCreate(data, options, user) {
+  async _preCreate(data = {}, options = {}, user) {
     const allowed = await super._preUpdate(data, options, user);
     if (allowed === false) return false;
 
     if (this.item) {
-      if (this.item.type === DOC_SUB_TYPES.items.consumable && !data.apply) {
-        updates.apply = "use";
+      if (this.item.type === DOC_SUB_TYPES.items.consumable && !data?.apply) {
+        this.updateSource({ apply: "use" });
       }
     }
   }
@@ -70,7 +79,7 @@ export default class EtheriaBaseEffect extends foundry.abstract.TypeDataModel {
     if (this.isAction) return true;
 
     // Static effects are suppressed if the equippable item isn't equipped.
-    if(this.item.system.hasOwnProperty("equipped")) {
+    if (this.item.system.hasOwnProperty("equipped")) {
       return !this.item.system.equipped;
     }
 

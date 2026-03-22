@@ -8,18 +8,18 @@ import { MODULE_ID } from "../constants.mjs";
  * @param {foundry.applications.types.ApplicationRenderOptions} options - The application rendering options
  */
 export default function onRenderActiveEffectConfig(application, element) {
-  const { document: effect } = application;
-  const { fields } = effect.system.schema;
+  const { document } = application;
+  const { fields } = document.system.schema;
 
   const detailsTab =
     element.querySelector('.tab[data-tab="details"]');
     if (detailsTab) {
-    const html = ["apply", "target"]
+    const html = ["apply", "target", "stacks"]
       .map(
         (key) =>
           fields[key].toFormGroup(
             {},
-            { value: effect.system[key], name: `system.${key}` },
+            { value: document.system[key], name: `system.${key}` },
           ).outerHTML,
       )
       .join("");
@@ -28,7 +28,7 @@ export default function onRenderActiveEffectConfig(application, element) {
   }
 
   const changesTab = element.querySelector("section[data-tab='changes']");
-  const keys = effect.target?.system?.changesKeys;
+  const keys = document.target?.system?.changesKeys;
 
   if (changesTab && keys) {
     const listId = `${MODULE_ID}-attribute-key-list`;

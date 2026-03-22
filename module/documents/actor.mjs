@@ -1,14 +1,19 @@
 import EtheriaAbilitiesDialog from "../applications/dialog/abilities-dialog.mjs";
 import { ETHERIA } from "../config.mjs";
-import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
+import { MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
 
-const Cls = foundry.documents.Actor.implementation;
+/**
+ * @import { ResourceRecoveryResult } from "./_types.mjs";
+ */
+
+/**@type {typeof foundry.documents.Actor} */
+const Actor = foundry.documents.Actor.implementation;
 
 /**
  * The implementation for the Actor document
  * @extends {foundry.documents.Actor}
  */
-export default class EtheriaActor extends Cls {
+export default class EtheriaActor extends Actor {
   /**@override */
   static get TYPES() {
     return super.TYPES.filter((k) => !["token", "chess"].includes(k));
@@ -33,7 +38,6 @@ export default class EtheriaActor extends Cls {
     return this.#abilitiesDialog;
   }
 
-
   /**@inheritdoc */
   getRollData() {
     return this.system.getRollData?.() ?? foundry.utils.deepClone(this.system);
@@ -42,35 +46,76 @@ export default class EtheriaActor extends Cls {
   /**
    * Recovers a specified character resource (stamina or mana) based on current recovery stats.
    * @param {'stamina'|'mana'} resourceKey - The key of the resource to recover.
-   * @returns {Promise<void>}
+   * @param {object} [options={}] - Additional options to modify recovery behavior.
+   * @param {number} [options.multiplier=1] - A factor to scale the recovery amount.
+   * @param {boolean} [options.silent=false] - If true, suppresses UI notifications.
+   * @returns {Promise<ResourceRecoveryResult>}
    */
-  async recoverResource(resourceKey) {
+  async recoverResource(resourceKey, { multiplier = 1, silent = true } = {}) {
     const { resources, recovers, details, _source } = this.system;
     const resource = resources[resourceKey];
     const recoveryAmount = recovers[resourceKey];
 
-    if (!resource || !recoveryAmount || resource.value >= resource.max) return;
+    const result = {
+      success: false,
+      diff: 0,
+      newValue: resource?.value ?? 0,
+    };
+
+    if (!resource || !recoveryAmount || resource.value >= resource.max)
+      return result;
 
     if (resourceKey === "mana" && !details.isCaster) {
-      return ui.notifications.warn(
-        "You do not have the ability to recover mana.",
-      );
+      if (!silent)
+        ui.notifications.warn("You do not have the ability to recover mana.");
+      return result;
     }
 
     const currentValue = _source.resources[resourceKey].value;
-    const newValue = Math.clamp(currentValue + recoveryAmount, 0, resource.max);
+    const appliedRecovery = recoveryAmount * multiplier;
+    const newValue = Math.clamp(
+      currentValue + appliedRecovery,
+      0,
+      resource.max,
+    );
 
     const diff = newValue - currentValue;
 
     if (diff > 0) {
-      ui.notifications.info(
-        `Etheria | ${this.name} recovered ${diff} ${resourceKey}.`,
-      );
+      Object.assign(result, {
+        success: true,
+        diff,
+        newValue,
+      });
 
-      return this.update({
+      if (!silent)
+        ui.notifications.info(
+          `Etheria | ${this.name} recovered ${diff} ${resourceKey}.`,
+        );
+
+      await this.update({
         [`system.resources.${resourceKey}.value`]: newValue,
       });
+
+      return result;
     }
+  }
+
+  /**
+   * Do the end-of-round resource recovery for the actor.
+   * @returns {Promise<ResourceRecoveryResult[]>}
+   */
+  async _applyRoundRecovery() {
+    const existing = [];
+
+    for (const effect of this.effects)
+      if (effect.statuses.has("poison")) existing.push(effect.id);
+
+    const multiplier = existing.length > 0 ? 0.5 : 1.0;
+    return await Promise.all([
+      this.recoverResource("stamina", { multiplier, silent: true }),
+      this.recoverResource("mana", { multiplier, silent: true }),
+    ]);
   }
 
   /**
@@ -177,12 +222,18 @@ export default class EtheriaActor extends Cls {
   /**
    * Applies damage to the actor, reducing it by the actor's resistances.
    * @param {number} baseDamage - The initial amount of damage before resistances.
-   * @param {keyof ETHERIA.damageTypes} damageType - The key of the damage type from `ETHERIA.damageTypes`.
+   * @param {keyof ETHERIA.damageTypes | keyof ETHERIA.healingTypes} damageType - The key of the damage type from `ETHERIA.damageTypes`.
    * @param {object} [options={}] - Optional parameters.
    * @param {boolean} [options.chatMessage=true] - Whether to create a chat message with the result.
    * @returns {Promise<{finalDamage: number, applied: boolean}>} An object containing the final damage and if it was applied.
    */
   async applyDamage(baseDamage, damageType, { chatMessage = true } = {}) {
+    if (baseDamage <= 0) {
+      ui.notifications.warn(
+        `Etheria | BaseDamage should have a value greater than 0: ${baseDamage} - ${damageType}`,
+      );
+      return { finalDamage: baseDamage, applied: false };
+    }
     if (ETHERIA.healingTypes[damageType]) {
       return await this.applyHeal(baseDamage, damageType, { chatMessage });
     }

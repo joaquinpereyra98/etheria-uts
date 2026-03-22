@@ -104,6 +104,11 @@ export default class EtheriaCharacterData extends TypeDataModel {
       dodge: { mod: 0, override: null },
     };
 
+    for (const key of Object.keys(this.attributes)) {
+      this.attributes[key].mod = 0;
+      this.attributes[key].modOverride = null;
+    }
+
     this.#changesKeys = Object.keys(
       foundry.utils.flattenObject({ system: { ...this } }),
     );
@@ -111,8 +116,9 @@ export default class EtheriaCharacterData extends TypeDataModel {
 
   /**@override */
   prepareDerivedData() {
-    for (const [key, attribute] of Object.entries(this.attributes)) {
-      this.attributes[key].mod = this.#calcModifer(attribute.value);
+    for (const [_, attribute] of Object.entries(this.attributes)) {
+      const autoMod = this.#calcModifer(attribute.value);
+      attribute.mod = attribute.modOverride ?? (attribute.mod ?? 0) + autoMod;
     }
 
     this.#calcArmor();

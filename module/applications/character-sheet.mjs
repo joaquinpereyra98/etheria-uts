@@ -130,6 +130,16 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     return this._mode === EtheriaCharacterSheet.MODES.PLAY;
   }
 
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    if (!this.actor.system.details.isCaster) {
+      options.parts = options.parts.filter((part) => part !== "spheres");
+    }
+  }
+  /* -------------------------------------------- */
+  /* Context Preparation                          */
+  /* -------------------------------------------- */
+
   /* -------------------------------------------- */
   /* Context Preparation                          */
   /* -------------------------------------------- */
@@ -695,16 +705,15 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
   static async #onDeleteResource(event, target) {
     const { key } = target.dataset ?? {};
     if (!key) return;
-    if(!event.shiftKey){
+    if (!event.shiftKey) {
       const response = await foundry.applications.api.Dialog.confirm({
         content: "Are you sure you want to delete this resource?",
       });
-      if(!response) return;
+      if (!response) return;
     }
 
     this.actor.update({
       [`system.resourcesExtra.-=${key}`]: null,
     });
-
   }
 }

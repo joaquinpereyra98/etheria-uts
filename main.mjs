@@ -15,11 +15,18 @@ Hooks.once("init", () => {
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
   CONFIG.Item.documentClass = documents.EtheriaItem;
+  CONFIG.Combat.documentClass = documents.EtheriaCombat;
 
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
   CONFIG.ActiveEffect.typeLabels.base =
     foundry.documents.ActiveEffect.metadata.label;
+
+  CONFIG.statusEffects.push({
+    id: "decayed",
+    name: "Decayed",
+    img: "icons/svg/stoned.svg"
+  })
 
   for (const model of Object.values(data.messages)) {
     CONFIG.ChatMessage.dataModels[model.metadata.type] = model;
