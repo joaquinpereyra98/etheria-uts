@@ -63,9 +63,22 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    const allAbilities = this.actor.itemTypes[
-      DOC_SUB_TYPES.items.ability
+
+    const { ability, weapon } = DOC_SUB_TYPES.items;
+
+    const items = [
+      ...this.actor.itemTypes[weapon],
+      ...this.actor.itemTypes[ability],
     ].toSorted((a, b) => a.name.localeCompare(b.name));
+
+    const groups = items.reduce((acc, i) => {
+      const { actionType, metadata, equipped } = i.system;
+      const key = actionType ?? "misc";
+      if (metadata.isEquippable && !equipped) return acc;
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(i);
+      return acc;
+    }, {});
 
     const abilities = Object.fromEntries(
       Object.entries(ETHERIA.abilityType).map(([key, { label }]) => [
@@ -73,7 +86,7 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
         {
           label,
           accordion: !!this.#accordions[key],
-          items: allAbilities.filter((i) => i.system.actionType === key),
+          items: groups[key] ?? [],
         },
       ]),
     );
