@@ -88,6 +88,7 @@ export default class EtheriaItemSheet extends HandlebarsApplicationMixin(
       system: this.document.system,
       systemFields: this.document.system.schema.fields,
       user: game.user,
+      isEditable: this.isEditable,
     };
   }
 

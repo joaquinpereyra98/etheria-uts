@@ -6,7 +6,9 @@
       <div class="category-title glass-panel">
         <div class="label">{{category.label}}</div>
         <div class="controls">
+          {{#if @root.user.isGM}}
           <a class="icon fa-solid fa-plus" data-action="createAbility"></a>
+          {{/if}}
         </div>
       </div>
 
@@ -21,7 +23,7 @@
           <div class="card-content">
 
             <div class="portait">
-              <img class="portait-img" src="{{item.img}}" alt="{{item.name}}" loading="lazy" />
+              <img class="portait-img" src="{{item.img}}" alt="{{item.name}}" loading="lazy" data-action="viewDoc" />
             </div>
 
             <div class="details-container">
@@ -57,10 +59,12 @@
                 data-tooltip="{{localize 'DOCUMENT.Update' type='Ability'}}">
                 <i class="fa-solid fa-edit"></i>
               </a>
+              {{#if @root.user.isGM}}
               <a class="item-control" data-action="deleteDoc"
                 data-tooltip="{{localize 'DOCUMENT.Delete' type='Ability'}}">
                 <i class="fa-solid fa-trash"></i>
               </a>
+              {{/if}}
             </div>
           </div>
         </div>

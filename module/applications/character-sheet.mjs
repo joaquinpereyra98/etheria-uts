@@ -132,13 +132,12 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   _configureRenderOptions(options) {
     super._configureRenderOptions(options);
-    if (!this.actor.system.details.isCaster) {
-      options.parts = options.parts.filter((part) => part !== "spheres");
-    }
+    options.parts = options.parts.filter((part) => {
+      if (part === "spheres") return this.actor.system.details.isCaster;
+      if (part === "secondaryStats") return game.user.isGM;
+      return true;
+    });
   }
-  /* -------------------------------------------- */
-  /* Context Preparation                          */
-  /* -------------------------------------------- */
 
   /* -------------------------------------------- */
   /* Context Preparation                          */
@@ -161,11 +160,16 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**@inheritdoc */
   _prepareTabs(group) {
-    const isCastingTab =
-      group === "primary" && this.tabGroups[group] === "spheres";
+    const activeTab = this.tabGroups[group];
 
-    if (isCastingTab && !this.actor.system.details.isCaster) {
-      this.tabGroups[group] = "character";
+    if (group === "primary") {
+      const isInvalidCaster =
+        activeTab === "spheres" && !this.actor.system.details.isCaster;
+      const isInvalidGMTab = activeTab === "secondaryStats" && !game.user.isGM;
+
+      if (isInvalidCaster || isInvalidGMTab) {
+        this.tabGroups[group] = "character";
+      }
     }
 
     return super._prepareTabs(group);
@@ -176,12 +180,12 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const config = this.constructor.TABS[group];
     if (!config) return null;
 
-    if (group === "primary" && !this.actor.system.details.isCaster) {
-      return {
-        ...config,
-        tabs: config.tabs.filter((t) => t.id !== "spheres"),
-      };
-    }
+    if (group === "primary")
+      config.tabs = config.tabs.filter((t) => {
+        if (t.id === "spheres") return this.actor.system.details.isCaster;
+        if (t.id === "secondaryStats") return game.user.isGM;
+        return true;
+      });
 
     return config;
   }
@@ -284,6 +288,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       };
       return acc;
     }, {});
+
     return context;
   }
 

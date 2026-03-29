@@ -1,9 +1,11 @@
 <header class="sheet-header flexrow">
+  {{#if user.isGM}}
   <a class="icon mode-toggler" data-action="toggleMode">
     <i class="mode-icon fa-solid fa-wrench {{ifThen isPlayMode "" "active"}}"></i>
     <i class="toggler fa-solid fa-toggle-large-{{ifThen isPlayMode "on" "off"}}"></i>
     <i class="mode-icon fa-solid fa-gamepad-modern {{ifThen isPlayMode "active" ""}}"></i>
   </a>
+  {{/if}}
   <div class="portrait flex-center">
     <img class="portrait-img" src="{{document.img}}" alt="{{document.name}}" data-action="editImage" data-edit="img" />
   </div>

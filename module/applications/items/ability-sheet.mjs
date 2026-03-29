@@ -15,6 +15,11 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
     },
   };
 
+  /** @inheritdoc */
+  get isEditable() {
+    return super.isEditable && game.user.isGM;
+  }
+
   /** @override */
   static PARTS = {
     ...super.PARTS,
@@ -35,6 +40,33 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
       initial: "notes",
     },
   };
+
+  /**@inheritdoc */
+  _prepareTabs(group) {
+    if (group === "primary" && !game.user.isGM)
+      this.tabGroups.primary = "notes";
+    return super._prepareTabs(group);
+  }
+
+  /**@override */
+  _getTabsConfig(group) {
+    const config = this.constructor.TABS[group];
+    if (!config) return null;
+
+    if (group === "primary" && !game.user.isGM) {
+      config.tabs = [{ id: "notes", label: "Notes" }];
+    }
+
+    return config;
+  }
+
+  /**@inheritdoc */
+  _configureRenderOptions(options) {
+    super._configureRenderOptions(options);
+    if (!game.user.isGM) {
+      options.parts = ["header", "notes"];
+    }
+  }
 
   /**
    * Prepare render context for the header part.

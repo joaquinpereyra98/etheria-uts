@@ -5,7 +5,7 @@
   <div class="header-fields flexcol">
 
     <div class="name-level-row flexrow">
-      {{formInput fields.name value=document.name classes="header-input input-name"}}
+      {{formInput fields.name value=document.name classes="header-input input-name" disabled=isEditable}}
     </div>
     <hr class="etheria-hr">
     <div class="resources-fields flexrow">
@@ -17,7 +17,7 @@
           </label>
         </div>
         <div class="resource-inputs flexrow">
-          {{formInput field value=value}}
+          {{formInput field value=value disabled=isEditable}}
         </div>
       </div>
       {{/each}}
@@ -30,8 +30,8 @@
         </div>
 
         <div class="resource-inputs flexrow">
-          {{formInput field.fields.value value=data.value}}
-          {{formInput field.fields.max value=data.max}}
+          {{formInput field.fields.value value=data.value disabled=isEditable}}
+          {{formInput field.fields.max value=data.max disabled=isEditable}}
         </div>
 
       </div>
