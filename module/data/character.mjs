@@ -235,9 +235,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
     data.exhaustion = (data.exhaustion ?? 0) * 3;
     data.exh = data.exhaustion;
 
-    for (let [k, v] of Object.entries(data.attributes)) {
-      const key = ETHERIA.attributes[k].abrr;
-      data[key] = v;
+    for(const [k, v] of Object.entries(ETHERIA.attributes)) {
+      if(v.abrr) data[v.abrr] = data.attributes[k];
     }
 
     for (const [k, v] of Object.entries({
