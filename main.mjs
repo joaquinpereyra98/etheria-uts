@@ -25,8 +25,8 @@ Hooks.once("init", () => {
   CONFIG.statusEffects.push({
     id: "decayed",
     name: "Decayed",
-    img: "icons/svg/stoned.svg"
-  })
+    img: "icons/svg/stoned.svg",
+  });
 
   for (const model of Object.values(data.messages)) {
     CONFIG.ChatMessage.dataModels[model.metadata.type] = model;
@@ -82,6 +82,18 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   foundry.utils.setProperty(game, "system.grid.units", "Tiles");
   ui[`${MODULE_ID}.ActionBar`].render({ force: true });
+
+  const modelSnapshot = foundry.utils.deepClone(game.model);
+
+  const { chess, token, ...filteredActor } = modelSnapshot.Actor;
+  modelSnapshot.Actor = filteredActor;
+
+  Object.defineProperty(game, "model", {
+    value: modelSnapshot,
+    writable: false,
+    configurable: true,
+    enumerable: true,
+  });
 });
 
 Hooks.on("renderActiveEffectConfig", hooks.onRenderActiveEffectConfig);
