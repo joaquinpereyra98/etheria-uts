@@ -4,6 +4,7 @@ import {
   createSphereFields,
   createAttributesFields,
   createSkillsFields,
+  createActionsFields,
 } from "./utils.mjs";
 
 import { LocalDocumentField, FormulaField } from "./fields/_module.mjs";
@@ -82,6 +83,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
       currencies: new fields.SchemaField({
         argents: new fields.NumberField({ integer: true, initial: 0, min: 0 }),
       }),
+
+      actions: new fields.SchemaField(createActionsFields()),
     };
   }
 
@@ -94,8 +97,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
   /**@override */
   prepareBaseData() {
     this.recovers = {
-      stamina: { mod: 0, override: null },
-      mana: { mod: 0, override: null },
+      stamina: { mod: 5, override: null },
+      mana: { mod: 5, override: null },
     };
 
     this.defense = {
@@ -235,8 +238,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
     data.exhaustion = (data.exhaustion ?? 0) * 3;
     data.exh = data.exhaustion;
 
-    for(const [k, v] of Object.entries(ETHERIA.attributes)) {
-      if(v.abrr) data[v.abrr] = data.attributes[k];
+    for (const [k, v] of Object.entries(ETHERIA.attributes)) {
+      if (v.abrr) data[v.abrr] = data.attributes[k];
     }
 
     for (const [k, v] of Object.entries({
