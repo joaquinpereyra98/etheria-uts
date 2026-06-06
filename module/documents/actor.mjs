@@ -54,6 +54,7 @@ export default class EtheriaActor extends Actor {
   async recoverResource(resourceKey, { multiplier = 1, silent = true } = {}) {
     const { resources, recovers, details, _source } = this.system;
     const resource = resources[resourceKey];
+    /**@type {{mod: number; override: number; value: number}} */
     const recoveryAmount = recovers[resourceKey];
 
     const result = {
@@ -72,7 +73,7 @@ export default class EtheriaActor extends Actor {
     }
 
     const currentValue = _source.resources[resourceKey].value;
-    const appliedRecovery = recoveryAmount * multiplier;
+    const appliedRecovery = recoveryAmount.value * multiplier;
     const newValue = Math.clamp(
       currentValue + appliedRecovery,
       0,
