@@ -7,6 +7,13 @@
       </div>
     </section>
     <hr class="etheria-hr">
+    <div class="flexrow">
+    {{#each actions}}
+     {{> "modules/etheria-uts/templates/character-sheet/partials/resource-field.hbs"
+      label=field.label data=value fields=field.fields disabled=@root.isPlayMode}}
+    {{/each}}
+    </div>
+    <hr class="etheria-hr">
     <section class="bonus-section">
       <div class="bonus-box stat-box flex-center glass-panel" data-tooltip="Accuracy Bonus">
         <i class="fa-solid fa-bullseye-arrow"></i>
@@ -78,7 +85,8 @@
       {{#each system.resourcesExtra}}
       <div class="resource-row">
         <div class="input-group">
-          {{formInput ../systemFields.resourcesExtra.element.fields.label name=(concat "system.resourcesExtra."@key ".label") value=label classes="etheria-input"}}
+          {{formInput ../systemFields.resourcesExtra.element.fields.label name=(concat "system.resourcesExtra."@key
+          ".label") value=label classes="etheria-input"}}
         </div>
         <div class="input-group">
           <input type="text" class="resource-name etheria-input" value="{{@key}}" disabled>

@@ -80,6 +80,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     },
     secondaryStats: {
       template: `${TEMPLATES_PATH_CHARACTER}/secondary-stats.hbs`,
+      templates: [`${TEMPLATES_PATH_CHARACTER}/partials/resource-field.hbs`],
       scrollable: [""],
     },
     notes: {
@@ -288,6 +289,21 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       };
       return acc;
     }, {});
+
+    const source = this.isPlayMode
+      ? this.actor.system.actions
+      : this.actor.system._source.actions || {};
+
+    context.actions = Object.fromEntries(
+      Object.entries(source).map(([key, data]) => [
+        key,
+        {
+          field: this.actor.system.schema.getField(`actions.${key}`),
+          path: `system.actions.${key}`,
+          value: data,
+        },
+      ]),
+    );
 
     return context;
   }

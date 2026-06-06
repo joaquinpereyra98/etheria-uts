@@ -209,6 +209,7 @@ ETHERIA.actionType = {
   anytime: { label: "Anytime" },
   regular: { label: "Regular" },
   fullTurn: { label: "Full-Turn" },
+  reaction: { label: "Reaction" },
 };
 
 ETHERIA.abilityType = {

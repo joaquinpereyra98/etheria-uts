@@ -50,3 +50,18 @@ export function createAttributesFields(options = {}) {
     ]),
   );
 }
+
+export function createActionsFields() {
+  return Object.fromEntries(
+    Object.entries(ETHERIA.actionType).map(([k, { label }]) => [
+      k,
+      new fields.SchemaField(
+        {
+          value: new fields.NumberField({ min: 0, initial: 0, step: 1 }),
+          max: new fields.NumberField({ min: 0, initial: 0, step: 1 }),
+        },
+        { label },
+      ),
+    ]),
+  );
+}
