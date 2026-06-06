@@ -1,11 +1,16 @@
 import { ETHERIA } from "../../config.mjs";
 import { DOC_SUB_TYPES } from "../../constants.mjs";
 
-export default class EtheriaBaseEffect extends foundry.abstract.TypeDataModel {
+const { ActiveEffectTypeDataModel } = foundry.data;
+const { TypeDataModel } = foundry.abstract;
+
+export default class EtheriaBaseEffect extends (ActiveEffectTypeDataModel ??
+  TypeDataModel) {
   /** @override */
   static defineSchema() {
     const fields = foundry.data.fields;
     return {
+      ...super.defineSchema() ?? {},
       apply: new fields.StringField({
         label: "Apply on",
         hint: "Determines the trigger for this effect",
@@ -30,7 +35,7 @@ export default class EtheriaBaseEffect extends foundry.abstract.TypeDataModel {
         positive: false,
         min: 0,
         label: "Stacks",
-        hint: "Current intensity of the effect."
+        hint: "Current intensity of the effect.",
       }),
     };
   }
