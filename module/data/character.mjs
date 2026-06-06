@@ -94,8 +94,8 @@ export default class EtheriaCharacterData extends TypeDataModel {
   /**@override */
   prepareBaseData() {
     this.recovers = {
-      stamina: { mod: 0, override: null },
-      mana: { mod: 0, override: null },
+      stamina: { mod: 5, override: null },
+      mana: { mod: 5, override: null },
     };
 
     this.defense = {
