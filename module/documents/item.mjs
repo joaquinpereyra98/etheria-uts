@@ -186,7 +186,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
 
     const cost = this.system.cost;
     if (cost?.value && cost?.resource && this.actor) {
-      const path = `system.${cost.resource}`;
+      const path = cost.resource;
       const resourceData = foundry.utils.getProperty(this.actor, path);
 
       let current = resourceData;
