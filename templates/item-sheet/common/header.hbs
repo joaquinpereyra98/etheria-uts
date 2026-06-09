@@ -5,7 +5,7 @@
   <div class="header-fields flexcol">
 
     <div class="name-level-row flexrow">
-      {{formInput fields.name value=document.name classes="header-input input-name" disabled=isEditable}}
+      {{formInput fields.name value=document.name classes="header-input input-name" disabled=(not isEditable)}}
     </div>
     <hr class="etheria-hr">
     <div class="resources-fields flexrow">

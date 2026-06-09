@@ -22,7 +22,7 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
       type: "base",
       actions: {
         toggleAccordion: EtheriaBaseMessage.#onToggleAccordion,
-        openDoc: EtheriaBaseMessage.#onOpenDoc,
+        clickImage: EtheriaBaseMessage.#onClickImage,
       },
     };
   }
@@ -111,18 +111,28 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
    * @returns {void}
    */
   _attachListeners(element) {
-    element.addEventListener("click", (event) => {
-      const actionButton = event.target.closest("[data-action]");
-      if (!actionButton) return;
+    const handleAction =
+      /** @param {PointerEvent} event */
+      (event) => {
+        const actionButton = event.target.closest("[data-action]");
+        if (!actionButton) return;
 
-      const { action } = actionButton.dataset;
-      const actions = this.constructor.metadata?.actions || {};
-      const actionFn = actions[action];
+        if (event.type === "contextmenu") {
+          event.preventDefault();
+          event.stopPropagation();
+        }
 
-      if (typeof actionFn === "function") {
-        actionFn.call(this, event, actionButton);
-      }
-    });
+        const { action } = actionButton.dataset;
+        const actions = this.constructor.metadata?.actions || {};
+        const actionFn = actions[action];
+
+        if (typeof actionFn === "function") {
+          actionFn.call(this, event, actionButton);
+        }
+      };
+
+    element.addEventListener("click", handleAction);
+    element.addEventListener("contextmenu", handleAction);
   }
 
   /**
@@ -229,23 +239,40 @@ export default class EtheriaBaseMessage extends foundry.abstract.TypeDataModel {
    * @this {EtheriaItemMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
-  static async #onOpenDoc(_event, target) {
+  static async #onClickImage(event, target) {
     const { uuid } = target.closest("[data-uuid]")?.dataset ?? {};
     if (!uuid) return;
 
     const doc = await foundry.utils.fromUuid(uuid);
     if (!doc) return;
-    if (
-      doc instanceof foundry.documents.TokenDocument &&
-      doc.object?.isVisible
-    ) {
-      canvas.animatePan({
-        x: doc.object.x,
-        y: doc.object.y,
-        scale: Math.max(canvas.stage.scale.x, canvas.dimensions.scale.default),
-      });
-    } else {
-      doc.sheet.render({ force: true });
+
+    if (event.type === "contextmenu" || event.button === 2) {
+      if (
+        doc instanceof foundry.documents.TokenDocument &&
+        doc.object?.isVisible
+      ) {
+        canvas.animatePan({
+          x: doc.object.x,
+          y: doc.object.y,
+          scale: Math.max(
+            canvas.stage.scale.x,
+            canvas.dimensions.scale.default,
+          ),
+        });
+      } else if (doc.sheet && (doc.visible ?? true)) {
+        doc.sheet.render(true);
+      }
+      return;
     }
+
+    const src = doc.img || doc.prototypeToken?.texture?.src;
+    if (!src) return;
+    const title = doc.name || "Image";
+
+    new foundry.applications.apps.ImagePopout({
+      src,
+      uuid,
+      window: { title },
+    }).render({ force: true });
   }
 }

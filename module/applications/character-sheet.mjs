@@ -46,6 +46,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       recoverResource: EtheriaCharacterSheet.#onRecoverResource,
       createResource: EtheriaCharacterSheet.#onCreateResource,
       deleteResource: EtheriaCharacterSheet.#onDeleteResource,
+      viewImage: EtheriaCharacterSheet.#onViewImage,
     },
   };
 
@@ -735,6 +736,20 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
     this.actor.update({
       [`system.resourcesExtra.-=${key}`]: null,
+    });
+  }
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onViewImage() {
+    const actor = this.document;
+    new foundry.applications.apps.ImagePopout({
+      src: actor.img,
+      uuid: actor.uuid,
+      window: { title: actor.name },
+    }).render({
+      force: true,
     });
   }
 }
