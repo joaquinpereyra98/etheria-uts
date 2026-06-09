@@ -206,10 +206,10 @@ ETHERIA.skills = {
 };
 
 ETHERIA.actionType = {
-  anytime: { label: "Anytime" },
-  regular: { label: "Regular" },
-  fullTurn: { label: "Full-Turn" },
-  reaction: { label: "Reaction" },
+  anytime: { label: "Anytime", color: "#2196f3" },
+  regular: { label: "Regular", color: "#e721f3" },
+  fullTurn: { label: "Full-Turn", color: "#f37e21" },
+  reaction: { label: "Reaction", color: "#2df321" },
 };
 
 ETHERIA.abilityType = {

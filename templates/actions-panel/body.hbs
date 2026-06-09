@@ -1,0 +1,15 @@
+<section>
+  <div class="expand-toggler-container {{ifThen expanded " expanded" "" }}" data-action="toggleAccordion">
+    <i class="accordion-icon fa-solid fa-chevron-right"></i>
+    <span>Action Panels</span>
+  </div>
+  <div class="accordion {{ifThen expanded " expanded" "" }}">
+    <div class="accordion-content">
+      <div class="ui-frame-list">
+        {{#each characters as |actor|}}
+        {{> "modules/etheria-uts/templates/actions-panel/character-panel.hbs" actor=actor}}
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</section>

@@ -150,6 +150,14 @@ export default class EtheriaCharacterData extends TypeDataModel {
         defense.override ?? this.#calculateDefense(key) + defense.mod,
       );
     }
+
+    for (const [key, action] of Object.entries(this.actions)) {
+      foundry.utils.setProperty(
+        this.actions,
+        `${key}.pct`,
+        Math.clamp(action.value, 0, action.max) / (action.max || 1),
+      );
+    }
   }
 
   /**

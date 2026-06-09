@@ -1,0 +1,46 @@
+<div class="ui-frame-container actor-panel {{ifThen (lookup @root.glowPanels actor.id) "glow" "" }} " data-uuid="{{actor.uuid}}">
+
+  <div class="portrait">
+    <img
+      class="portrait-img"
+      data-action="clickImage"
+      src="{{actor.img}}"
+      alt="{{actor.name}}"
+    />
+  </div>
+
+  <div class="orbs-list flexrow">
+    {{#each actor.system.actions as |action key|}}
+      {{#with (lookup @root.config.actionType key) as |configAction|}}
+        <div class="orb">
+          <div
+            class="orb"
+            style="--fluid-level: {{action.pct}}; --fluid-color: {{configAction.color}};"
+            data-key="{{key}}"
+            data-action="changeValue"
+            data-tooltip="{{configAction.label}}"
+          >
+            <div class="wave"></div>
+            <div class="wave-below"></div>
+            <div class="orb-content">
+              <div class="label">
+                {{action.value}}/{{action.max}}
+              </div>
+            </div>
+          </div>
+        </div>
+      {{/with}}
+    {{/each}}
+  </div>
+
+  {{#if @root.isGM}}
+    <div class="tools-contianer">
+      {{#if (lookup @root.glowPanels actor.id)}}
+        <a data-action="glowPanel" class="fa-solid fa-lightbulb-on"></a>
+      {{else}}
+        <a data-action="glowPanel" class="fa-regular fa-lightbulb"></a>
+      {{/if}}
+    </div>
+  {{/if}}
+
+</div>

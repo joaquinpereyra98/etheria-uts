@@ -11,6 +11,8 @@ Hooks.once("init", () => {
   CONFIG.ETHERIA = ETHERIA;
 
   CONFIG.ui[`${MODULE_ID}.ActionBar`] = applications.ux.ActionBar;
+  CONFIG.ui[`${MODULE_ID}.ActionsPanel`] = applications.ux.ActionsPanel;
+  applications.ux.ActionsPanel.registerSetting();
 
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
@@ -82,6 +84,7 @@ Hooks.once("init", () => {
 Hooks.once("ready", () => {
   foundry.utils.setProperty(game, "system.grid.units", "Tiles");
   ui[`${MODULE_ID}.ActionBar`].render({ force: true });
+  ui[`${MODULE_ID}.ActionsPanel`].render({ force: true });
 
   const modelSnapshot = foundry.utils.deepClone(game.model);
 
@@ -98,3 +101,5 @@ Hooks.once("ready", () => {
 
 Hooks.on("renderActiveEffectConfig", hooks.onRenderActiveEffectConfig);
 Hooks.on("hotbarDrop", hooks.onHotbatDrop);
+Hooks.on("updateActor", hooks.onUpdateActor);
+Hooks.on("updateUser", hooks.onUpdateUser);
