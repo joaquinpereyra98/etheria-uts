@@ -7,7 +7,12 @@ import { MODULE_ID } from "../constants.mjs";
  * @param {Partial<foundry.abstract.types.DatabaseUpdateOperation>} options - Additional options which modified the update request
  * @param {string} userId -The ID of the User who triggered the update workflow
  */
-export default function onUpdateUser(actor) {
-  const actorsIds = new Set(game.users.map((u) => u.character.id));
-  if (actorsIds.has(actor.id)) ui[`${MODULE_ID}.ActionsPanel`].render();
+export default function onUpdateActor(actor) {
+  const ids = new Set(
+    game.users
+      .filter((u) => u.active && u.character?.id)
+      .map((u) => u.character?.id),
+  );
+
+  if (ids.has(actor.id)) ui[`${MODULE_ID}.ActionsPanel`].render();
 }
