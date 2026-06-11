@@ -1,4 +1,3 @@
-import { ETHERIA } from "../../config.mjs";
 import { DOC_SUB_TYPES } from "../../constants.mjs";
 
 const { ActiveEffectTypeDataModel } = foundry.data;
@@ -16,7 +15,7 @@ export default class EtheriaBaseEffect extends (ActiveEffectTypeDataModel ??
         hint: "Determines the trigger for this effect",
         required: true,
         blank: false,
-        choices: ETHERIA.applyEffect,
+        choices: CONFIG.ETHERIA.applyEffect,
         initial: "equip",
       }),
 
@@ -25,7 +24,7 @@ export default class EtheriaBaseEffect extends (ActiveEffectTypeDataModel ??
         hint: "Defines the recipient of the effect",
         required: true,
         blank: false,
-        choices: ETHERIA.targetEffect,
+        choices: CONFIG.ETHERIA.targetEffect,
         initial: "self",
       }),
 

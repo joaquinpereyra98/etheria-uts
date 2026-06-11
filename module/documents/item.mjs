@@ -1,4 +1,3 @@
-import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 import { DamageData } from "../data/shared/damage-field.mjs";
 import DamageRoll from "../dice/damage-roll.mjs";
@@ -64,7 +63,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
 
     const terms = ["1d20", "+ @acc", "- @exh"];
     if (attribute) {
-      const {abrr, label} = ETHERIA.attributes[attribute];
+      const {abrr, label} = CONFIG.ETHERIA.attributes[attribute];
       terms.push(`+ @${abrr}.mod`);
       accFlavor = `${accFlavor} - (${label})`;
     }
@@ -74,7 +73,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     /**@type {DamageData[]} */
     const damages = Object.values(this.system.damages || {}) ?? [];
     const damagesRolls = damages.map((dmg) => {
-      const dmgLabel = ETHERIA.damageTypes[dmg.type]?.label ?? dmg.type;
+      const dmgLabel = CONFIG.ETHERIA.damageTypes[dmg.type]?.label ?? dmg.type;
       const formula = dmg.type ? `${dmg.formula}[${dmgLabel}]` : dmg.formula;
       return DamageRoll.create(formula, rollData, { damageType: dmg.type, flavor: `${dmgFlavor} - (${dmgLabel})`});
     });

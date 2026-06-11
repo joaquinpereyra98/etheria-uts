@@ -1,4 +1,3 @@
-import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
 import { enrichHTML } from "../utils.mjs";
 
@@ -278,9 +277,9 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       );
 
     context.skills = Object.entries(skills).reduce((acc, [key, data]) => {
-      const attributeKey = ETHERIA.skills[key].attribute;
+      const attributeKey = CONFIG.ETHERIA.skills[key].attribute;
       acc[attributeKey] ??= {
-        label: ETHERIA.attributes[attributeKey]?.label,
+        label: CONFIG.ETHERIA.attributes[attributeKey]?.label,
         skills: {},
       };
       acc[attributeKey].skills[key] = {
@@ -320,12 +319,12 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         const context = {
           field: this.actor.system.schema.getField(`resistances.${key}`),
           value: data,
-          icon: ETHERIA.damageTypes[key]?.icon ?? "",
+          icon: CONFIG.ETHERIA.damageTypes[key]?.icon ?? "",
         };
 
         if (key === "true") {
           acc.all = context;
-        } else if (ETHERIA.damageTypes[key]?.isMagic) {
+        } else if (CONFIG.ETHERIA.damageTypes[key]?.isMagic) {
           acc.magic[key] = context;
         } else {
           acc.simple[key] = context;
@@ -359,7 +358,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         const context = {
           field: this.actor.system.schema.getField(`magicSpheres.${key}`),
           value: this.isPlayMode ? data : getRaw(key),
-          icon: ETHERIA.magicSpheres[key]?.icon ?? "",
+          icon: CONFIG.ETHERIA.magicSpheres[key]?.icon ?? "",
         };
 
         acc[key] = context;
@@ -439,7 +438,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     );
 
     context.abilities = Object.fromEntries(
-      Object.entries(ETHERIA.abilityType).map(([key, { label }]) => [
+      Object.entries(CONFIG.ETHERIA.abilityType).map(([key, { label }]) => [
         key,
         {
           label,
@@ -449,7 +448,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     );
 
     context.damageTypeChoices = Object.fromEntries(
-      Object.entries({ ...ETHERIA.damageTypes, ...ETHERIA.healingTypes }).map(
+      Object.entries({ ...CONFIG.ETHERIA.damageTypes, ...CONFIG.ETHERIA.healingTypes }).map(
         ([k, v]) => [k, v.label],
       ),
     );

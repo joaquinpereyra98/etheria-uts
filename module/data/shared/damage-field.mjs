@@ -1,7 +1,10 @@
-import { ETHERIA } from "../../config.mjs";
 import FormulaField from "../fields/formula-field.mjs";
 
 const { StringField, EmbeddedDataField } = foundry.data.fields;
+
+/**
+ * @import { ETHERIA } from "../../config.mjs";
+ */
 
 /**
  * Field for storing damage data.
@@ -35,7 +38,7 @@ export class DamageData extends foundry.abstract.DataModel {
       formula: new FormulaField({ initial: "1d4" }),
       type: new StringField({
         blank: true,
-        choices: { ...ETHERIA.damageTypes, ...ETHERIA.healingTypes },
+        choices: { ...CONFIG.ETHERIA.damageTypes, ...CONFIG.ETHERIA.healingTypes },
       }),
     };
   }

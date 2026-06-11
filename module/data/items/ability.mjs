@@ -1,4 +1,3 @@
-import { ETHERIA } from "../../config.mjs";
 import EtheriaItemData from "./_base-item.mjs";
 import DamageField from "../shared/damage-field.mjs";
 import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
@@ -21,17 +20,25 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     return {
       ...super.defineSchema(),
       actionType: new fields.StringField({
-        choices: ETHERIA.abilityType,
+        choices: CONFIG.ETHERIA.abilityType,
         blank: false,
         required: true,
         nullable: false,
-        initial: Object.keys(ETHERIA.abilityType)[0],
+        initial: Object.keys(CONFIG.ETHERIA.abilityType)[0],
         label: "Action Type",
       }),
       uses: new fields.SchemaField(
         {
-          value: new fields.NumberField({ integer: true, min: 0, required: true }),
-          max: new fields.NumberField({ integer: true, min: 0, required: true }),
+          value: new fields.NumberField({
+            integer: true,
+            min: 0,
+            required: true,
+          }),
+          max: new fields.NumberField({
+            integer: true,
+            min: 0,
+            required: true,
+          }),
         },
         { label: "Uses" },
       ),
@@ -43,12 +50,12 @@ export default class EtheriaAbilityData extends EtheriaItemData {
         new fields.StringField({
           required: true,
           blank: true,
-          choices: ETHERIA.magicSpheres,
+          choices: CONFIG.ETHERIA.magicSpheres,
         }),
         { label: "Magic Spheras" },
       ),
       attribute: new fields.StringField({
-        choices: ETHERIA.attributes,
+        choices: CONFIG.ETHERIA.attributes,
         blank: true,
         label: "Attribute",
       }),

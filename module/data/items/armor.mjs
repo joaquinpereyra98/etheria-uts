@@ -1,4 +1,3 @@
-import { ETHERIA } from "../../config.mjs";
 import EtheriaItemData from "./_base-item.mjs";
 import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
 
@@ -24,13 +23,13 @@ export default class EtheriaArmorData extends EtheriaItemData {
         label: "Armor",
       }),
       armorType: new fields.StringField({
-        choices: ETHERIA.armorType,
+        choices: CONFIG.ETHERIA.armorType,
         label: "Type",
         blank: true,
       }),
       requirementAttribute: new fields.StringField({
         blank: true,
-        choices: ETHERIA.attributes,
+        choices: CONFIG.ETHERIA.attributes,
         label: "Required Attribute",
       }),
       requirementValue: new fields.NumberField({

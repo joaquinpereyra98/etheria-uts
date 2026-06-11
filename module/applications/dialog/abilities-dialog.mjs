@@ -1,4 +1,3 @@
-import { ETHERIA } from "../../config.mjs";
 import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
 
 const { Application, HandlebarsApplicationMixin } = foundry.applications.api;
@@ -81,7 +80,7 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
     }, {});
 
     const abilities = Object.fromEntries(
-      Object.entries(ETHERIA.abilityType).map(([key, { label }]) => [
+      Object.entries(CONFIG.ETHERIA.abilityType).map(([key, { label }]) => [
         key,
         {
           label,

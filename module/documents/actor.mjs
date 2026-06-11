@@ -1,9 +1,9 @@
 import EtheriaAbilitiesDialog from "../applications/dialog/abilities-dialog.mjs";
-import { ETHERIA } from "../config.mjs";
 import { MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
 
 /**
  * @import { ResourceRecoveryResult } from "./_types.mjs";
+ * @import { ETHERIA } from "../../config.mjs";
  */
 
 /**@type {typeof foundry.documents.Actor} */
@@ -124,7 +124,7 @@ export default class EtheriaActor extends Actor {
    * @param {string} attributeKey - The key for the attribute (e.g., 'strength' or 'str').
    */
   async rollAttribute(attributeKey) {
-    const entry = Object.entries(ETHERIA.attributes).find(
+    const entry = Object.entries(CONFIG.ETHERIA.attributes).find(
       ([k, v]) =>
         k === attributeKey.toLowerCase() ||
         v.abrr === attributeKey.toLowerCase(),
@@ -153,7 +153,7 @@ export default class EtheriaActor extends Actor {
    * @param {keyof ETHERIA.skills} skillKey - The key for the skill
    */
   async rollSkill(skillKey) {
-    const config = ETHERIA.skills[skillKey];
+    const config = CONFIG.ETHERIA.skills[skillKey];
     const formula = `1d20 + @skills.${skillKey}.total + @bonus.accuracy - @exh`;
     const rollData = this.getRollData();
 
@@ -196,7 +196,7 @@ export default class EtheriaActor extends Actor {
    * @returns {Promise<foundry.dice.Roll>} The evaluated Roll object.
    */
   async rollDefense(defenseType) {
-    const config = ETHERIA.defenses[defenseType];
+    const config = CONFIG.ETHERIA.defenses[defenseType];
     if (!config) {
       ui.notifications.warn(
         `Etheria | Defense configuration not found for type: ${defenseType}`,
@@ -235,11 +235,11 @@ export default class EtheriaActor extends Actor {
       );
       return { finalDamage: baseDamage, applied: false };
     }
-    if (ETHERIA.healingTypes[damageType]) {
+    if (CONFIG.ETHERIA.healingTypes[damageType]) {
       return await this.applyHeal(baseDamage, damageType, { chatMessage });
     }
 
-    const damageConfig = ETHERIA.damageTypes[damageType];
+    const damageConfig = CONFIG.ETHERIA.damageTypes[damageType];
     if (!damageConfig) {
       ui.notifications.warn(
         `Etheria | Unknown damage type provided: ${damageType}`,
@@ -288,7 +288,7 @@ export default class EtheriaActor extends Actor {
    * @protected
    */
   async applyHeal(baseHeal, healingType = "heal", { chatMessage = true } = {}) {
-    const healConfig = ETHERIA.healingTypes[healingType];
+    const healConfig = CONFIG.ETHERIA.healingTypes[healingType];
     const hp = this.system.resources.hp;
 
     const missingHp = Math.max(0, hp.max - hp.value);
@@ -337,13 +337,13 @@ export default class EtheriaActor extends Actor {
   async openSecondariesDialog() {
     const skills = Object.entries(this.system.skills).reduce(
       (acc, [key, data]) => {
-        const attributeKey = ETHERIA.skills[key].attribute;
+        const attributeKey = CONFIG.ETHERIA.skills[key].attribute;
         acc[attributeKey] ??= {
-          label: ETHERIA.attributes[attributeKey]?.label,
+          label: CONFIG.ETHERIA.attributes[attributeKey]?.label,
           skills: {},
         };
         acc[attributeKey].skills[key] = {
-          label: ETHERIA.skills[key].label,
+          label: CONFIG.ETHERIA.skills[key].label,
           total: data.total,
         };
         return acc;

@@ -1,4 +1,3 @@
-import { ETHERIA } from "../../config.mjs";
 import EtheriaItemData from "./_base-item.mjs";
 import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
 import DamageField from "../shared/damage-field.mjs";
@@ -29,12 +28,12 @@ export default class EtheriaWeaponData extends EtheriaItemData {
         label: "Hands",
       }),
       attribute: new fields.StringField({
-        choices: ETHERIA.attributes,
+        choices: CONFIG.ETHERIA.attributes,
         blank: true,
         label: "Attribute",
       }),
       actionType: new fields.StringField({
-        choices: ETHERIA.actionType,
+        choices: CONFIG.ETHERIA.actionType,
         blank: true,
         label: "Action Type",
       }),

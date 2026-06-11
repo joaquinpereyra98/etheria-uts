@@ -7,8 +7,9 @@ import * as dice from "./module/dice/_module.mjs";
 import { DOC_SUB_TYPES, MODULE_ID, queries } from "./module/constants.mjs";
 import { ETHERIA } from "./module/config.mjs";
 
+CONFIG.ETHERIA = ETHERIA;
+
 Hooks.once("init", () => {
-  CONFIG.ETHERIA = ETHERIA;
 
   CONFIG.ui[`${MODULE_ID}.ActionBar`] = applications.ux.ActionBar;
   CONFIG.ui[`${MODULE_ID}.ActionsPanel`] = applications.ux.ActionsPanel;

@@ -9,7 +9,6 @@ import {
 
 import { LocalDocumentField, FormulaField } from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
-import { ETHERIA } from "../config.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 
 export default class EtheriaCharacterData extends TypeDataModel {
@@ -127,7 +126,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
     this.#calcArmor();
 
     for (const [key, skill] of Object.entries(this.skills)) {
-      const attrKey = ETHERIA.skills[key].attribute;
+      const attrKey = CONFIG.ETHERIA.skills[key].attribute;
       skill.total = skill.value + (this.attributes[attrKey]?.mod ?? 0);
     }
 
@@ -166,7 +165,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
    * @returns {number} The final calculated defense value.
    */
   #calculateDefense(key) {
-    const { skill, attribute } = ETHERIA.defenses[key];
+    const { skill, attribute } = CONFIG.ETHERIA.defenses[key];
 
     const exhaustionPenalty = (this.exhaustion ?? 0) * 3;
 
@@ -246,7 +245,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
     data.exhaustion = (data.exhaustion ?? 0) * 3;
     data.exh = data.exhaustion;
 
-    for (const [k, v] of Object.entries(ETHERIA.attributes)) {
+    for (const [k, v] of Object.entries(CONFIG.ETHERIA.attributes)) {
       if (v.abrr) data[v.abrr] = data.attributes[k];
     }
 

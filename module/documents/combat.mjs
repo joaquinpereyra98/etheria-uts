@@ -1,6 +1,10 @@
 import EtheriaBaseEffect from "../data/active-effect/base-effect.mjs";
 import EtheriaActor from "./actor.mjs";
-import { ETHERIA } from "../config.mjs";
+import { DOC_SUB_TYPES } from "../constants.mjs";
+
+/**
+ * @import { ETHERIA } from "../../config.mjs";
+ */
 
 /**@type {typeof foundry.documents.Combat} */
 const Combat = foundry.documents.Combat.implementation;
@@ -107,6 +111,17 @@ export default class EtheriaCombat extends Combat {
         await actor.applyDamage(dmg, type, { chatMessage: false });
       }
 
+      if (actor.type === DOC_SUB_TYPES.character) {
+        const updates = {};
+
+        for (const [k, v] of Object.entries(actor.system.actions)) {
+          updates[`system.actions.${k}.value`] = v.max;
+        }
+
+        const a = actor.isToken ? actor.token.baseActor : actor;
+        promises.push(a.update(updates));
+      }
+
       if (promises.length) await Promise.all(promises);
 
       if (recoveryStrings.length || statusStrings.length) {
@@ -119,14 +134,13 @@ export default class EtheriaCombat extends Combat {
       }
     }
 
-    if (reportRows.length > 0) {
-      foundry.documents.ChatMessage.implementation.create({
-        flavor: `End of Round ${this.round} Summary`,
-        content: `<div class="etheria-round-report">
+    foundry.documents.ChatMessage.implementation.create({
+      flavor: `End of Round ${this.round} Summary`,
+      content: `<div class="etheria-round-report">
                   ${reportRows.map((r) => `<p style="margin: 0;">${r}</p>`).join("")}
+                  <p>Recover All Actions</p>
                 </div>`,
-        speaker: { alias: "System" },
-      });
-    }
+      speaker: { alias: "System" },
+    });
   }
 }

@@ -1,10 +1,14 @@
 import EtheriaRoll from "./roll.mjs";
-import { ETHERIA } from "../config.mjs";
+
+/**
+ * @import { ETHERIA } from "../../config.mjs";
+ */
 
 /**
  * @typedef _DamageRollOptions
  * @property {keyof ETHERIA.damageTypes | keyof ETHERIA.healingTypes} damageType - the damage type of this roll;
  */
+
 
 /**
  * @typedef {import("@client/dice/_types.mjs").RollOptions & _DamageRollOptions} DamageRollOptions
@@ -38,7 +42,7 @@ export default class DamageRoll extends EtheriaRoll {
 
     let cleanFormula = this._formula.replace(/\s*\[.*?\]$/, "").trim();
 
-    const label = ETHERIA.damageTypes[type].label ?? ETHERIA.healingTypes[type].label;
+    const label = CONFIG.ETHERIA.damageTypes[type].label ?? CONFIG.ETHERIA.healingTypes[type].label;
     this._formula = `${cleanFormula} [${label ?? type}]`;
 
     this.terms = this.constructor.parse(this._formula, this.data);
