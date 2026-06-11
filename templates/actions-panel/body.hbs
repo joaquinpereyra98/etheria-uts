@@ -5,6 +5,9 @@
   </div>
 
   <div class="accordion-content">
+    <div class="left-scroll">
+      <div class="fake-thumb" id="fakeThumb"></div>
+    </div>
     <div class="ui-frame-list invisible-scrollbar">
       {{#each characters as |actor|}}
       {{> "modules/etheria-uts/templates/actions-panel/character-panel.hbs" actor=actor}}

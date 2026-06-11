@@ -1738,7 +1738,7 @@
       min-height: 0;
       height: 100%;
       min-width: 100%;
-      border-radius: 10px;
+      border-radius: 0 10px 10px 0;
       transition: box-shadow 0.3s ease-in-out;
 
       &.expanded {
@@ -1762,7 +1762,7 @@
       }
 
       .accordion-toggle {
-         background-color: rgba(0, 0, 0, 0.05);
+        background-color: rgba(0, 0, 0, 0.05);
         pointer-events: all;
         flex: 0 0 auto;
         cursor: pointer;
@@ -1794,7 +1794,7 @@
       }
 
       .accordion-content {
-         background-color: rgba(0, 0, 0, 0.05);
+        background-color: rgba(0, 0, 0, 0.05);
         pointer-events: all;
         flex: 0 0 0px;
         display: grid;
@@ -1803,6 +1803,25 @@
           grid-template-rows 0.3s ease-in-out,
           flex 0.3s ease-in-out;
         overflow: hidden;
+        position: relative;
+      }
+      .left-scroll {
+        position: absolute;
+        background-color: rgba(0, 0, 0, 0.1);
+        width: 10px;
+        top: 0;
+        left: 0px;
+        height: 100%;
+        z-index: 10;
+        .fake-thumb {
+          position: absolute;
+          width: 6px;
+          background-color: rgba(0, 0, 0, 0.2);
+          border-radius: 4px;
+          cursor: pointer;
+          top: 0;
+          left: 2px;
+        }
       }
     }
     .ui-frame-list {
@@ -1813,7 +1832,7 @@
       overflow-y: auto;
       overflow-x: hidden;
       min-height: 0;
-      padding-left: 5px;
+      padding-left: 10px;
 
       .character-panel {
         width: max-content;

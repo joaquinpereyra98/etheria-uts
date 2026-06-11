@@ -60,6 +60,10 @@ export default class ActionsPanel extends HAM(Application) {
     },
   };
 
+  #listEl;
+  #scrollbarEl;
+  #thumbEl;
+
   /**@type {Boolean} */
   get _expanded() {
     return !!game.user.getFlag(MODULE_ID, "expandedActionPanel");
@@ -92,16 +96,47 @@ export default class ActionsPanel extends HAM(Application) {
     }
   }
 
+  #updateThumbSize() {
+    if (!this.#listEl || !this.#thumbEl) return;
+    const scrollRatio = this.#listEl.clientHeight / this.#listEl.scrollHeight;
+    this.#thumbEl.style.height = `${Math.max(this.#listEl.clientHeight * scrollRatio, 30)}px`;
+  }
+
+  #syncFakeScrollbar() {
+    if (!this.#listEl || !this.#scrollbarEl || !this.#thumbEl) return;
+    const maxContentScroll =
+      this.#listEl.scrollHeight - this.#listEl.clientHeight;
+    const maxThumbScroll =
+      this.#scrollbarEl.clientHeight - this.#thumbEl.clientHeight;
+
+    const scrollPercentage = this.#listEl.scrollTop / maxContentScroll;
+    this.#thumbEl.style.transform = `translateY(${scrollPercentage * maxThumbScroll}px)`;
+  }
+
   /**@inheritdoc */
   async _onRender(context, options) {
     await super._onRender(context, options);
     this.#syncActionsPanelWidth();
+
+    this.#listEl = this.element.querySelector(".ui-frame-list");
+    this.#scrollbarEl = this.element.querySelector(".left-scroll");
+    this.#thumbEl = this.#scrollbarEl?.querySelector(".fake-thumb");
+
+    if (this.#listEl) {
+      this.#listEl.addEventListener("scroll", () => this.#syncFakeScrollbar());
+      window.addEventListener("resize", () => {
+        this.#updateThumbSize();
+        this.#syncFakeScrollbar();
+      });
+      this.#updateThumbSize();
+      this.#syncFakeScrollbar();
+    }
   }
 
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    
+
     const characters = [
       ...new Set(
         game.users
@@ -202,5 +237,9 @@ export default class ActionsPanel extends HAM(Application) {
     this.element
       .querySelector(".accordion-wrapper")
       ?.classList.toggle("expanded", state);
+
+    if (state) {
+      setTimeout(() => this.#syncActionsPanelWidth(), 300);
+    }
   }
 }
