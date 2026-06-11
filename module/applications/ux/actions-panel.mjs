@@ -13,7 +13,7 @@ export default class ActionsPanel extends HAM(Application) {
   /** @type {foundry.applications.types.ApplicationConfiguration} */
   static DEFAULT_OPTIONS = {
     id: `${MODULE_ID}-actions-panel`,
-    tag: "section",
+    tag: "aside",
     classes: [MODULE_ID, "actions-panel"],
     window: {
       frame: false,
@@ -61,7 +61,9 @@ export default class ActionsPanel extends HAM(Application) {
   };
 
   /**@type {Boolean} */
-  _expanded = !!game.user.getFlag(MODULE_ID, "expandedActionPanel");
+  get _expanded() {
+    return !!game.user.getFlag(MODULE_ID, "expandedActionPanel");
+  }
 
   /**@override */
   _insertElement(element) {
@@ -74,15 +76,44 @@ export default class ActionsPanel extends HAM(Application) {
     }
   }
 
+  /**
+   * Sync the actions panel width with the actor panel width
+   * @private
+   */
+  #syncActionsPanelWidth() {
+    const characterPanel = this.element.querySelector(".character-panel");
+
+    if (characterPanel) {
+      const actorWidth = characterPanel.offsetWidth;
+      this.element.style.setProperty(
+        "--actor-panel-width",
+        `${actorWidth + 12}px`,
+      );
+    }
+  }
+
+  /**@inheritdoc */
+  async _onRender(context, options) {
+    await super._onRender(context, options);
+    this.#syncActionsPanelWidth();
+  }
+
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
+    
+    const characters = [
+      ...new Set(
+        game.users
+          .filter((u) => u.active && u.character)
+          .map((u) => u.character),
+      ),
+    ];
+
     return {
       ...context,
-      characters: game.users
-        .filter((u) => u.active && u.character)
-        .map((u) => u.character),
       config: CONFIG.ETHERIA,
+      characters,
       isGM: game.user.isGM,
       glowPanels: this.glowIds.reduce((acc, id) => {
         acc[id] = true;
@@ -99,7 +130,7 @@ export default class ActionsPanel extends HAM(Application) {
   static async #onChangeValue(event, target) {
     const { key } = target.dataset;
     const path = `system.actions.${key}`;
-    const { uuid } = target.closest(".actor-panel")?.dataset ?? {};
+    const { uuid } = target.closest(".character-panel")?.dataset ?? {};
     const actor = await foundry.utils.fromUuid(uuid);
     if (!actor) return;
 
@@ -117,7 +148,7 @@ export default class ActionsPanel extends HAM(Application) {
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onClickImage(event, target) {
-    const { uuid } = target.closest(".actor-panel")?.dataset ?? {};
+    const { uuid } = target.closest(".character-panel")?.dataset ?? {};
     const actor = await foundry.utils.fromUuid(uuid);
     if (!actor) return;
 
@@ -140,7 +171,7 @@ export default class ActionsPanel extends HAM(Application) {
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onGlowPanel(event, target) {
-    const { uuid } = target.closest(".actor-panel")?.dataset ?? {};
+    const { uuid } = target.closest(".character-panel")?.dataset ?? {};
     const actor = await foundry.utils.fromUuid(uuid);
     if (!actor) return;
 
@@ -165,11 +196,11 @@ export default class ActionsPanel extends HAM(Application) {
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onToggleAccordion(_) {
-    this._expanded = !this._expanded;
+    const state = !this._expanded;
+    await game.user.setFlag(MODULE_ID, "expandedActionPanel", state);
 
-    const accordion = this.element.querySelector(".accordion");
-    const toggler = this.element.querySelector(".expand-toggler-container");
-    accordion.classList.toggle("expanded", this._expanded);
-    toggler.classList.toggle("expanded", this._expanded);
+    this.element
+      .querySelector(".accordion-wrapper")
+      ?.classList.toggle("expanded", state);
   }
 }

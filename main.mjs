@@ -79,6 +79,11 @@ Hooks.once("init", () => {
       },
     );
   }
+
+  Handlebars.registerHelper({
+    [`${MODULE_ID}-getFluidLevel`]: (v, max) =>
+      max > 0 ? Math.clamp(v / max, 0.2, 0.75) : 0.15,
+  });
 });
 
 Hooks.once("ready", () => {

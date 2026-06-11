@@ -46,6 +46,14 @@
     border-radius: var(--radius-sm);
   }
 
+  .invisible-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
   .etheria-tag-input > input,
   .etheria-range > input[type="number"],
   input.etheria-input {
@@ -1712,100 +1720,130 @@
   }
 
   &.actions-panel {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    width: var(--actor-panel-width, 400px);
     margin-left: -12px;
-    width: max-content;
-
     [data-action] {
       pointer-events: all;
       cursor: pointer;
     }
 
-    .accordion {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows 0.3s ease-in-out;
-      width: 100%;
+    .accordion-wrapper {
+      display: flex;
+      flex-direction: column;
+      overflow-y: hidden;
+      min-height: 0;
+      height: 100%;
+      min-width: 100%;
+      border-radius: 10px;
+      transition: box-shadow 0.3s ease-in-out;
+
+      &.expanded {
+        box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+        .accordion-toggle {
+          opacity: 1;
+
+          i.toggle-icon {
+            transform: rotate(90deg);
+          }
+        }
+
+        .accordion-content {
+          grid-template-rows: 1fr;
+          flex: 1 1 0%;
+
+          .orb .wave {
+            animation-play-state: running;
+          }
+        }
+      }
+
+      .accordion-toggle {
+         background-color: rgba(0, 0, 0, 0.05);
+        pointer-events: all;
+        flex: 0 0 auto;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.3rem;
+        font-size: 1rem;
+        color: #000;
+        border-bottom: 2px solid currentColor;
+        opacity: 0.4;
+        transition: opacity 0.3s ease-in-out;
+        width: 100%;
+
+        span {
+          font-size: 1.5rem;
+          font-family: "Modesto Condensed", "Palatino Linotype", serif;
+          text-wrap: nowrap;
+        }
+
+        i.toggle-icon {
+          transition: transform 0.3s ease-in-out;
+        }
+
+        &:hover {
+          text-shadow: 0 0 10px var(--accent-red);
+          opacity: 1;
+        }
+      }
 
       .accordion-content {
-        padding-right: 10px;
+         background-color: rgba(0, 0, 0, 0.05);
+        pointer-events: all;
+        flex: 0 0 0px;
+        display: grid;
+        grid-template-rows: 0fr;
+        transition:
+          grid-template-rows 0.3s ease-in-out,
+          flex 0.3s ease-in-out;
         overflow: hidden;
-        width: 100%;
-      }
-
-      &.expanded {
-        grid-template-rows: 1fr;
-        .orb .wave {
-          animation: etheria-uts-move-wave 2s cubic-bezier(0.58, 0.42, 1, 1)
-            infinite;
-        }
       }
     }
-
-    .expand-toggler-container {
-      display: flex;
-      align-items: center;
-      margin-left: 5px;
-      margin-bottom: 10px;
-      font-size: 1rem;
-      color: #000;
-      border-bottom: 2px solid currentColor;
-      cursor: pointer;
-      pointer-events: all;
-      opacity: 0.4;
-      transition: opacity 0.3s ease-in-out;
-
-      span {
-        font:
-          1.5rem "Modesto Condensed",
-          "Palatino Linotype",
-          serif;
-      }
-
-      i.accordion-icon {
-        transition: transform 0.3s ease-in-out;
-      }
-
-      &.expanded {
-        opacity: 1;
-        i.accordion-icon {
-          transform: rotate(90deg);
-        }
-      }
-
-      &:hover {
-        text-shadow: 0 0 10px var(--accent-red);
-        opacity: 1;
-      }
-    }
-
     .ui-frame-list {
       position: relative;
       display: flex;
       flex-direction: column;
-      align-items: stretch;
-      .ui-frame-container {
-        height: 100px;
+      align-items: flex-start;
+      overflow-y: auto;
+      overflow-x: hidden;
+      min-height: 0;
+      padding-left: 5px;
+
+      .character-panel {
+        width: max-content;
+        flex: 1 1 auto;
+        max-width: min-content;
+        max-height: 100px;
+        min-height: 60px;
         display: flex;
         align-items: center;
         flex-wrap: nowrap;
+        justify-content: flex-start;
+        position: relative;
 
         &.glow::before {
-          pointer-events: all;
           content: "";
           position: absolute;
-          top: 22%;
-          left: 3%;
-          width: 95%;
-          height: 57%;
-          border-top-right-radius: 25px;
-          border-bottom-right-radius: 25px;
-          box-shadow: 0px 0px 20px 10px #d66d6d;
+          top: 25%;
+          bottom: 25%;
+          left: 5%;
+          right: 30px;
+          border-radius: 30px;
+          box-shadow: 0 0 20px 10px #d66d6d;
+          animation: pulse-glow 1.5s ease-in-out infinite;
         }
 
         .portrait {
           position: relative;
-          flex: 0 0 100px;
-          height: 100px;
+          height: 90%;
+          aspect-ratio: 1 / 1;
+          flex-shrink: 0;
           box-sizing: border-box;
           display: flex;
           align-items: center;
@@ -1820,6 +1858,11 @@
             cursor: pointer;
             z-index: 1;
             padding: 10%;
+            background: radial-gradient(
+              circle,
+              rgba(100, 100, 100) 0%,
+              black 100%
+            );
 
             clip-path: inset(2%);
           }
@@ -1842,11 +1885,14 @@
           position: relative;
           align-items: center;
           flex-wrap: nowrap;
-          height: 56px;
+          height: 50%;
           gap: 8px;
           margin-left: -10px;
           padding-left: 15px;
           padding-right: 25px;
+
+          width: max-content;
+          flex: 0 0 auto;
 
           z-index: 1;
           &::before {
@@ -1863,14 +1909,17 @@
         }
         .orb {
           position: relative;
-          width: 56px;
-          height: 60px;
+          height: 115%;
           aspect-ratio: 1 / 1;
           flex-shrink: 0;
 
           border-radius: 50%;
           overflow: hidden;
           cursor: pointer;
+
+          display: flex;
+          align-items: center;
+          justify-content: center;
 
           --fluid-level: 0;
           --fluid-color: #2196f3;
@@ -1905,7 +1954,8 @@
           }
 
           .orb-content {
-            position: absolute;
+            width: 100%;
+            height: 100%;
             inset: 0;
             z-index: 1;
             display: flex;
@@ -1915,50 +1965,50 @@
             box-shadow: inset 0 0 20px 1px rgba(0, 0, 0, 0.5);
 
             .label {
-              font:
-                1.5rem "Modesto Condensed",
-                "Palatino Linotype",
-                serif;
+              font-size: 150%;
+              font-family: "Modesto Condensed", "Palatino Linotype", serif;
+              text-align: center;
               text-shadow: 1px 1px 2px #000;
               opacity: 0;
               transition: opacity 0.3s ease;
             }
           }
 
-          .wave,
-          .wave-below {
+          .wave {
             position: absolute;
             left: 0;
-            pointer-events: none;
-            background-color: var(--fluid-color);
-            --safe-top: calc(85% - (var(--fluid-level) * 80%) + 10px);
-            top: var(--safe-top);
-          }
-
-          .wave {
+            bottom: calc(var(--fluid-level) * 100% - 10px);
             width: 200%;
-            height: 100%;
-            margin-top: -15px;
+            height: 20px;
+            background-color: var(--fluid-color);
 
             -webkit-mask: url("../assets/actions-panel/wave.svg") repeat-x;
             mask: url("../assets/actions-panel/wave.svg") repeat-x;
             -webkit-mask-size: 50% 20px;
             mask-size: 50% 20px;
+
+            animation: etheria-uts-move-wave 2s cubic-bezier(0.58, 0.42, 1, 1)
+              infinite;
+
+            animation-play-state: paused;
+            transition: animation-play-state 0s linear 0.3s;
+
+            z-index: 1;
+            transform: translateY(-50%);
           }
 
           .wave-below {
+            position: absolute;
+            left: 0;
+            bottom: 0;
             width: 100%;
-            height: 150%;
-            z-index: -1;
+            height: calc(var(--fluid-level) * 100%);
+            background-color: var(--fluid-color);
+            z-index: 1;
           }
         }
-
         .tools-contianer {
-          position: absolute;
-          top: 10px;
-          right: -0.2rem;
-          font-size: 0.9rem;
-          pointer-events: all;
+          font-size: 1rem;
           opacity: 0.5;
           transition: opacity 0.3s ease;
           color: white;
@@ -1969,6 +2019,10 @@
       }
     }
   }
+}
+
+#scene-controls {
+  flex: 0 0 auto;
 }
 
 @keyframes etheria-uts-move-wave {

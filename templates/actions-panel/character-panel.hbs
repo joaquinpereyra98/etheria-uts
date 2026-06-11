@@ -1,6 +1,5 @@
-<div class="ui-frame-container actor-panel {{ifThen (lookup @root.glowPanels actor.id) "glow" "" }} " data-uuid="{{actor.uuid}}">
-
-  <div class="portrait">
+<div class="character-panel {{ifThen (lookup @root.glowPanels actor.id) "glow" "" }} " data-uuid="{{actor.uuid}}">
+  <div class="portrait" data-tooltip="{{actor.name}}">
     <img
       class="portrait-img"
       data-action="clickImage"
@@ -15,7 +14,7 @@
         <div class="orb">
           <div
             class="orb"
-            style="--fluid-level: {{action.pct}}; --fluid-color: {{configAction.color}};"
+            style="--fluid-level: {{etheria-uts-getFluidLevel action.value action.max}}; --fluid-color: {{configAction.color}};"
             data-key="{{key}}"
             data-action="changeValue"
             data-tooltip="{{configAction.label}}"
