@@ -235,6 +235,7 @@ export default class EtheriaActor extends Actor {
       );
       return { finalDamage: baseDamage, applied: false };
     }
+
     if (CONFIG.ETHERIA.healingTypes[damageType]) {
       return await this.applyHeal(baseDamage, damageType, { chatMessage });
     }
@@ -247,26 +248,44 @@ export default class EtheriaActor extends Actor {
       return { finalDamage: baseDamage, applied: false };
     }
 
-    const resistances = this.system.resistances ?? {};
-    const specificResistance = resistances[damageType]?.value ?? 0;
-    const allResistance = resistances.all?.value ?? 0;
-    const totalResistance = specificResistance + allResistance;
+    const { resistances = {}, resources = {} } = this.system;
 
-    const finalDamage = Math.max(0, baseDamage - totalResistance);
+    let armorValue = 0;
+    let damageAfterArmor = baseDamage;
+
+    if (!damageConfig.isMagic) {
+      armorValue = resources.armor?.value ?? 0;
+      damageAfterArmor = Math.max(0, baseDamage - armorValue);
+    }
+
+    const totalResistance = Math.clamp(
+      (resistances[damageType] ?? 0) + (resistances.true ?? 0),
+      0,
+      100,
+    );
+
+    let finalDamage = damageAfterArmor * (1 - totalResistance / 100);
+    finalDamage = Math.max(0, finalDamage);
 
     if (finalDamage > 0) {
-      const currentHp = this.system.resources.hp.value;
+      const currentHp = resources.hp?.value ?? 0;
       await this.update({
         "system.resources.hp.value": currentHp - finalDamage,
       });
     }
 
     if (chatMessage) {
+      const mathBreakdown =
+        armorValue > 0
+          ? `(${baseDamage} base - ${armorValue} armor) - ${totalResistance}% resisted`
+          : `${baseDamage} base - ${totalResistance}% resisted`;
+
       const content = `
         <div class="etheria-chat-card">
           <p><strong>${this.name}</strong> takes <strong>${finalDamage}</strong> ${damageConfig.label} damage.</p>
-          <small style="display: block; opacity: 0.7;">(${baseDamage} base - ${totalResistance} resisted)</small>
+          <small style="display: block; opacity: 0.7;">(${mathBreakdown})</small>
         </div>`;
+
       /**@type {typeof foundry.documents.ChatMessage} */
       const CLS = foundry.documents.ChatMessage.implementation;
       await CLS.create({
@@ -277,7 +296,6 @@ export default class EtheriaActor extends Actor {
 
     return { finalDamage, applied: finalDamage > 0 };
   }
-
   /**
    * Apply healing to this Actor and optionally create a chat message.
    * @param {number} baseHeal - The amount of healing to be applied.

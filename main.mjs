@@ -10,7 +10,6 @@ import { ETHERIA } from "./module/config.mjs";
 CONFIG.ETHERIA = ETHERIA;
 
 Hooks.once("init", () => {
-
   CONFIG.ui[`${MODULE_ID}.ActionBar`] = applications.ux.ActionBar;
   CONFIG.ui[`${MODULE_ID}.ActionsPanel`] = applications.ux.ActionsPanel;
   applications.ux.ActionsPanel.registerSetting();
