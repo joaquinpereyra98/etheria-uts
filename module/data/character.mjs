@@ -7,7 +7,7 @@ import {
   createActionsFields,
 } from "./utils.mjs";
 
-import { LocalDocumentField, FormulaField } from "./fields/_module.mjs";
+import { LocalDocumentField, FormulaField, TrackedTOF } from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 
@@ -41,7 +41,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
         }),
       }),
 
-      resourcesExtra: new fields.TypedObjectField(
+      resourcesExtra: new TrackedTOF(
         new ResourceSchemaField({
           maxOptions: { min: 0, nullable: true, initial: null },
           schemaOptions: { customLabel: true },

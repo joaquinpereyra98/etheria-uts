@@ -734,7 +734,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     }
 
     this.actor.update({
-      [`system.resourcesExtra.-=${key}`]: null,
+      [`system.resourcesExtra.${key}`]: _del,
     });
   }
   /**

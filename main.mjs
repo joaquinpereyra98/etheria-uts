@@ -24,6 +24,8 @@ Hooks.once("init", () => {
   CONFIG.ActiveEffect.typeLabels.base =
     foundry.documents.ActiveEffect.metadata.label;
 
+  CONFIG.Token.documentClass = documents.EtheriaTokenDocument;
+
   CONFIG.statusEffects.push({
     id: "decayed",
     name: "Decayed",
