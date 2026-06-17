@@ -38,6 +38,103 @@ export default class EtheriaActor extends Actor {
   }
 
   /**@inheritdoc */
+  async _preUpdate(changes, options, user) {
+    const allowed = await super._preUpdate(changes, options, user);
+    if (allowed === false) return false;
+
+    const { getProperty } = foundry.utils;
+    options[MODULE_ID] ??= {};
+
+    const trackableStats = {};
+    const categories = ["resources", "resourcesExtra"];
+
+    for (const category of categories) {
+      const changedData = getProperty(changes, `system.${category}`);
+      if (!changedData) continue;
+
+      const currentData = this.system[category] || {};
+
+      for (const [key, resourceChange] of Object.entries(changedData)) {
+        if (resourceChange && "value" in resourceChange) {
+          const currentValue = currentData[key]?.value ?? 0;
+          const newValue = resourceChange.value;
+          const diff = newValue - currentValue;
+
+          if (diff !== 0) {
+            trackableStats[category] ??= {};
+            trackableStats[category][key] = diff;
+          }
+        }
+      }
+    }
+
+    if (Object.keys(trackableStats).length > 0) {
+      options[MODULE_ID].trackableStats = trackableStats;
+    }
+
+    return true;
+  }
+
+  _onUpdate(changed, options, userId) {
+    super._onUpdate(changed, options, userId);
+
+    const stats = options[MODULE_ID]?.trackableStats;
+    if (stats) this.#checkTrackableStats(stats);
+  }
+
+  /**
+   * Process tracked stat differences and queue up data for rendering on associated active tokens.
+   * @param {Record<string, Record<string, number>>} stats - Map of categories and changed keys with their differential values.
+   * @private
+   */
+  #checkTrackableStats(stats) {
+    const scrollingText = [];
+    const { TOP, BOTTOM } = CONST.TEXT_ANCHOR_POINTS;
+
+    for (const [category, data] of Object.entries(stats)) {
+      for (const [key, val] of Object.entries(data)) {
+        const isPositive = val > 0;
+        const label =
+          this.system.schema.getField(`${category}.${key}`)?.label ??
+          this.system[category]?.[key]?.label ??
+          key;
+
+        scrollingText.push({
+          text: `${val.signedString()} ${label}`,
+          color: isPositive ? "#0eaa00" : "#aa000e",
+          direction: isPositive ? TOP : BOTTOM,
+        });
+      }
+    }
+    
+    for (const t of this.getActiveTokens(true)) {
+      for (const textData of scrollingText) {
+        this._renderFloatinText(t, textData);
+      }
+    }
+  }
+
+  /**
+   * Render custom floating canvas numbers from a given token interface target.
+   * @param {foundry.canvas.placeables.Token} token - The active scene token instance acting as the source visual frame.
+   * @param {object} textData - Configuration object containing the text string, fill color, and scrolling direction.
+   * @param {string} textData.text - Formatted numerical string text.
+   * @param {string} textData.color - Hex string representing fill color.
+   * @param {number} textData.direction - Numerical value targeting a canvas rendering vector from CONST.TEXT_ANCHOR_POINTS.
+   */
+  _renderFloatinText(token, { text, color, direction }) {
+    canvas.interface.createScrollingText(token.center, text, {
+      anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
+      direction,
+      distance: token.h,
+      fontSize: 28, 
+      fill: color,
+      strokeThickness: 4,
+      jitter: 0.25,
+    });
+  }
+
+  /**@inheritdoc */
   getRollData() {
     return this.system.getRollData?.() ?? foundry.utils.deepClone(this.system);
   }
