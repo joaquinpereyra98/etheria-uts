@@ -1,9 +1,8 @@
 import EtheriaAbilitiesDialog from "../applications/dialog/abilities-dialog.mjs";
 import { MODULE_ID, TEMPLATE_PATH } from "../constants.mjs";
-
+import { ETHERIA } from "../config.mjs";
 /**
  * @import { ResourceRecoveryResult } from "./_types.mjs";
- * @import { ETHERIA } from "../../config.mjs";
  */
 
 /**@type {typeof foundry.documents.Actor} */
@@ -229,73 +228,135 @@ export default class EtheriaActor extends Actor {
    * @returns {Promise<{finalDamage: number, applied: boolean}>} An object containing the final damage and if it was applied.
    */
   async applyDamage(baseDamage, damageType, { chatMessage = true } = {}) {
-    if (baseDamage <= 0) {
-      ui.notifications.warn(
-        `Etheria | BaseDamage should have a value greater than 0: ${baseDamage} - ${damageType}`,
-      );
-      return { finalDamage: baseDamage, applied: false };
-    }
+    const results = await this.applyMultipleDamages(
+      [{ value: baseDamage, type: damageType }],
+      { chatMessage },
+    );
+    return results[0] || { finalDamage: 0, applied: false };
+  }
 
-    if (CONFIG.ETHERIA.healingTypes[damageType]) {
-      return await this.applyHeal(baseDamage, damageType, { chatMessage });
-    }
-
-    const damageConfig = CONFIG.ETHERIA.damageTypes[damageType];
-    if (!damageConfig) {
-      ui.notifications.warn(
-        `Etheria | Unknown damage type provided: ${damageType}`,
-      );
-      return { finalDamage: baseDamage, applied: false };
-    }
+  /**
+   * Applies multiple instances of damage or healing simultaneously.
+   * Processes all calculations and updates the database once.
+   * @param {Array<{value: number, type: keyof ETHERIA.damageTypes | keyof ETHERIA.healingTypes}>} damageInstances - Array of damage objects containing value and type.
+   * @param {object} [options={}] - Optional parameters.
+   * @param {boolean} [options.chatMessage=true] - Whether to create chat messages for the results.
+   * @returns {Promise<Array<{finalDamage: number, applied: boolean, type: string}>>} Array of results for each instance.
+   */
+  async applyMultipleDamages(damageInstances, { chatMessage = true } = {}) {
+    if (!Array.isArray(damageInstances) || damageInstances.length === 0)
+      return [];
 
     const { resistances = {}, resources = {} } = this.system;
+    let currentHp = resources.hp?.value ?? 0;
 
-    let armorValue = 0;
-    let damageAfterArmor = baseDamage;
+    const results = [];
+    let totalHpChange = 0;
+    let chatContents = [];
 
-    if (!damageConfig.isMagic) {
-      armorValue = resources.armor?.value ?? 0;
-      damageAfterArmor = Math.max(0, baseDamage - armorValue);
+    for (const instance of damageInstances) {
+      const { value: baseDamage, type: damageType } = instance;
+
+      if (baseDamage <= 0) {
+        ui.notifications.warn(
+          `Etheria | BaseDamage should have a value greater than 0: ${baseDamage} - ${damageType}`,
+        );
+        results.push({
+          finalDamage: baseDamage,
+          applied: false,
+          type: damageType,
+        });
+        continue;
+      }
+
+      if (CONFIG.ETHERIA.healingTypes[damageType]) {
+        // Handling heal individually since it likely has its own distinct logic/updates
+        const healResult = await this.applyHeal(baseDamage, damageType, {
+          chatMessage,
+        });
+        results.push({ ...healResult, type: damageType });
+        continue;
+      }
+
+      const damageConfig = CONFIG.ETHERIA.damageTypes[damageType];
+      if (!damageConfig) {
+        ui.notifications.warn(
+          `Etheria | Unknown damage type provided: ${damageType}`,
+        );
+        results.push({
+          finalDamage: baseDamage,
+          applied: false,
+          type: damageType,
+        });
+        continue;
+      }
+
+      let armorValue = 0;
+      let damageAfterArmor = baseDamage;
+
+      if (!damageConfig.isMagic) {
+        armorValue = resources.armor?.value ?? 0;
+        damageAfterArmor = Math.max(0, baseDamage - armorValue);
+      }
+
+      const totalResistance = Math.clamp(
+        (resistances[damageType] ?? 0) + (resistances.true ?? 0),
+        0,
+        100,
+      );
+
+      let finalDamage = Math.max(
+        0,
+        damageAfterArmor * (1 - totalResistance / 100),
+      );
+
+      if (finalDamage > 0) {
+        totalHpChange += finalDamage;
+      }
+
+      results.push({ finalDamage, applied: finalDamage > 0, type: damageType });
+
+      if (chatMessage) {
+        const mathBreakdown =
+          armorValue > 0
+            ? `(${baseDamage} base - ${armorValue} armor) - ${totalResistance}% resisted`
+            : `${baseDamage} base - ${totalResistance}% resisted`;
+
+        chatContents.push(`
+          <div class="etheria-damage-instance" style="margin-bottom: 0.5rem;">
+            <p>Takes <strong>${finalDamage.toFixed(1)}</strong> ${damageConfig.label} damage.</p>
+            <small style="display: block; opacity: 0.7;">(${mathBreakdown})</small>
+          </div>
+        `);
+      }
     }
 
-    const totalResistance = Math.clamp(
-      (resistances[damageType] ?? 0) + (resistances.true ?? 0),
-      0,
-      100,
-    );
-
-    let finalDamage = damageAfterArmor * (1 - totalResistance / 100);
-    finalDamage = Math.max(0, finalDamage);
-
-    if (finalDamage > 0) {
-      const currentHp = resources.hp?.value ?? 0;
+    if (totalHpChange > 0) {
       await this.update({
-        "system.resources.hp.value": currentHp - finalDamage,
+        "system.resources.hp.value": Math.max(0, currentHp - totalHpChange),
       });
     }
 
-    if (chatMessage) {
-      const mathBreakdown =
-        armorValue > 0
-          ? `(${baseDamage} base - ${armorValue} armor) - ${totalResistance}% resisted`
-          : `${baseDamage} base - ${totalResistance}% resisted`;
-
-      const content = `
+    // 5. Send combined chat message if instances were processed
+    if (chatMessage && chatContents.length > 0) {
+      const combinedContent = `
         <div class="etheria-chat-card">
-          <p><strong>${this.name}</strong> takes <strong>${finalDamage}</strong> ${damageConfig.label} damage.</p>
-          <small style="display: block; opacity: 0.7;">(${mathBreakdown})</small>
+          <strong>${this.name}</strong> receives damage:
+          <hr style="margin: 0.25rem 0; opacity: 0.3;">
+          ${chatContents.join("")}
         </div>`;
 
       /**@type {typeof foundry.documents.ChatMessage} */
       const CLS = foundry.documents.ChatMessage.implementation;
       await CLS.create({
         speaker: CLS.getSpeaker({ actor: this }),
-        content: content,
+        content: combinedContent,
       });
     }
 
-    return { finalDamage, applied: finalDamage > 0 };
+    return results;
   }
+
   /**
    * Apply healing to this Actor and optionally create a chat message.
    * @param {number} baseHeal - The amount of healing to be applied.
@@ -306,37 +367,97 @@ export default class EtheriaActor extends Actor {
    * @protected
    */
   async applyHeal(baseHeal, healingType = "heal", { chatMessage = true } = {}) {
-    const healConfig = CONFIG.ETHERIA.healingTypes[healingType];
+    const results = await this.applyMultipleHeals(
+      [{ value: baseHeal, type: healingType }],
+      { chatMessage },
+    );
+    return results[0] || { finalHeal: 0, applied: false, overflow: baseHeal };
+  }
+
+  /**
+   * Applies multiple instances of healing simultaneously.
+   * Processes all calculation logic together and updates the database once.
+   * @param {Array<{value: number, type: string}>} healInstances - Array of healing objects containing value and type.
+   * @param {object} [options={}] - Optional parameters.
+   * @param {boolean} [options.chatMessage=true] - Whether to create chat messages for the results.
+   * @returns {Promise<Array<{finalHeal: number, applied: boolean, overflow: number, type: string}>>} Array of results for each instance.
+   */
+  async applyMultipleHeals(healInstances, { chatMessage = true } = {}) {
+    if (!Array.isArray(healInstances) || healInstances.length === 0) return [];
+
     const hp = this.system.resources.hp;
+    const maxHp = hp.max ?? 0;
+    // Track our sliding HP value during the loop calculations so subsequent instances handle remaining missing HP properly
+    let runningHpValue = hp.value ?? 0;
 
-    const missingHp = Math.max(0, hp.max - hp.value);
-    const finalHeal = Math.min(baseHeal, missingHp);
-    const overflow = baseHeal - finalHeal;
+    const results = [];
+    let totalHpGained = 0;
+    let chatContents = [];
 
-    await this.update({ "system.resources.hp.value": hp.value + finalHeal });
+    for (const instance of healInstances) {
+      const { value: baseHeal, type: healingType } = instance;
+      const healConfig = CONFIG.ETHERIA.healingTypes[healingType];
 
-    if (chatMessage) {
-      const label = healConfig?.label ?? healingType;
-      let content = `
-        <div class="etheria-chat-card">
-          <p><strong>${this.name}</strong> receives <strong>${finalHeal}</strong> ${label} points.</p>
-      `;
+      const missingHp = Math.max(0, maxHp - runningHpValue);
+      const finalHeal = Math.min(baseHeal, missingHp);
+      const overflow = baseHeal - finalHeal;
 
-      if (overflow > 0) {
-        content += `<small style="display: block; opacity: 0.7;">(${overflow} healing exceeded max HP)</small>`;
+      // Adjust running variables for tracking batch math
+      runningHpValue += finalHeal;
+      totalHpGained += finalHeal;
+
+      results.push({
+        finalHeal,
+        applied: finalHeal > 0,
+        overflow,
+        type: healingType,
+      });
+
+      // Queue up Chat Message content for this specific instance
+      if (chatMessage) {
+        const label = healConfig?.label ?? healingType;
+        let instanceHtml = `
+          <div class="etheria-heal-instance" style="margin-bottom: 0.5rem;">
+            <p>Receives <strong>${finalHeal}</strong> ${label} points.</p>
+        `;
+
+        if (overflow > 0) {
+          instanceHtml += `<small style="display: block; opacity: 0.7;">(${overflow} healing exceeded max HP)</small>`;
+        }
+        instanceHtml += `</div>`;
+
+        chatContents.push(instanceHtml);
       }
+    }
 
-      content += `</div>`;
+    // 1. Single Database Update for all combined healing changes
+    if (totalHpGained > 0) {
+      await this.update({
+        "system.resources.hp.value": Math.min(
+          maxHp,
+          (hp.value ?? 0) + totalHpGained,
+        ),
+      });
+    }
+
+    // 2. Send combined chat card if instances were processed
+    if (chatMessage && chatContents.length > 0) {
+      const combinedContent = `
+        <div class="etheria-chat-card">
+          <strong>${this.name}</strong> receives healing:
+          <hr style="margin: 0.25rem 0; opacity: 0.3;">
+          ${chatContents.join("")}
+        </div>`;
 
       /**@type {typeof foundry.documents.ChatMessage} */
       const CLS = foundry.documents.ChatMessage.implementation;
       await CLS.create({
         speaker: CLS.getSpeaker({ actor: this }),
-        content,
+        content: combinedContent,
       });
     }
 
-    return { finalHeal, applied: finalHeal > 0, overflow };
+    return results;
   }
 
   /**

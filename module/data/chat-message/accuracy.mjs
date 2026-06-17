@@ -19,6 +19,8 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
         reEvaluateRoll: EtheriaAccuracyMessage.#onReEvaluateRoll,
         rollDefense: EtheriaAccuracyMessage.#onRollDefense,
         applyDamage: EtheriaAccuracyMessage.#onApplyDamage,
+        rollDefenseAll: EtheriaAccuracyMessage.#onRollDefenseAll,
+        applyDamageAll: EtheriaAccuracyMessage.#onApplyDamageAll,
       },
     });
   }
@@ -201,7 +203,7 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
   }
 
   /**
-   *
+   * Rolls the specified defense for a specific targeted actor.
    * @this {EtheriaAccuracyMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
@@ -245,6 +247,49 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
 
       const damageType = roll.options?.damageType ?? "untyped";
       await token.actor.applyDamage(baseDamage, damageType);
+    }
+  }
+
+  /**
+   * Rolls the specified defense for all targeted actors.
+   * @this {EtheriaAccuracyMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRollDefenseAll(_event, target) {
+    const { type } = target.dataset;
+
+    for (const uuid of this.targets) {
+      const doc = foundry.utils.fromUuidSync(uuid)?.actor;
+      if (!doc) continue;
+      await doc.rollDefense(type);
+    }
+  }
+  /**
+   * Applies all evaluated damage rolls to every targeted actor.
+   * @this {EtheriaAccuracyMessage}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onApplyDamageAll(_event) {
+    const damageRollsData = this.damages.rolls;
+
+    if (!damageRollsData?.length)
+      return ui.notifications.info("This attack has no damage to apply.");
+
+    for (const uuid of this.targets) {
+      const actor = foundry.utils.fromUuidSync(uuid)?.actor;
+      if (!actor) continue;
+
+      for (const rollData of damageRollsData) {
+        const roll = foundry.dice.Roll.fromData(rollData);
+
+        if (!roll._evaluated) continue;
+        if (roll.total <= 0) continue;
+
+        await actor.applyDamage(
+          roll.total,
+          roll.options?.damageType ?? "untyped",
+        );
+      }
     }
   }
 }

@@ -4,7 +4,11 @@
   {{/if}}
 
   <section class="accordion {{ifThen accordionState.targets 'expanded' ''}}">
-    <header class="flexrow accordion-header" data-action="toggleAccordion" data-accordion-id="targets">
+    <header
+      class="flexrow accordion-header"
+      data-action="toggleAccordion"
+      data-accordion-id="targets"
+    >
       <i class="accordion-chevron icon fa-solid fa-chevron-right"></i>
 
       <div class="title-container">
@@ -13,7 +17,11 @@
       </div>
 
       {{#if isOwner}}
-      <a class="refresh-anchor" data-action="refreshTargets" data-tooltip="Update Targets from selection">
+      <a
+        class="refresh-anchor"
+        data-action="refreshTargets"
+        data-tooltip="Update Targets from selection"
+      >
         <i class="icon fa-solid fa-arrows-rotate"></i>
       </a>
       {{/if}}
@@ -22,63 +30,129 @@
     <div class="accordion-content">
       {{#each targets}}
       <div class="list-item flexrow" data-uuid="{{uuid}}">
-        <img src="{{doc.texture.src}}">
+        <img src="{{doc.texture.src}}" />
         <span class="item-label">{{doc.name}}</span>
         <div class="target-controls">
           {{#if ../acc.isEvaluated}}
-          <a class="fa-solid fa-shield-halved" data-tooltip="Roll Block ({{doc.actor.system.defense.block.value}})"
-            data-action="rollDefense" data-type="block"></a>
-          <a class="fa-solid fa-swords" data-tooltip="Roll Parry ({{doc.actor.system.defense.parry.value}})"
-            data-action="rollDefense" data-type="parry"></a>
-          <a class="fa-solid fa-person-running" data-tooltip="Roll Dodge ({{doc.actor.system.defense.dodge.value}})"
-            data-action="rollDefense" data-type="dodge"></a>
+          <a
+            class="fa-solid fa-shield-halved"
+            data-tooltip="Roll Block ({{doc.actor.system.defense.block.value}})"
+            data-action="rollDefense"
+            data-type="block"
+          ></a>
+          <a
+            class="fa-solid fa-swords"
+            data-tooltip="Roll Parry ({{doc.actor.system.defense.parry.value}})"
+            data-action="rollDefense"
+            data-type="parry"
+          ></a>
+          <a
+            class="fa-solid fa-person-running"
+            data-tooltip="Roll Dodge ({{doc.actor.system.defense.dodge.value}})"
+            data-action="rollDefense"
+            data-type="dodge"
+          ></a>
           {{/if}}
           {{#if ../damages.isEvaluated}}
           <div class="vertical"></div>
-          <a class="fa-solid fa-burst" data-tooltip="Apply Damage" data-action="applyDamage"></a>
+          <a
+            class="fa-solid fa-burst"
+            data-tooltip="Apply Damage"
+            data-action="applyDamage"
+          ></a>
           {{/if}}
         </div>
         {{#unless ../isIdle}}
         {{/unless}}
       </div>
       {{/each}}
+      {{#if targets.size}}
+      <div class="last-row flexrow">
+        {{#if acc.isEvaluated}}
+        <a
+          class="fa-solid fa-shield-halved"
+          data-tooltip="Roll Block for All"
+          data-action="rollDefenseAll"
+          data-type="block"
+        ></a>
+        <a
+          class="fa-solid fa-swords"
+          data-tooltip="Roll Parry for All"
+          data-action="rollDefenseAll"
+          data-type="parry"
+        ></a>
+        <a
+          class="fa-solid fa-person-running"
+          data-tooltip="Roll Dodge for All"
+          data-action="rollDefenseAll"
+          data-type="dodge"
+        ></a>
+        {{/if}}
+        {{#if damages.isEvaluated}}
+        <div class="vertical"></div>
+        <a
+          class="fa-solid fa-burst"
+          data-tooltip="Apply Damage for All"
+          data-action="applyDamageAll"
+        ></a>
+        {{/if}}
+      </div>
+      {{/if}}
     </div>
   </section>
 
   {{#if renderedRolls.length}}
   <section class="base-rolls">
-    {{#each renderedRolls}}{{{this}}}{{/each}}
-    <hr class="etheria-hr">
+    {{#each renderedRolls}}
+    {{{this}}}
+    {{/each}}
+    <hr class="etheria-hr" />
   </section>
   {{/if}}
 
   <div class="item-actions flexcol">
     {{#if isOwner}}
     <div class="action-row">
-      <button class="item-action etheria-button" data-type="accuracy" data-action="promptGMForRoll" {{disabled (not
-        acc.isIdle)}}>
+      <button
+        class="item-action etheria-button"
+        data-type="accuracy"
+        data-action="promptGMForRoll"
+        {{disabled (not acc.isIdle)}}
+      >
         <div class="img-portrait">
           <i class="icon fa-solid {{acc.icon}}"></i>
         </div>
         <span class="action-label">{{acc.buttonLabel}}</span>
       </button>
       {{#if (and isGM acc.isEvaluated)}}
-      <a class="action-anchor icon fa-solid fa-arrow-rotate-right" data-tooltip="Re-Evaluate Roll"
-        data-action="reEvaluateRoll" data-type="accuracy"></a>
+      <a
+        class="action-anchor icon fa-solid fa-arrow-rotate-right"
+        data-tooltip="Re-Evaluate Roll"
+        data-action="reEvaluateRoll"
+        data-type="accuracy"
+      ></a>
       {{/if}}
     </div>
     {{#if hasDamage}}
     <div class="action-row">
-      <button class="item-action etheria-button" data-type="damages" data-action="promptGMForRoll" {{disabled (not
-        damages.isIdle)}}>
+      <button
+        class="item-action etheria-button"
+        data-type="damages"
+        data-action="promptGMForRoll"
+        {{disabled (not damages.isIdle)}}
+      >
         <div class="img-portrait">
           <i class="icon fa-solid {{damages.icon}}"></i>
         </div>
         <span class="action-label">{{damages.buttonLabel}}</span>
       </button>
       {{#if (and isGM damages.isEvaluated)}}
-      <a class="action-anchor icon fa-solid fa-arrow-rotate-right" data-tooltip="Re-Evaluate Roll"
-        data-action="reEvaluateRoll" data-type="damages"></a>
+      <a
+        class="action-anchor icon fa-solid fa-arrow-rotate-right"
+        data-tooltip="Re-Evaluate Roll"
+        data-action="reEvaluateRoll"
+        data-type="damages"
+      ></a>
       {{/if}}
     </div>
     {{/if}}
