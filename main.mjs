@@ -24,6 +24,11 @@ Hooks.once("init", () => {
   CONFIG.ActiveEffect.typeLabels.base =
     foundry.documents.ActiveEffect.metadata.label;
 
+  CONFIG.ActiveEffect.phases.afterAttributes = {
+    label: "After Attributes",
+    hint: "Applied after base attributes and modifiers are computed.",
+  };
+
   CONFIG.Token.documentClass = documents.EtheriaTokenDocument;
 
   CONFIG.statusEffects.push({

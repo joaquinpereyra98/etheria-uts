@@ -7,7 +7,11 @@ import {
   createActionsFields,
 } from "./utils.mjs";
 
-import { LocalDocumentField, FormulaField, TrackedTOF } from "./fields/_module.mjs";
+import {
+  LocalDocumentField,
+  FormulaField,
+  TrackedTOF,
+} from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 
@@ -87,41 +91,27 @@ export default class EtheriaCharacterData extends TypeDataModel {
     };
   }
 
-  #changesKeys = [];
-
-  get changesKeys() {
-    return this.#changesKeys;
-  }
-
-  /**@override */
-  prepareBaseData() {
-    this.recovers = {
-      stamina: { mod: 5, override: null },
-      mana: { mod: 5, override: null },
-    };
-
-    this.defense = {
-      block: { mod: 0, override: null },
-      parry: { mod: 0, override: null },
-      dodge: { mod: 0, override: null },
-    };
-
-    for (const key of Object.keys(this.attributes)) {
-      this.attributes[key].mod = 0;
-      this.attributes[key].modOverride = null;
-    }
-
-    this.#changesKeys = Object.keys(
-      foundry.utils.flattenObject({ system: { ...this } }),
-    );
-  }
+  static phaseRules = [
+    {
+      phase: "afterAttributes",
+      regexes: [
+        /^system\.attributes\..+\.mod$/,
+        /^system\.skills\..+\.(total|value)$/,
+      ],
+    },
+    {
+      phase: "final",
+      regexes: [/^system\.defense\./, /^system\.recovers\./],
+    },
+  ];
 
   /**@override */
   prepareDerivedData() {
-    for (const [_, attribute] of Object.entries(this.attributes)) {
-      const autoMod = this.#calcModifer(attribute.value);
-      attribute.mod = attribute.modOverride ?? (attribute.mod ?? 0) + autoMod;
+    for (const attribute of Object.values(this.attributes)) {
+      attribute.mod = this.#calcModifier(attribute.value);
     }
+
+    this.parent.applyActiveEffects("afterAttributes");
 
     this.#calcArmor();
 
@@ -130,33 +120,22 @@ export default class EtheriaCharacterData extends TypeDataModel {
       skill.total = skill.value + (this.attributes[attrKey]?.mod ?? 0);
     }
 
-    const { constitution, wisdom } = this.attributes;
+    const { constitution: con, wisdom: wiz } = this.attributes;
 
-    for (const [key, recover] of Object.entries(this.recovers)) {
-      const attribute = key === "stamina" ? constitution : wisdom;
-      foundry.utils.setProperty(
-        this.recovers,
-        `${key}.value`,
-        recover.override ??
-          Math.floor(attribute.value / 2) + attribute.mod + recover.mod,
-      );
-    }
+    this.recovers = {
+      stamina: { value: Math.floor(con.value / 2) + con.mod + 5 },
+      mana: { value: Math.floor(wiz.value / 2) + wiz.mod + 5 },
+    };
 
-    for (const [key, defense] of Object.entries(this.defense)) {
-      foundry.utils.setProperty(
-        this.defense,
-        `${key}.value`,
-        defense.override ?? this.#calculateDefense(key) + defense.mod,
-      );
-    }
+    this.defense = {
+      block: { value: this.#calculateDefense("block") },
+      parry: { value: this.#calculateDefense("parry") },
+      dodge: { value: this.#calculateDefense("dodge") },
+    };
+  }
 
-    for (const [key, action] of Object.entries(this.actions)) {
-      foundry.utils.setProperty(
-        this.actions,
-        `${key}.pct`,
-        Math.clamp(action.value, 0, action.max) / (action.max || 1),
-      );
-    }
+  get changesKeys() {
+    return Object.keys(foundry.utils.flattenObject({ system: { ...this } }));
   }
 
   /**
@@ -182,7 +161,7 @@ export default class EtheriaCharacterData extends TypeDataModel {
    * @param {number} stat - The base stat.
    * @returns {number} The corresponding modifier value.
    */
-  #calcModifer(stat) {
+  #calcModifier(stat) {
     const lookupTable = [
       { min: 30, mod: 10 },
       { min: 29, mod: 9 },
