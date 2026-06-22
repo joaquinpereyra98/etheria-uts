@@ -1,6 +1,7 @@
 import EtheriaItemData from "./_base-item.mjs";
 import DamageField from "../shared/damage-field.mjs";
 import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
+import FormulaField from "../fields/formula-field.mjs";
 
 export default class EtheriaAbilityData extends EtheriaItemData {
   /** @inheritDoc */
@@ -59,7 +60,11 @@ export default class EtheriaAbilityData extends EtheriaItemData {
         blank: true,
         label: "Attribute",
       }),
-      range: new fields.StringField({ blank: true, label: "Range" }),
+      range: new FormulaField({
+        blank: true,
+        label: "Range",
+        deterministic: true,
+      }),
       area: new fields.StringField({ blank: true, label: "Area" }),
       damages: new fields.TypedObjectField(new DamageField()),
       bound: new fields.DocumentUUIDField({ type: "Item" }),
@@ -85,6 +90,18 @@ export default class EtheriaAbilityData extends EtheriaItemData {
         await doc.update({ "system.boundAbilities": updatedAbilities });
       }
     }
+  }
+
+  get enritcherRange() {
+    const data = this.parent.getRollData();
+    return foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+      this.range,
+      data,
+      {
+        recursive: true,
+        warn: true,
+      },
+    );
   }
 
   /**

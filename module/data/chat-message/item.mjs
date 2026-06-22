@@ -52,7 +52,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
       ? await foundry.applications.ux.TextEditor.enrichHTML(
           item.system.description.value ?? "",
           {
-            rollData: item?.actor?.getRollData(),
+            rollData: item?.getRollData(),
             relativeTo: item,
           },
         )
