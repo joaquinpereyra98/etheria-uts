@@ -1335,6 +1335,47 @@
     }
   }
 
+  &.items-dialog {
+    max-height: 50vh;
+
+    .categories-container {
+      margin-bottom: 1rem;
+      gap: 10px;
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+    }
+    .selectable-item {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+      overflow-y: auto;
+
+      &.active {
+        border-color: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+      }
+
+      &:hover {
+        box-shadow: 0 0 5px var(--accent);
+      }
+
+      .stat-label {
+        flex: 1;
+        cursor: inherit;
+      }
+    }
+    .form-footer {
+      flex: 0 0 auto;
+      button {
+        width: 100%;
+        font-size: 1.2rem;
+      }
+    }
+  }
+
   &.chat-message {
     .message-header {
       border-bottom: 1px solid var(--border-shadow);

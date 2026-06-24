@@ -1,0 +1,19 @@
+<section class="flexcol categories-container scrollable">
+  {{#each items as |item i|}}
+    <div
+      class="stat-box glass-panel selectable-item"
+      data-item-uuid="{{item.uuid}}"
+      data-action="toggleItem"
+    >
+      <img class="stat-icon" src="{{item.img}}" alt="{{item.name}}" />
+      <label class="stat-label">{{item.name}}</label>
+      <div class="controls">
+        <a
+          class="open-doc fa-solid fa-globe"
+          data-item-uuid="{{item.uuid}}"
+          data-action="openSheet"
+        ></a>
+      </div>
+    </div>
+  {{/each}}
+</section>

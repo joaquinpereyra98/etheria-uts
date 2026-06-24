@@ -58,7 +58,6 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     },
     position: {
       width: 385,
-      height: 292,
     },
     actions: {
       nextStep: EtheriaRollDialog.#onNextStep,
@@ -165,6 +164,10 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     return this.#messageId;
   }
 
+
+  #getDamageLabel(key = "") {
+     return CONFIG.ETHERIA.damageTypes[key]?.label ?? key;
+  }
   /* -------------------------------------------- */
 
   /** @inheritDoc */
@@ -182,6 +185,11 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     context.roll = this.#roll;
+    context.isDamageRoll = this.rollType === "damages";
+    context.damageTypeChoices = {
+      ...CONFIG.ETHERIA.damageTypes,
+      ...CONFIG.ETHERIA.healingTypes,
+    };
     context.formula = this.#roll.formula;
 
     context.modifiers = this.#modifiers;
@@ -234,6 +242,13 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
         `<span class="formula-paren">(</span>${formulaHtml}<span class="formula-paren">)</span>` +
         `<span class="formula-percentage">*(${percentage.signedString()}%)</span>`;
     }
+
+    if (this.#rollType === "damages") {
+      const damageLabel = this.#getDamageLabel(this.#rollOptions.damageType);
+      if (damageLabel)
+        formulaHtml += ` <span class="damage-type">[${damageLabel}]</span>`;
+    }
+
     context.formulaHtml = formulaHtml;
   }
 
@@ -366,6 +381,12 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    */
   static async #onModifierSubmitForm(_event, _form, formData) {
     const data = foundry.utils.expandObject(formData.object);
+
+    if (this.rollType === "damages" && data.damageType) {
+      this.#rollOptions.damageType = data.damageType;
+      const dmgLabel = this.#getDamageLabel(data.damageType);
+      this.#rollOptions.flavor = `Damage Roll - (${dmgLabel})`;
+    }
 
     if (data.additives) {
       data.additives =

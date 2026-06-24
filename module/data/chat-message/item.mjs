@@ -87,7 +87,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
   static async #onRollAccuracy(_event, _target) {
     const item = await foundry.utils.fromUuid(this.item.uuid);
     if (!item) return;
-    return await item.rollAccuracy?.();
+    return await item._createAccuracyMessage?.();
   }
 
   /**

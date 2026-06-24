@@ -1,17 +1,45 @@
 <form class="modifiers {{partClass}} step">
+  {{#if isDamageRoll}}
+    <div class="etheria-hr-text">Damage Type</div>
+    <select name="damageType" class="etheria-input">
+      {{selectOptions
+        damageTypeChoices
+        selected=roll.options.damageType
+      }}
+    </select>
+  {{/if}}
+
   <div class="etheria-hr-text">Modifiers</div>
   <div class="modifiers-container">
     <div class="modifiers-panel glass-panel">
       <label class="stat-label">Additive</label>
-      <input type="text" name="additives" value="{{modifiers.additives}}" class="etheria-input" placeholder="e.g. +2">
+      <input
+        type="text"
+        name="additives"
+        value="{{modifiers.additives}}"
+        class="etheria-input"
+        placeholder="e.g. +2"
+      />
     </div>
     <div class="modifiers-panel glass-panel">
       <label class="stat-label">Multiplier</label>
-      <input type="text" name="multipliers" value="{{modifiers.multipliers}}" class="etheria-input" placeholder="e.g. *2">
+      <input
+        type="text"
+        name="multipliers"
+        value="{{modifiers.multipliers}}"
+        class="etheria-input"
+        placeholder="e.g. *2"
+      />
     </div>
     <div class="modifiers-panel glass-panel">
       <label class="stat-label">Percentage</label>
-      <input type="text" name="percentages" value="{{modifiers.percentages}}" class="etheria-input" placeholder="e.g. +25%">
+      <input
+        type="text"
+        name="percentages"
+        value="{{modifiers.percentages}}"
+        class="etheria-input"
+        placeholder="e.g. +25%"
+      />
     </div>
   </div>
 </form>

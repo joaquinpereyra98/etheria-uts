@@ -163,13 +163,13 @@ ETHERIA.healingTypes = {
 };
 
 ETHERIA.attributes = {
-  strength: { label: "Strength", abrr: "str" },
-  agility: { label: "Agility", abrr: "agi" },
-  presence: { label: "Presence", abrr: "pre" },
-  intellect: { label: "Intellect", abrr: "int" },
-  wisdom: { label: "Wisdom", abrr: "wis" },
-  constitution: { label: "Constitution", abrr: "con" },
-  speed: { label: "Speed", abrr: "spe" },
+  strength: { label: "Strength", abbr: "str" },
+  agility: { label: "Agility", abbr: "agi" },
+  presence: { label: "Presence", abbr: "pre" },
+  intellect: { label: "Intellect", abbr: "int" },
+  wisdom: { label: "Wisdom", abbr: "wis" },
+  constitution: { label: "Constitution", abbr: "con" },
+  speed: { label: "Speed", abbr: "spe" },
 };
 
 ETHERIA.skills = {

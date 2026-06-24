@@ -223,11 +223,11 @@ export default class EtheriaActor extends Actor {
     const entry = Object.entries(CONFIG.ETHERIA.attributes).find(
       ([k, v]) =>
         k === attributeKey.toLowerCase() ||
-        v.abrr === attributeKey.toLowerCase(),
+        v.abbr === attributeKey.toLowerCase(),
     );
 
     const [_, config] = entry;
-    const formula = `1d20 + @${config.abrr}.mod + @bonus.accuracy - (@exhaustion * 3)`;
+    const formula = `1d20 + @${config.abbr}.mod + @bonus.accuracy - (@exhaustion * 3)`;
 
     const rollData = this.getRollData();
 

@@ -57,12 +57,12 @@
 
           <div class="flexcol">
             {{formInput damage.schema.fields.formula name=(concat "system.damages." id ".formula") placeholder="Damage Formula"
-            value=damage.formula classes="etheria-input formula-input"}}
+            value=damage.formula classes="etheria-input formula-input" disabled=(eq damage.type "equippedItem")  dataset=(object tooltip=(ifThen (eq damage.type "equippedItem") "You cannot set a formula when using equipper item damage." "")) }}
           </div>
 
           <div class="flexcol">
             {{formInput damage.schema.fields.type name=(concat "system.damages." id ".type") value=damage.type
-            classes="etheria-input"}}
+            classes="etheria-input type-input"}}
           </div>
 
           <div class="controls">

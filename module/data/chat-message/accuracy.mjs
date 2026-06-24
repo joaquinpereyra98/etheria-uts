@@ -29,6 +29,8 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
   static defineSchema() {
     const { fields } = foundry.data;
     return foundry.utils.mergeObject(super.defineSchema(), {
+      itemUuid: new fields.DocumentUUIDField(),
+      hasDamage: new fields.BooleanField({ initial: false }),
       accuracy: new fields.SchemaField({
         rolls: new fields.ArrayField(new fields.JSONField()),
         evaluation: new fields.StringField({
@@ -51,7 +53,7 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
   /** @override */
   async _prepareContext(context) {
     await super._prepareContext(context);
-    context.hasDamage = this.damages.rolls.length > 0;
+    context.hasDamage = this.hasDamage || this.damages.rolls.length > 0;
     context.isIdle = this.evaluation === EVALUATION_STATES.IDLE;
     context.isPending = this.evaluation === EVALUATION_STATES.PENDING;
     context.isEvaluated = this.evaluation === EVALUATION_STATES.EVALUATED;
@@ -140,10 +142,18 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
       [`system.${type}.evaluation`]: EVALUATION_STATES.PENDING,
     });
 
-    const rollsToEvaluate = this[type].rolls.map((r) =>
-      foundry.dice.Roll.fromData(r),
-    );
-
+    const item = await foundry.utils.fromUuid(this.itemUuid);
+    
+    const rolls = this[type]?.rolls || [];
+    
+    if (!item && !rolls.length) return;
+    
+    const rollsToEvaluate = rolls.length
+      ? rolls.map((r) => foundry.dice.Roll.defaultImplementation.fromData(r))
+      : await item[type === "accuracy" ? "rollAccuracy" : "rollDamages"]({
+          createMessage: false,
+          rollData: item.getRollData(),
+        });
     const evaluatedRolls = [];
 
     for (const rollToEvaluate of rollsToEvaluate) {

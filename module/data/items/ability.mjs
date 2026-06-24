@@ -66,7 +66,9 @@ export default class EtheriaAbilityData extends EtheriaItemData {
         deterministic: true,
       }),
       area: new fields.StringField({ blank: true, label: "Area" }),
-      damages: new fields.TypedObjectField(new DamageField()),
+      damages: new fields.TypedObjectField(
+        new DamageField({ isAbility: true }),
+      ),
       bound: new fields.DocumentUUIDField({ type: "Item" }),
     };
   }

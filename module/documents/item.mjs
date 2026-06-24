@@ -1,3 +1,4 @@
+import EtheriaEquippedItemsDialog from "../applications/dialog/equipped-item.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 import { DamageData } from "../data/shared/damage-field.mjs";
 import DamageRoll from "../dice/damage-roll.mjs";
@@ -10,6 +11,11 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       foundry.documents.Item.implementation.DEFAULT_ICON;
 
     return { img };
+  }
+
+  get hasDamage() {
+    const damages = Object.values(this.system.damages || {});
+    return damages.length !== 0;
   }
 
   /**@inheritdoc */
@@ -55,89 +61,130 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     return msg;
   }
 
+  async _createAccuracyMessage({ messageData = {} } = {}) {
+    const { metadata } = this.system;
+    if (!this.isOwner || !this.actor || !metadata?.hasAccuracyRoll) return;
+
+    const ChatMessage = foundry.documents.ChatMessage.implementation;
+    return await ChatMessage.create(
+      foundry.utils.mergeObject(
+        {
+          speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+          flavor: `<b>Accuracy Check</b> - ${this.name}`,
+          type: DOC_SUB_TYPES.messages.accuracy,
+          system: {
+            itemUuid: this.uuid,
+            targets: game.user.targets.map((t) => t.document.uuid),
+            hasDamage: this.hasDamage,
+          },
+        },
+        messageData,
+      ),
+    );
+  }
+
   /**
    * Rolls the accuracy check for this item.
    * @returns {Promise<ChatMessage|void>} The created ChatMessage document
    */
-  async rollAccuracy() {
-    if (!this.isOwner) return;
-    const rollData = this.getRollData() ?? {};
-
+  async rollAccuracy({ createMessage = true, rollData } = {}) {
     const { attribute, metadata } = this.system;
-    if (!metadata?.hasAccuracyRoll || !this.actor) return;
+    if (!this.isOwner || !this.actor || !metadata?.hasAccuracyRoll) return;
+
+    rollData ??= this.getRollData() ?? {};
 
     let accFlavor = `Accuracy Check`;
-
     const terms = ["1d20", "+ @acc", "- @exh"];
+
     if (attribute) {
-      const { abrr, label } = CONFIG.ETHERIA.attributes[attribute];
-      terms.push(`+ @${abrr}.mod`);
-      accFlavor = `${accFlavor} - (${label})`;
+      const { abbr, label } = CONFIG.ETHERIA.attributes[attribute] ?? {};
+      if (abbr) terms.push(`+ @${abbr}.mod`);
+      if (label) accFlavor = `${accFlavor} - (${label})`;
     }
-
-    const dmgFlavor = `Damage Roll`;
-
-    /**@type {DamageData[]} */
-    const damages = Object.values(this.system.damages || {}) ?? [];
-    const damagesRolls = damages.map((dmg) => {
-      const dmgLabel = CONFIG.ETHERIA.damageTypes[dmg.type]?.label ?? dmg.type;
-      const formula = dmg.type ? `${dmg.formula}[${dmgLabel}]` : dmg.formula;
-      return DamageRoll.create(formula, rollData, {
-        damageType: dmg.type,
-        flavor: `${dmgFlavor} - (${dmgLabel})`,
-      });
-    });
 
     const accRoll = foundry.dice.Roll.create(terms.join(" "), rollData, {
       flavor: accFlavor,
     });
-    foundry.documents.ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<b>Accuracy Check</b> - ${this.name}`,
-      type: DOC_SUB_TYPES.messages.accuracy,
-      system: {
+    await accRoll.evaluate();
+
+    if(createMessage) {
+      return await this._createAccuracyMessage({
         "accuracy.rolls": [accRoll],
-        "damages.rolls": damagesRolls,
-        targets: game.user.targets.map((t) => t.document.uuid),
-      },
-    });
+      });
+    } else {
+      return [accRoll];
+    }
   }
 
   /**
    * Rolls the damages for this item.
-   * @returns {Promise<ChatMessage|null>} TThe created ChatMessage document.
+   * @param {object} [options={}] - Options to modify the rolling behavior.
+   * @param {boolean} [options.createMessage=true] - Whether to automatically create a ChatMessage document.
+   * @param {object} [options.rollData] - Optional custom roll data to override the default.
+   * @param {string} [options.flavor] - Optional custom flavor text for the chat message.
+   * @returns {Promise<Roll[]|ChatMessage|null>}
    */
-  async rollDamages() {
-    if (!this.isOwner) return;
-    /**@type {DamageData[]} */
-    const damages = Object.values(this.system.damages || {}) ?? [];
+  async rollDamages({ createMessage = true, rollData, flavor } = {}) {
+    if (!this.isOwner) return null;
 
-    if (!this.system.hasOwnProperty("damages") || damages.length === 0) {
+    const damages = Object.values(this.system.damages || {});
+    if (damages.length === 0) {
       ui.notifications.warn(
-        `Etheria | ${this.name} does not have a damages formulas defined.`,
+        `Etheria | ${this.name} does not have any damage formulas defined.`,
       );
       return null;
     }
 
-    const rollData = this.getRollData();
-    const { Roll } = foundry.dice;
+    rollData ??= this.getRollData() ?? {};
 
-    const rolls = await Promise.all(
-      damages.map((dmg) => {
-        const fomula = dmg.type ? `${dmg.formula}[${dmg.type}]` : dmg.formula;
-        return Roll.create(fomula, rollData).evaluate();
+    const rollsRaw = await Promise.all(
+      damages.map(async (dmg) => {
+        if (dmg.type === "equippedItem") {
+          const item = await this._getEquippedItem();
+          if (!item) return null;
+          return await item.rollDamages({ createMessage: false, rollData });
+        }
+        const dmgLabel =
+          CONFIG.ETHERIA.damageTypes[dmg.type]?.label ?? dmg.type;
+        const formula = dmg.type ? `${dmg.formula}` : dmg.formula;
+        return await DamageRoll.create(formula, rollData, {
+          damageType: dmg.type,
+          flavor: `Damage Roll - (${dmgLabel})`,
+        }).evaluate();
       }),
     );
 
-    const CLS = foundry.documents.ChatMessage.implementation;
-    return CLS.create({
+    const rolls = rollsRaw.flat(Infinity).filter(Boolean);
+    if (!createMessage) return rolls;
+
+    const ChatMessage = foundry.documents.ChatMessage.implementation;
+    return await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       author: game.user.id,
       sound: CONFIG.sounds.dice,
       type: DOC_SUB_TYPES.messages.roll,
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `<b>Damage Roll</b> - ${this.name}`,
+      flavor: flavor ?? `<b>Damage Roll</b> - ${this.name}`,
       rolls,
     });
+  }
+
+  /**
+   * Retrieves the equipped item to fetch damage formulas from.
+   * @returns {Promise<Item|null>}
+   * @private
+   */
+  async _getEquippedItem() {
+    if (!this.actor) return null;
+
+    const { ability, race } = DOC_SUB_TYPES.items;
+    const equippedItems = this.actor.items.filter(
+      (i) => ![ability, race].includes(i.type) && i.system.equipped,
+    );
+
+    if (equippedItems.length === 0) return null;
+    if (equippedItems.length === 1) return equippedItems[0];
+
+    return await EtheriaEquippedItemsDialog.create({ actor: this.actor });
   }
 
   /**
