@@ -94,16 +94,31 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     }
   }
 
-  get enritcherRange() {
-    const data = this.parent.getRollData();
-    return foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+  get enricherCardData() {
+    const range = foundry.dice.Roll.defaultImplementation.replaceFormulaData(
       this.range,
-      data,
-      {
-        recursive: true,
-        warn: true,
-      },
+      this.parent.getRollData(),
+      { recursive: true, warn: true },
     );
+
+    const damagesConfig = {
+      ...CONFIG.ETHERIA.damageTypes,
+      ...CONFIG.ETHERIA.healingTypes,
+    };
+    const damages = Object.values(this.damages).map(({ formula, type }) => {
+      return type === "equippedItem"
+        ? "Equipped Item"
+        : `${formula} ${damagesConfig[type] ?? type}`;
+    });
+
+    const resources = this.parent?.parent?.system?.getResourcesChoices() ?? {};
+
+    return {
+      range,
+      area: this.area,
+      cost: `${this.cost.value} ${resources[this.cost.resource] ?? this.cost.resource}`,
+      damages,
+    };
   }
 
   /**

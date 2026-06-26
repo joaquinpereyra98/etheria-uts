@@ -29,30 +29,31 @@
             <div class="details-container">
               <div class="ability-name" data-tooltip="{{item.name}}">{{item.name}}</div>
 
+              {{#with item.system.enricherCardData}}
               <div class="details-row">
-                {{#if item.system.range}}
-                <b>Range:</b> <span>{{item.system.enritcherRange}}</span>
+                {{#if range}}
+                <b>Range:</b> <span>{{range}}</span>
                 {{/if}}
               </div>
               <div class="details-row">
-                {{#if item.system.area}}
-                <b>Area:</b><span>{{item.system.area}}</span>
+                {{#if area}}
+                <b>Area:</b><span>{{area}}</span>
                 {{/if}}
               </div>
-              {{#if (and item.system.cost.value item.system.cost.resource)}}
+              {{#if cost}}
               <div class="details-row">
-                <b>Cost:</b><span>{{item.system.cost.value}} {{lookup @root.resourcesChoices
-                  item.system.cost.resource}}</span>
+                <b>Cost:</b><span>{{cost}}</span>
               </div>
               {{/if}}
-              {{#each item.system.damages}}
-              {{#if (and formula type)}}
+              {{#each damages as |label|}}
+              {{#if label}}
               <div class="details-row">
-                <b>Damage:</b><span>{{formula}} {{lookup @root.damageTypeChoices type}}</span>
+                <b>Damage:</b><span>{{label}}</span>
               </div>
               {{/if}}
               {{/each}}
             </div>
+            {{/with}}
 
             <div class="controls">
               <a class="item-control" data-action="viewDoc"
