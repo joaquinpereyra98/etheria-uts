@@ -1,0 +1,48 @@
+<div class="etheria-uts effects-fields">
+  {{formGroup fields.apply value=values.apply}}
+  {{formGroup fields.target value=values.target}}
+  {{formGroup fields.stacks value=values.stacks}}
+
+  <div class="form-group stacked">
+    <label>Threshold</label>
+    <p class="hint">An evaluation condition required for this effect to apply or
+      trigger</p>
+    <table class="threshold-table glass-panel">
+      <thead>
+        <tr>
+          <th>{{fields.thresholds.key.label}}</th>
+          <th>{{fields.thresholds.comparator.label}}</th>
+          <th>{{fields.thresholds.value.label}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            {{formInput
+              fields.thresholds.key
+              value=values.thresholds.key
+              classes="etheria-input"
+              list="etheria-uts-attribute-key-list"
+            }}
+          </td>
+          <td>
+            {{formInput
+              fields.thresholds.comparator
+              classes="etheria-select"
+              value=values.thresholds.comparator
+            }}
+          </td>
+
+          <td>
+            {{formInput
+              fields.thresholds.value
+              classes="etheria-input"
+              value=values.thresholds.value
+            }}
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <hr class="etheria-hr" />
+</div>

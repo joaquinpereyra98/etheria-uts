@@ -232,6 +232,42 @@
     justify-content: center;
   }
 
+  &.effects-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .threshold-table {
+      padding: 5px;
+      overflow: hidden;
+      select {
+        text-align: center;
+        font-size: 1.3rem;
+        background-color: var(--input-bg);
+        color: var(--text-main);
+        border: none;
+        width: 100%;
+      }
+      input.etheria-input {
+        font-size: 1rem;
+        text-overflow: ellipsis;
+      }
+      td {
+        padding: 0.2rem;
+      }
+      thead {
+        background-color: transparent;
+        border-bottom: 1px solid var(--border-shadow);
+
+        > tr {
+          th:not(:last-child) {
+            border-right: 1px solid var(--border-shadow);
+          }
+        }
+      }
+    }
+  }
+
   &.sheet {
     color: var(--text-main);
     --color-scrollbar: var(--bg-ternary);
@@ -765,6 +801,9 @@
         justify-content: flex-end;
         gap: 8px;
         font-size: 0.85rem;
+        .effect-status {
+          opacity: 0.5;
+        }
       }
     }
 

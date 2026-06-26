@@ -18,8 +18,7 @@ export default class EtheriaActiveEffect
 
   /**@inheritdoc */
   async _preCreate(data, options, user) {
-    
-    if(!data.img) {
+    if (!data.img) {
       this.updateSource({
         img: EtheriaActiveEffect.getDefaultArtwork(data)?.img,
       });
@@ -27,5 +26,11 @@ export default class EtheriaActiveEffect
 
     const allowed = await super._preCreate(data, options, user);
     if (allowed === false) return false;
+  }
+
+  /**@inheritdoc */
+  get active() {
+    if (this.system.hasThresholds) return this.system._evaluateThresholds();
+      return !this.disabled && !this.isSuppressed;
   }
 }

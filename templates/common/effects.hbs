@@ -52,13 +52,19 @@
 
           <div class="document-controls">
             {{#if @root.editable}}
+            {{#if effect.system.hasThresholds}}
+            <span class="effect-status" data-tooltip="Controlled by Threshold Logic">
+              <i class="fa-solid fa-robot"></i>
+            </span>
+            {{else}}
             <a class="effect-control" data-action="toggleEffect" data-tooltip="{{localize 'UTS.Effect.Toggle'}}">
-              {{#if effect.disabled}}
+              {{#if effect.active}}
               <i class="fa-solid fa-lightbulb-on"></i>
               {{else}}
               <i class="fa-regular fa-lightbulb"></i>
               {{/if}}
             </a>
+            {{/if}}
             {{/if}}
             <a class="effect-control" data-action="viewDoc"
               data-tooltip="{{localize 'DOCUMENT.Update' type=(localize 'DOCUMENT.ActiveEffect')}}">

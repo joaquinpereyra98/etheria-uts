@@ -9,38 +9,56 @@ import EtheriaCharacterData from "../data/character.mjs";
  * @param {foundry.applications.types.ApplicationRenderOptions} options - The application rendering options
  */
 export default function onRenderActiveEffectConfig(application, element) {
-  const { document } = application;
-  const { fields } = document.system.schema;
+  const activeEffect = application.document;
+  const schema = activeEffect.system.schema;
+
+  const changesKeys = activeEffect.target?.system?.changesKeys;
+  const listId = `${MODULE_ID}-attribute-key-list`;
+  if (changesKeys) {
+    element.insertAdjacentHTML(
+      "beforeend",
+      `<datalist id="${listId}">${[...changesKeys]
+        .sort((a, b) => a.localeCompare(b))
+        .map((key) => `<option value="${key}">`)
+        .join("")}</datalist>`,
+    );
+  }
 
   const detailsTab = element.querySelector('.tab[data-tab="details"]');
   if (detailsTab) {
-    const html = ["apply", "target", "stacks"]
-      .map(
-        (key) =>
-          fields[key].toFormGroup(
-            {},
-            { value: document.system[key], name: `system.${key}` },
-          ).outerHTML,
-      )
-      .join("");
+    const effectsFields = foundry.utils.parseHTML(
+      Handlebars.partials.effectsFields(
+        {
+          fields: {
+            apply: schema.getField("apply"),
+            target: schema.getField("target"),
+            stacks: schema.getField("stacks"),
+            thresholds: {
+              key: schema.getField("thresholds.key"),
+              comparator: schema.getField("thresholds.comparator"),
+              value: schema.getField("thresholds.value"),
+            },
+          },
+          values: activeEffect.system,
+        },
+        {
+          allowProtoMethodsByDefault: true,
+          allowProtoPropertiesByDefault: true,
+        },
+      ),
+    );
 
-    detailsTab.insertAdjacentHTML("afterbegin", html);
+    if (changesKeys)
+      effectsFields
+        .querySelector('[name="system.thresholds.key"]')
+        ?.setAttribute("list", listId);
+
+    detailsTab.insertAdjacentElement("afterbegin", effectsFields);
   }
 
   const changesTab = element.querySelector("section[data-tab='changes']");
-  const keys = document.target?.system?.changesKeys;
 
-  if (changesTab && keys) {
-    const listId = `${MODULE_ID}-attribute-key-list`;
-    const options = [...keys]
-      .sort((a, b) => a.localeCompare(b))
-      .map((key) => `<option value="${key}">`)
-      .join("");
-
-    changesTab.insertAdjacentHTML(
-      "beforeend",
-      `<datalist id="${listId}">${options}</datalist>`,
-    );
+  if (changesTab) {
     changesTab.querySelectorAll(".key input").forEach(
       /** @param {HTMLInputElement} i */ (i) => {
         i.setAttribute("list", listId);

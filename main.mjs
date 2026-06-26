@@ -14,6 +14,11 @@ Hooks.once("init", () => {
   CONFIG.ui[`${MODULE_ID}.ActionsPanel`] = applications.ux.ActionsPanel;
   applications.ux.ActionsPanel.registerSetting();
 
+  foundry.applications.handlebars.loadTemplates({
+    effectsFields:
+      "modules/etheria-uts/templates/active-effects/effects-fields.hbs",
+  });
+
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
   CONFIG.Item.documentClass = documents.EtheriaItem;
