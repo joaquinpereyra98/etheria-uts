@@ -18,6 +18,24 @@ export default class EtheriaActor extends Actor {
     return super.TYPES.filter((k) => !["token", "chess"].includes(k));
   }
 
+  /** @inheritDoc */
+  async _preCreate(data, options, user) {
+    const allowed = await super._preCreate(options, user);
+    if (allowed === false) return false;
+    const update = foundry.utils.mergeObject(
+      {
+        prototypeToken: {
+          displayName: CONST.TOKEN_DISPLAY_MODES.HOVER,
+          "sight.enabled": true,
+          "sight.range": 40,
+        }
+      },
+      data,
+      { insertKeys: false, inplace: false },
+    );
+    this.updateSource(update);
+  }
+
   /**
    * The cached instance of the abilities dialog.
    * @type {EtheriaAbilitiesDialog|null}
@@ -106,7 +124,7 @@ export default class EtheriaActor extends Actor {
         });
       }
     }
-    
+
     for (const t of this.getActiveTokens(true)) {
       for (const textData of scrollingText) {
         this._renderFloatinText(t, textData);
@@ -127,7 +145,7 @@ export default class EtheriaActor extends Actor {
       anchor: CONST.TEXT_ANCHOR_POINTS.CENTER,
       direction,
       distance: token.h,
-      fontSize: 28, 
+      fontSize: 28,
       fill: color,
       strokeThickness: 4,
       jitter: 0.25,
@@ -209,10 +227,12 @@ export default class EtheriaActor extends Actor {
       if (effect.statuses.has("poison")) existing.push(effect.id);
 
     const multiplier = existing.length > 0 ? 0.5 : 1.0;
-    return await Promise.all([
-      this.recoverResource("stamina", { multiplier, silent: true }),
-      this.recoverResource("mana", { multiplier, silent: true }),
-    ]);
+    return (
+      await Promise.all([
+        this.recoverResource("stamina", { multiplier, silent: true }),
+        this.recoverResource("mana", { multiplier, silent: true }),
+      ])
+    ).filter((_) => _);
   }
 
   /**

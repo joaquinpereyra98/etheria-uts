@@ -96,7 +96,7 @@ export default class EtheriaItemMessage extends EtheriaBaseMessage {
    */
   static async #onConsumeItem(_event, _target) {
     const item = await foundry.utils.fromUuid(this.item.uuid);
-    if ( !item ) return;
+    if (!item) return;
     await item.consume();
   }
 

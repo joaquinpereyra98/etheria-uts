@@ -206,11 +206,11 @@ ETHERIA.skills = {
 };
 
 ETHERIA.actionType = {
-  anytime: { label: "Anytime", color: "#2196f3", inActor: true },
-  regular: { label: "Regular", color: "#e721f3", inActor: true },
+  anytime: { label: "Anytime", color: "#bf2424", inActor: true },
+  regular: { label: "Regular", color: "#2424bf ", inActor: true },
   fullTurn: { label: "Full-Turn", color: "#eaf321", inActor: false },
-  movement: { label: "Movement", color: "#f37e21", inActor: true },
-  reaction: { label: "Reaction", color: "#2df321", inActor: true },
+  movement: { label: "Movement", color: "#24bf24", inActor: true },
+  reaction: { label: "Reaction", color: "#24bfbf", inActor: true },
 };
 
 ETHERIA.abilityType = {
@@ -222,6 +222,7 @@ ETHERIA.abilityType = {
   misc: { label: "Misc" },
   traits: { label: "Traits" },
   mythic: { label: "Mythic" },
+  reaction: { label: "Reaction"},
 };
 
 ETHERIA.armorType = {

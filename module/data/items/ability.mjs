@@ -116,7 +116,10 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     return {
       range,
       area: this.area,
-      cost: `${this.cost.value} ${resources[this.cost.resource] ?? this.cost.resource}`,
+      cost:
+        this.cost.value && this.cost.resource
+          ? `${this.cost.value} ${resources[this.cost.resource] ?? this.cost.resource}`
+          : "",
       damages,
     };
   }

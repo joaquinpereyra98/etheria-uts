@@ -29,10 +29,9 @@ export default class EtheriaTokenDocument
           attributes.value.push(...inner.value);
         }
       } else if (isTrackedTOF) {
-        for(const k of field.trackedKeys) {
-            attributes.bar.push([p, k]);
+        for (const k of field.trackedKeys) {
+          attributes.bar.push([p, k]);
         }
-        
       }
     }
     return attributes;

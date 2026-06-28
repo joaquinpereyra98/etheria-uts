@@ -42,7 +42,7 @@ export default class EtheriaWeaponSheet extends EtheriaItemSheet {
    */
   async _prepareHeaderContext(context, _options) {
     const system = this.item.system;
-    const fields = ["equipped", "hands", "attribute", "actionType"];
+    const fields = ["equipped", "hands", "attribute", "actionType", "range"];
 
     context.itemFields = fields.reduce((obj, key) => {
       obj[key] = {

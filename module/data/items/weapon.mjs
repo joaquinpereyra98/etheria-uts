@@ -1,6 +1,7 @@
 import EtheriaItemData from "./_base-item.mjs";
 import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
 import DamageField from "../shared/damage-field.mjs";
+import FormulaField from "../fields/formula-field.mjs";
 
 export default class EtheriaWeaponData extends EtheriaItemData {
   /** @inheritDoc */
@@ -26,6 +27,11 @@ export default class EtheriaWeaponData extends EtheriaItemData {
           2: "Two Hand",
         },
         label: "Hands",
+      }),
+      range: new FormulaField({
+        blank: true,
+        label: "Range",
+        deterministic: true,
       }),
       attribute: new fields.StringField({
         choices: CONFIG.ETHERIA.attributes,

@@ -23,6 +23,7 @@ export default class FormulaField extends foundry.data.fields.StringField {
   static get _defaults() {
     return foundry.utils.mergeObject(super._defaults, {
       deterministic: false,
+      trim: true,
     });
   }
 

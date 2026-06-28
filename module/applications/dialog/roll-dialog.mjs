@@ -34,10 +34,10 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     this.#rollType = type;
     this.#messageId = messageId;
 
-    this.#roll = roll;
-    this.#rollData = roll?.data ?? {};
-    this.#originalFormula = roll?.formula;
-    this.#rollOptions = roll.options ?? {};
+    this.#roll = roll instanceof foundry.dice.Roll ? roll: foundry.dice.Roll.fromData(roll);
+    this.#rollData = this.#roll?.data ?? {};
+    this.#originalFormula = this.#roll?.formula;
+    this.#rollOptions = this.#roll.options ?? {};
 
     if (!this.#roll)
       throw new Error("EtheriaRollDialog requires a 'Roll' object");
