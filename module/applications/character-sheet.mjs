@@ -697,7 +697,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const keyInput = row.querySelector("input.resource-key");
     const nameInput = row.querySelector("input.resource-name");
 
-    const key = keyInput.value.trim().slugify({ strict: true });
+    const key = keyInput.value.trim().replace("_", " ").slugify({ replacement: "_", strict: true });
     const label = nameInput.value.trim() || key || "New Resource";
 
     if (!key) {

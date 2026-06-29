@@ -28,7 +28,7 @@ export default class EtheriaActor extends Actor {
           displayName: CONST.TOKEN_DISPLAY_MODES.HOVER,
           "sight.enabled": true,
           "sight.range": 40,
-        }
+        },
       },
       data,
       { insertKeys: false, inplace: false },
@@ -155,6 +155,51 @@ export default class EtheriaActor extends Actor {
   /**@inheritdoc */
   getRollData() {
     return this.system.getRollData?.() ?? foundry.utils.deepClone(this.system);
+  }
+
+  /**
+   * Consumes a specified number of uses from an action.
+   * @param {keyof ETHERIA.actionType | "fullTurn"} actionKey - The key identifying the action.
+   * @param {number} [value=1] - The amount of the resource to consume.
+   * @returns {Promise<String|void>} A Promise that resolves to the updated document, or void if no update occurred.
+   */
+  async consumeAction(actionKey, value = 1, { notif = false } = {}) {
+    if (!actionKey || value <= 0) return;
+
+    const actions = this.system?.actions;
+    if (!actions) return;
+
+    const updateData = {};
+    let notificationMessage = "";
+
+    if (actionKey === "fullTurn") {
+      for (const [key, data] of Object.entries(actions)) {
+        if (!data) continue;
+        updateData[`system.actions.${key}.value`] = 0;
+        notificationMessage = `Consumed ALL actions.`;
+      }
+    } else {
+      const actionData = actions[actionKey];
+      if (!actionData) return;
+
+      const current = actionData.value ?? 0;
+      const max = actionData.max ?? 0;
+
+      updateData[`system.actions.${actionKey}.value`] = Math.clamp(
+        current - value,
+        0,
+        max,
+      );
+
+      const config = CONFIG.ETHERIA.actionType[actionKey];
+      notificationMessage = `Consumed ${value} ${config.label} ${value > 1 ? "Actions" : "Action"}.`;
+    }
+
+    if (Object.keys(updateData).length === 0) return;
+
+    if (notif) ui.notifications.info(notificationMessage);
+    this.update(updateData);
+    return notificationMessage;
   }
 
   /**

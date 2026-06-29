@@ -95,11 +95,13 @@ export default class EtheriaAbilityData extends EtheriaItemData {
   }
 
   get enricherCardData() {
-    const range = foundry.dice.Roll.defaultImplementation.replaceFormulaData(
-      this.range,
-      this.parent.getRollData(),
-      { recursive: true, warn: true },
-    );
+    const range = this.range
+      ? foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+          this.range,
+          this.parent.getRollData(),
+          { recursive: true, warn: true },
+        )
+      : "";
 
     const damagesConfig = {
       ...CONFIG.ETHERIA.damageTypes,

@@ -1,6 +1,5 @@
 import EtheriaEquippedItemsDialog from "../applications/dialog/equipped-item.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
-import { DamageData } from "../data/shared/damage-field.mjs";
 import DamageRoll from "../dice/damage-roll.mjs";
 
 export default class EtheriaItem extends foundry.documents.Item.implementation {
@@ -40,12 +39,21 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
   async use() {
     if (!this.isOwner) return;
 
+    const actionType = this.system.actionType;
+    const actionFlavor =
+      actionType && this.parent?.isOwner
+        ? await this.parent.consumeAction(actionType)
+        : "";
+
     const actions = this.system.getCardActions?.() ?? {};
     const keys = Object.keys(actions);
 
+    let flavor = `${this.actor.name} uses ${this.name}!`;
+    if (actionFlavor) flavor += ` <p class="hint">${actionFlavor}</p>`;
+    
     const chatData = {
       type: DOC_SUB_TYPES.messages.item,
-      flavor: `${this.actor.name} uses ${this.name}!`,
+      flavor,
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
       system: {
         actions,
@@ -107,7 +115,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     });
     await accRoll.evaluate();
 
-    if(createMessage) {
+    if (createMessage) {
       return await this._createAccuracyMessage({
         "accuracy.rolls": [accRoll],
       });

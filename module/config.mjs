@@ -219,10 +219,10 @@ ETHERIA.abilityType = {
   fullTurn: { label: "Full-Turn" },
   passive: { label: "Passive" },
   movement: { label: "Movement" },
+  reaction: { label: "Reaction"},
   misc: { label: "Misc" },
   traits: { label: "Traits" },
   mythic: { label: "Mythic" },
-  reaction: { label: "Reaction"},
 };
 
 ETHERIA.armorType = {
