@@ -152,8 +152,19 @@ export default class EtheriaCharacterData extends TypeDataModel {
     const skillValue = this.skills[skill]?.value ?? 0;
     const attrMod = this.attributes[attribute]?.mod ?? 0;
 
-    return attrMod + accuracy + Math.floor(skillValue / 3) - exhaustionPenalty;
+    const mod =
+      key === "block"
+        ? this.parent.itemTypes[DOC_SUB_TYPES.items.shield].reduce(
+            (acc, i) => acc + i.system.block,
+            0,
+          )
+        : 0;
+
+    return (
+      attrMod + accuracy + Math.floor(skillValue / 3) - exhaustionPenalty + mod
+    );
   }
+
 
   /**
    * Calculates a numerical modifier based on a provided atribute

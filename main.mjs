@@ -77,6 +77,7 @@ Hooks.once("init", () => {
     [DOC_SUB_TYPES.items.consumable, applications.items.EtheriaConsumableSheet],
     [DOC_SUB_TYPES.items.misc, applications.items.EtheriaMiscSheet],
     [DOC_SUB_TYPES.items.race, applications.items.EtheriaRaceSheet],
+    [DOC_SUB_TYPES.items.shield, applications.items.EtheriaShieldSheet],
     [DOC_SUB_TYPES.items.ability, applications.items.EtheriaAbilitySheet],
   ];
 

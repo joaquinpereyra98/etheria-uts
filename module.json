@@ -47,6 +47,9 @@
       "race": {
         "htmlFields": ["description.value", "description.gmNotes"]
       },
+      "shield": {
+        "htmlFields": ["description.value", "description.gmNotes"]
+      },
       "weapon": {
         "htmlFields": ["description.value", "description.gmNotes"]
       }

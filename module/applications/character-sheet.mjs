@@ -591,7 +591,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const { section } = target.closest("[data-section]")?.dataset ?? {};
     const isEquipped = section === "equipped";
 
-    const { armor, weapon, consumable, misc } = DOC_SUB_TYPES.items;
+    const { armor, weapon, consumable, misc, shield } = DOC_SUB_TYPES.items;
 
     /**@type {foundry.documents.Item} */
     const cls = foundry.documents.Item.implementation;
@@ -603,7 +603,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
         parent: this.actor,
         pack: this.actor.pack,
       },
-      { types: [armor, weapon, consumable, misc] },
+      { types: [armor, weapon, consumable, misc, shield] },
     );
   }
 

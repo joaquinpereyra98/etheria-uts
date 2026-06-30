@@ -15,6 +15,7 @@ export const DOC_SUB_TYPES = {
     consumable: `${MODULE_ID}.consumable`,
     misc: `${MODULE_ID}.misc`,
     race: `${MODULE_ID}.race`,
+    shield: `${MODULE_ID}.shield`,
     weapon: `${MODULE_ID}.weapon`,
   },
   messages: {
