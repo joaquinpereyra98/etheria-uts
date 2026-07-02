@@ -21,8 +21,11 @@ Hooks.once("init", () => {
 
   CONFIG.Actor.documentClass = documents.EtheriaActor;
   CONFIG.ActiveEffect.documentClass = documents.EtheriaActiveEffect;
-  CONFIG.Item.documentClass = documents.EtheriaItem;
   CONFIG.Combat.documentClass = documents.EtheriaCombat;
+  CONFIG.Combatant.documentClass = documents.EtheriaCombatant;
+  CONFIG.Item.documentClass = documents.EtheriaItem;
+  CONFIG.Token.documentClass = documents.EtheriaTokenDocument;
+
 
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
@@ -33,8 +36,6 @@ Hooks.once("init", () => {
     label: "After Attributes",
     hint: "Applied after base attributes and modifiers are computed.",
   };
-
-  CONFIG.Token.documentClass = documents.EtheriaTokenDocument;
 
   CONFIG.statusEffects.push({
     id: "decayed",

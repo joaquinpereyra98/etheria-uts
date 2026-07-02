@@ -68,6 +68,15 @@
       {{/each}}
     </section>
 
+    <div class="stat-box flex-center glass-panel">
+        <a class="clickable-anchor label" data-tooltip="Roll Initiative" data-action="rollInit">
+          {{systemFields.initiative.label}}
+        </a>
+        {{formInput systemFields.initiative value=(ifThen isPlayMode system.initiative
+        source.initiative)
+        classes="etheria-input" disabled=isPlayMode}}
+      </div>
+
     <section class="recovery-section">
       <button class="recover-btn flex-center etheria-button" type="button" data-tooltip="Recover Stamina"
         data-action="recoverResource" data-resource="stamina">

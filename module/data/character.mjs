@@ -14,6 +14,7 @@ import {
 } from "./fields/_module.mjs";
 import { ResourceSchemaField } from "./shared/_module.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
+import simplifyRollFormula from "../dice/simplify-roll-formula.mjs";
 
 export default class EtheriaCharacterData extends TypeDataModel {
   static defineSchema() {
@@ -23,7 +24,10 @@ export default class EtheriaCharacterData extends TypeDataModel {
       level: new fields.NumberField({ initial: 1, min: 1, label: "Level" }),
       exhaustion: new fields.NumberField({ initial: 0, min: 0 }),
       race: new LocalDocumentField(foundry.documents.Item, { fallback: false }),
-
+      initiative: new FormulaField({
+        initial: "@agi.mod + (@spe.value / 2)",
+        label: "Initiative",
+      }),
       resources: new fields.SchemaField({
         hp: new ResourceSchemaField({
           schemaOptions: { label: "Health Points" },
@@ -101,7 +105,11 @@ export default class EtheriaCharacterData extends TypeDataModel {
     },
     {
       phase: "final",
-      regexes: [/^system\.defense\./, /^system\.recovers\./],
+      regexes: [
+        /^system\.defense\./,
+        /^system\.recovers\./,
+        /^system\.initiative\./,
+      ],
     },
   ];
 
@@ -132,6 +140,13 @@ export default class EtheriaCharacterData extends TypeDataModel {
       parry: { value: this.#calculateDefense("parry") },
       dodge: { value: this.#calculateDefense("dodge") },
     };
+
+    this.initiative = simplifyRollFormula(foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+              this.initiative,
+              this.parent.getRollData(),
+              { recursive: true, warn: true },
+            )
+          ?? "");
   }
 
   get changesKeys() {
@@ -164,7 +179,6 @@ export default class EtheriaCharacterData extends TypeDataModel {
       attrMod + accuracy + Math.floor(skillValue / 3) - exhaustionPenalty + mod
     );
   }
-
 
   /**
    * Calculates a numerical modifier based on a provided atribute

@@ -181,6 +181,13 @@
       border-radius: var(--radius-sm);
       box-shadow: var(--shadow-thin);
     }
+
+    > .label {
+      text-align: left;
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin: 0 2px;
+    }
   }
 
   .stat-list {
@@ -1339,7 +1346,7 @@
           justify-content: space-around;
           .cost-label {
             font-size: 12px;
-            >span {
+            > span {
               vertical-align: bottom;
             }
             i {

@@ -42,6 +42,7 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
       rollAttribute: EtheriaCharacterSheet.#onRollAttribute,
       rollSkill: EtheriaCharacterSheet.#onRollSkill,
       rollAdvancement: EtheriaCharacterSheet.#onRollAdvancement,
+      rollInit: EtheriaCharacterSheet.#onRollInit,
       recoverResource: EtheriaCharacterSheet.#onRecoverResource,
       createResource: EtheriaCharacterSheet.#onCreateResource,
       deleteResource: EtheriaCharacterSheet.#onDeleteResource,
@@ -677,6 +678,16 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     if (!type) return;
     return await this.actor.rollAdvancement(type);
   }
+
+  /**
+   * @this {EtheriaCharacterSheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static async #onRollInit() {
+    const promises = game.combat?.getCombatantsByActor(this.actor)?.map(c => c.rollInitiative());
+    return await Promise.all(promises).then(()=> ui.notifications.info(`Initiatives rolled for ${this.actor.name} Actor`));
+  }
+
 
   /**
    * @this {EtheriaCharacterSheet}
