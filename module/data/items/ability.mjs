@@ -43,10 +43,12 @@ export default class EtheriaAbilityData extends EtheriaItemData {
         },
         { label: "Uses" },
       ),
-      cost: new fields.SchemaField({
-        value: new fields.NumberField({ integer: true }),
-        resource: new fields.StringField(),
-      }),
+      costs: new fields.TypedObjectField(
+        new fields.SchemaField({
+          value: new FormulaField({ blank: true, deterministic: true }),
+          resource: new fields.StringField(),
+        }),
+      ),
       spheres: new fields.SetField(
         new fields.StringField({
           required: true,
@@ -110,18 +112,28 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     const damages = Object.values(this.damages).map(({ formula, type }) => {
       return type === "equippedItem"
         ? "Equipped Item"
-        : `${formula} ${damagesConfig[type] ?? type}`;
+        : `${formula} ${damagesConfig[type]?.label ?? type}`;
     });
 
     const resources = this.parent?.parent?.system?.getResourcesChoices() ?? {};
 
+    const costs = Object.values(this.costs)
+      .filter((c) => c.value && c.resource)
+      .map(({ value, resource }) => {
+        const resourceLabel = resources[resource] ?? resource;
+        if (value) {
+          value = foundry.dice.Roll.create(
+            value,
+            this.parent.getRollData(),
+          ).evaluateSync().total;
+        }
+        return `${value} ${resourceLabel}`;
+      });
+
     return {
       range,
       area: this.area,
-      cost:
-        this.cost.value && this.cost.resource
-          ? `${this.cost.value} ${resources[this.cost.resource] ?? this.cost.resource}`
-          : "",
+      costs,
       damages,
     };
   }

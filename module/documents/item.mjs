@@ -50,7 +50,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
 
     let flavor = `${this.actor.name} uses ${this.name}!`;
     if (actionFlavor) flavor += ` <p class="hint">${actionFlavor}</p>`;
-    
+
     const chatData = {
       type: DOC_SUB_TYPES.messages.item,
       flavor,
@@ -236,83 +236,134 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    * @returns {Promise<boolean>} True if consumption was successful or not required.
    */
   async consume() {
-    if (!this.isOwner) return false;
+    const item = this;
+    if (!item?.isOwner) return false;
 
     const updates = {};
-    const actorUpdates = {};
-
-    const uses = this.system.uses;
-    if (uses && uses.value !== null && uses.max !== null) {
-      if (uses.value <= 0) {
-        ui.notifications.warn("Etheria | This item has no uses left.");
-        return false;
-      }
-      updates["system.uses.value"] = (uses.value ?? 0) - 1;
-    }
-
-    const cost = this.system.cost;
-    if (cost?.value && cost?.resource && this.actor) {
-      const path = cost.resource;
-      const resourceData = foundry.utils.getProperty(this.actor, path);
-
-      let current = resourceData;
-      let updatePath = path;
-
-      // Handle object resource {value, max}
-      if (
-        foundry.utils.getType(resourceData) === "Object" &&
-        "value" in resourceData
-      ) {
-        current = resourceData.value;
-        updatePath = `${path}.value`;
-      }
-
-      if (typeof current !== "number") {
-        ui.notifications.warn(
-          `Etheria | Resource configuration for ${cost.resource} is invalid.`,
-        );
-        return false;
-      }
-
-      if (current < cost.value) {
-        ui.notifications.warn(
-          `Etheria | Not enough ${cost.resource} to use this item.`,
-        );
-        return false;
-      }
-
-      actorUpdates[updatePath] = current - cost.value;
-    }
-
     const cardContent = [];
-    if (!foundry.utils.isEmpty(updates)) {
-      await this.update(updates);
+
+    const uses = this.uses;
+    if (uses && uses.max > 0) {
+      if (uses.value <= 0) {
+        ui.notifications.warn(`Etheria | ${item.name} has no uses left.`);
+        return false;
+      }
+      updates["system.uses.value"] = Math.max(0, uses.value - 1);
       cardContent.push(
-        ` <p>The ${this.actor.name} used a charge of ${this.name} Item.</p>`,
+        `<p>The ${item.actor.name} used a charge of ${item.name}.</p>`,
       );
+    }
+
+    const costResult = this._getCostsCostUpdates();
+    if (costResult === false) return false; // Validation failed (not enough resources)
+
+    const { actorUpdates, spentItems } = costResult;
+
+    if (spentItems.length > 0) {
+      cardContent.push(`
+      <p>The ${item.actor.name} spent:</p>
+      <ul>
+        ${spentItems.map((c) => `<li>${c}</li>`).join("")}
+      </ul>
+    `);
+    }
+
+    if (!foundry.utils.isEmpty(updates)) {
+      await item.update(updates);
     }
     if (!foundry.utils.isEmpty(actorUpdates)) {
-      await this.actor.update(actorUpdates);
-      const resourcesChoices = this.actor.system.getResourcesChoices();
-      const resourceLabel = resourcesChoices[cost.resource];
-      cardContent.push(
-        ` <p>The ${this.actor.name} spent <b>${cost.value} ${resourceLabel}</b>.</p>`,
-      );
+      await item.actor.update(actorUpdates);
     }
 
     if (cardContent.length) {
       const CLS = foundry.documents.ChatMessage.implementation;
       await CLS.create({
-        speaker: CLS.getSpeaker({ actor: this.actor }),
+        speaker: CLS.getSpeaker({ actor: item.actor }),
         type: "base",
         content: `<div class="etheria-chat-card">
-              <div class="card-content">
-                  ${cardContent.join("")}
-              </div>
-          </div>`,
+            <div class="card-content">
+                ${cardContent.join("")}
+            </div>
+        </div>`,
       });
     }
 
     return true;
+  }
+
+  /**
+   * Helper to process resource costs, validate actor balances, and generate updates/HTML strings.
+   * @returns { {actorUpdates: Object, spentItems: string[]} | false } Returns false if validation fails.
+   */
+  _getCostsCostUpdates() {
+    const actorUpdates = {};
+    const spentItems = [];
+
+    const costs = Object.values(this.system.costs || {}).filter(
+      (c) => c.value && c.resource,
+    );
+    if (!costs.length || !this.actor) return { actorUpdates, spentItems };
+
+    const actorSystem = this.actor.system;
+    const resourcesChoices = actorSystem.getResourcesChoices?.() ?? {};
+
+    for (const cost of costs) {
+      let totalCost = 0;
+      try {
+        totalCost = foundry.dice.Roll.create(
+          cost.value,
+          this.getRollData(),
+        ).evaluateSync().total;
+      } catch (err) {
+        console.error(
+          `Etheria | Failed to evaluate cost formula: ${cost.value}`,
+          err,
+        );
+        continue;
+      }
+
+      if (totalCost <= 0) continue;
+
+      const currentResourceValue = foundry.utils.getProperty(
+        this.actor,
+        `${cost.resource}.value`,
+      );
+
+      if (currentResourceValue === undefined) {
+        ui.notifications.error(
+          `Etheria | Actor is missing the resource: ${cost.resource}`,
+        );
+        return false;
+      }
+
+      if (currentResourceValue < totalCost) {
+        const label = resourcesChoices[cost.resource] ?? cost.resource;
+        ui.notifications.warn(
+          `Etheria | Not enough ${label} to use ${this.name}. Required: ${totalCost}, Have: ${currentResourceValue}`,
+        );
+        return false;
+      }
+
+      actorUpdates[`${cost.resource}.value`] = currentResourceValue - totalCost;
+
+      const resourceKey = cost.resource.split(".").pop();
+      const config = CONFIG.ETHERIA.resources[resourceKey] ?? {
+        color: "currentColor",
+        icon: "fa-regular fa-stars",
+      };
+
+      const resourceLabel = resourcesChoices[cost.resource] ?? cost.resource;
+
+      const iconClass = config.icon || "";
+      const content = `<span style="text-shadow: 0px 0px 2px ${config.color};">
+          <i class="${iconClass}" style="color: ${config.color};"></i>
+          <span class="value">${totalCost}</span>
+          <span class="resource">${resourceLabel}</span>
+        </span>`;
+
+      spentItems.push(content);
+    }
+
+    return { actorUpdates, spentItems };
   }
 }

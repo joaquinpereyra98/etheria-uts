@@ -40,11 +40,13 @@
                 <b>Area:</b><span>{{area}}</span>
                 {{/if}}
               </div>
-              {{#if cost}}
+              {{#each costs as |label|}}
               <div class="details-row">
-                <b>Cost:</b><span>{{cost}}</span>
+                {{#if label}}
+                <b>Cost:</b><span>{{label}}</span>
+                {{/if}}
               </div>
-              {{/if}}
+              {{/each}}
               {{#each damages as |label|}}
               {{#if label}}
               <div class="details-row">

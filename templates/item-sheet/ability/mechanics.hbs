@@ -13,23 +13,36 @@
     </div>
 
     <section class="cost-section">
-      <div class="stat-box flexrow flex-center glass-panel">
-        <span class="cost-span">Cost:</span>
-        <div class="value-input">
-          {{formInput systemFields.cost.fields.value value=system.cost.value placeholder="Value"
-          classes="etheria-input"}}
+      <div class="glass-panel stat-list ability-list">
+        <div class="panel-header flexrow">
+          <span class="label">Costs</span>
+          <div class="controls">
+            <a data-action="createCost" class="fa-solid fa-plus clickable-anchor" data-tooltip="Add Cost"></a>
+          </div>
         </div>
+        <div class="element-items flexcol">
 
-        <div class="resource-input">
-          <input type="text" name="system.cost.resource"
-          value="{{system.cost.resource}}"
-          class="etheria-input"
-          placeholder="Resource"
-          list="{{rootId}}-cost-resource">
+          {{#each costs as |cost|}}
+          <div class="stat-row" data-cost-id="{{cost.id}}">
+            <div class="flexcol">
+              {{formInput ../costFields.value name=(concat cost.name ".value") placeholder="Value"
+              value=cost.value.value classes="etheria-input formula-input"}}
+            </div>
 
+            <div class="flexcol">
+              <input type="text" name="{{concat cost.name ".resource"}}" value="{{cost.value.resource}}"
+                class="etheria-input key-input" placeholder="Resource" list="{{@root.rootId}}-cost-resource">
+            </div>
+
+            <div class="controls">
+              <a data-action="deleteCost" data-id="{{id}}" class="fa-solid fa-trash clickable-anchor"
+                data-tooltip="Remove"></a>
+            </div>
+          </div>
+          {{/each}}
           <datalist id="{{rootId}}-cost-resource">
             {{#each resourcesChoices as |label value|}}
-              <option value="{{value}}">{{label}}</option>
+            <option value="{{value}}">{{label}}</option>
             {{/each}}
           </datalist>
         </div>
@@ -51,13 +64,16 @@
         </div>
       </div>
 
-      <div class="damage-items flexcol">
+      <div class="element-items flexcol">
         {{#each system.damages as |damage id|}}
         <div class="stat-row" data-damage-id="{{id}}">
 
           <div class="flexcol">
-            {{formInput damage.schema.fields.formula name=(concat "system.damages." id ".formula") placeholder="Damage Formula"
-            value=damage.formula classes="etheria-input formula-input" disabled=(eq damage.type "equippedItem")  dataset=(object tooltip=(ifThen (eq damage.type "equippedItem") "You cannot set a formula when using equipper item damage." "")) }}
+            {{formInput damage.schema.fields.formula name=(concat "system.damages." id ".formula") placeholder="Damage
+            Formula"
+            value=damage.formula classes="etheria-input formula-input" disabled=(eq damage.type "equippedItem")
+            dataset=(object tooltip=(ifThen (eq damage.type "equippedItem") "You cannot set a formula when using
+            equipper item damage." "")) }}
           </div>
 
           <div class="flexcol">

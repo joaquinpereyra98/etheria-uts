@@ -1077,7 +1077,7 @@
             }
           }
 
-          .damage-items {
+          .element-items {
             min-height: 1.5rem;
 
             .stat-row {
@@ -1114,26 +1114,11 @@
         }
 
         .cost-section {
-          .stat-box {
-            padding: 5px 10px;
+          .element-items .stat-row {
+            grid-template-columns: minmax(50px, 2fr) minmax(50px, 2fr) auto;
           }
-
-          .cost-span {
-            flex: 0 0 auto;
-            font-size: 1rem;
-            font-weight: bold;
-          }
-
-          .value-input {
-            flex: 1;
-          }
-
-          .resource-input {
-            flex: 2;
-
-            input::-webkit-calendar-picker-indicator {
-              display: none !important;
-            }
+          .key-input::-webkit-calendar-picker-indicator {
+            display: none !important;
           }
         }
 
@@ -1300,7 +1285,7 @@
 
     .accordion-content {
       display: grid;
-      grid-template-columns: repeat(2, 150px);
+      grid-template-columns: repeat(2, 200px);
       gap: 5px;
       margin: 0 10px;
       min-height: 0;
@@ -1324,9 +1309,44 @@
         box-shadow: 0 0 5px var(--accent);
       }
 
-      .stat-label {
+      img.stat-icon {
+        flex: 0 0 3.5rem;
+        height: 3.5rem;
+      }
+
+      .stats-section {
         flex: 1;
-        cursor: inherit;
+        display: flex;
+        flex-direction: column;
+        justify-content: start;
+        height: 100%;
+
+        .header {
+          display: flex;
+          border-bottom: 2px solid var(--border-shadow);
+
+          .stat-label {
+            flex: 1;
+            cursor: inherit;
+            text-align: center;
+          }
+        }
+        .contet {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 2px;
+          margin-top: 5px;
+          justify-content: space-around;
+          .cost-label {
+            font-size: 12px;
+            >span {
+              vertical-align: bottom;
+            }
+            i {
+              font-size: 13px;
+            }
+          }
+        }
       }
     }
 

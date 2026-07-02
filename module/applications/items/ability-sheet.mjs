@@ -11,7 +11,9 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
   static DEFAULT_OPTIONS = {
     actions: {
       createDamage: EtheriaAbilitySheet.#onCreateDamage,
+      createCost: EtheriaAbilitySheet.#onCreateCost,
       deleteDamage: EtheriaAbilitySheet.#onDeleteDamage,
+      deleteCost: EtheriaAbilitySheet.#onDeleteCost,
     },
   };
 
@@ -100,9 +102,27 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
    */
   async _prepareMechanicsContext(context, _options) {
     const actor = this.actor;
+    context.costFields = {
+      value: this.item.system.schema.getField("costs.element.value"),
+      resource: this.item.system.schema.getField("costs.element.resource"),
+    };
+
     if (actor && actor.system.getResourcesChoices) {
-      context.resourcesChoices = actor.system.getResourcesChoices();
+      const choices = actor.system.getResourcesChoices();
+      const choicesChosen = Object.values(this.item.system.costs).map(
+        (c) => c.value,
+      );
+
+      context.resourcesChoices = Object.fromEntries(
+        Object.entries(choices).filter(([key]) => !choicesChosen.includes(key)),
+      );
     }
+
+    context.costs = Object.entries(this.item.system.costs).map(([k, value]) => ({
+      id: k,
+      name: `system.costs.${k}`,
+      value
+    }))
   }
 
   /**
@@ -133,8 +153,42 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
    * @this {EtheriaAbilitySheet}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
+  static #onCreateCost() {
+    const existingKeys = Object.keys(this.item.system.costs);
+
+    const existingIndices = existingKeys
+      .map((k) => parseInt(k.split("-")[1]))
+      .filter((n) => !isNaN(n))
+      .sort((a, b) => a - b);
+
+    let newIndex = 0;
+    while (existingIndices.includes(newIndex)) {
+      newIndex++;
+    }
+
+    const key = `cost-${newIndex}`;
+
+    return this.item.update({
+      [`system.costs.${key}`]: { resource: "" },
+    });
+  }
+
+  /**
+   * @this {EtheriaAbilitySheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
   static #onDeleteDamage(_event, target) {
     const { damageId } = target.closest("[data-damage-id]")?.dataset ?? {};
-    return this.item.update({ [`system.damages.-=${damageId}`]: null });
+    return this.item.update({ [`system.damages.${damageId}`]: _del });
+  }
+
+  /**
+   * @this {EtheriaAbilitySheet}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onDeleteCost(_event, target) {
+    const { costId } = target.closest("[data-cost-id]")?.dataset ?? {};
+    console.log(costId)
+    return this.item.update({ [`system.costs.${costId}`]: _del });
   }
 }

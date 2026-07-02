@@ -9,12 +9,25 @@
       </div>
     </div>
     <div class="abilities-list abilities-items accordion-content">
-      {{#each category.items as |ability i|}}
+      {{#each category.items}}
       <div class="stat-box glass-panel selectable-ability" data-ability-id="{{ability.id}}" data-action="toggleAbility">
         <img class="stat-icon" src="{{ability.img}}" alt="{{ability.name}}">
-        <label class="stat-label">{{ability.name}}</label>
-        <div class="controls">
-          <a class="open-doc fa-solid fa-globe" data-ability-uuid="{{ability.uuid}}" data-action="openSheet"></a>
+        <div class="stats-section">
+          <div class="header">
+            <label class="stat-label">{{ability.name}}</label>
+            <div class="controls">
+              <a class="open-doc fa-solid fa-globe" data-ability-uuid="{{ability.uuid}}" data-action="openSheet"></a>
+            </div>
+          </div>
+          <div class="contet">
+            {{#if costs}}
+            {{#each costs as |content|}}
+            <div class="cost-label">
+              {{{content}}}
+            </div>
+            {{/each}}
+            {{/if}}
+          </div>
         </div>
       </div>
       {{/each}}

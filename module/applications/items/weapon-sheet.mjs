@@ -83,6 +83,6 @@ export default class EtheriaWeaponSheet extends EtheriaItemSheet {
    */
   static #onDeleteDamage(_event, target) {
     const { damageId } = target.closest("[data-damage-id]")?.dataset ?? {};
-    return this.item.update({ [`system.damages.-=${damageId}`]: null });
+    return this.item.update({ [`system.damages.${damageId}`]: _del });
   }
 }

@@ -75,7 +75,7 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
       const key = actionType ?? "misc";
       if (metadata.isEquippable && !equipped) return acc;
       if (!acc[key]) acc[key] = [];
-      acc[key].push(i);
+      acc[key].push({ ability: i, costs: this.getCostsLabels(i) });
       return acc;
     }, {});
 
@@ -103,6 +103,17 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
         },
       ],
     };
+  }
+
+  getCostsLabels(item) {
+    const { spentItems } = item._getCostsCostUpdates();
+    return spentItems.map(htmlStr => {
+      const el = foundry.utils.parseHTML(htmlStr);
+      const res = el.querySelector(".resource");
+      el.setAttribute("data-tooltip", res.innerText);
+      res.remove();
+      return el.outerHTML;
+    });
   }
 
   /* -------------------------------------------- */

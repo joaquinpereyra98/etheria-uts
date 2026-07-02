@@ -11,6 +11,25 @@ ETHERIA.defenses = {
   dodge: { skill: "reflex", attribute: "agility", label: "Dodge" },
 };
 
+ETHERIA.resources = {
+  hp: {
+    color: "#b90000",
+    icon: "fa-regular fa-heart",
+  },
+  stamina: {
+    color: "#00b900",
+    icon: "fa-regular fa-bolt",
+  },
+  armor: {
+    color: "#8100b9",
+    icon: "fa-regular fa-shield",
+  },
+  mana: {
+    color: "#0094b9",
+    icon: "fa-regular fa-crystal-ball",
+  },
+};
+
 ETHERIA.magicSpheres = {
   arcane: { label: "Arcane", icon: `${ASSETS_PATH}/damage-icons/Arcane.webp` },
   blood: { label: "Blood", icon: `${ASSETS_PATH}/damage-icons/Blood.webp` },
@@ -219,7 +238,7 @@ ETHERIA.abilityType = {
   fullTurn: { label: "Full-Turn" },
   passive: { label: "Passive" },
   movement: { label: "Movement" },
-  reaction: { label: "Reaction"},
+  reaction: { label: "Reaction" },
   misc: { label: "Misc" },
   traits: { label: "Traits" },
   mythic: { label: "Mythic" },
