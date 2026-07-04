@@ -34,16 +34,17 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     this.#rollType = type;
     this.#messageId = messageId;
 
-    this.#roll = roll instanceof foundry.dice.Roll ? roll: foundry.dice.Roll.fromData(roll);
-    
+    this.#roll =
+      roll instanceof foundry.dice.Roll
+        ? roll
+        : foundry.dice.Roll.fromData(roll);
+
     if (!this.#roll)
       throw new Error("EtheriaRollDialog requires a 'Roll' object");
 
     this.#rollData = this.#roll?.data ?? {};
     this.#originalFormula = this.#roll?.formula;
     this.#rollOptions = this.#roll.options ?? {};
-
-    if(this.#rollOptions.isCritic) this.#modifiers.multipliers =  "*2";
 
     this._resolve = resolve;
   }
@@ -66,6 +67,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
       nextStep: EtheriaRollDialog.#onNextStep,
       previousStep: EtheriaRollDialog.#onPreviousStep,
       resolveDialog: EtheriaRollDialog.#onResolveDialog,
+      maximizeRolls: EtheriaRollDialog.#onMaximizeRolls,
     },
   };
 
@@ -167,9 +169,8 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     return this.#messageId;
   }
 
-
   #getDamageLabel(key = "") {
-     return CONFIG.ETHERIA.damageTypes[key]?.label ?? key;
+    return CONFIG.ETHERIA.damageTypes[key]?.label ?? key;
   }
   /* -------------------------------------------- */
 
@@ -450,7 +451,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
       foundry.utils.setProperty(json, key, value);
     }
     this.#roll = this.RollClass.fromData(json);
-    await this.#roll.evaluate();
+    await this.#roll.evaluate({ maximize: this.#rollOptions.maximize });
     this.render();
   }
 
@@ -486,7 +487,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
         this.#rollData,
         this.rollOptions,
       );
-      await this.#roll.evaluate();
+      await this.#roll.evaluate({ maximize: this.#rollOptions.maximize });
     }
     this.#currentStepIndex++;
     this.render();
@@ -517,6 +518,26 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
       roll: this.#roll.toJSON(),
     });
     this.close();
+  }
+
+  /**
+   *
+   * @this {EtheriaRollDialog}
+   * @type {foundry.applications.types.ApplicationClickAction}
+   */
+  static #onMaximizeRolls(_event, target) {
+    const form = target.closest("form.dice");
+    if (!form) return;
+
+    const inputs = form.querySelectorAll(".dice-results .dice-result input");
+
+    inputs.forEach(
+      /**@param {HTMLInputElement} input */
+      (input) => {
+        input.value = input.max;
+        input.dispatchEvent(new Event("change", { bubbles: true }));
+      },
+    );
   }
 
   /**

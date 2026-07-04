@@ -1802,6 +1802,11 @@
     }
 
     form.dice {
+      .dice-controls {
+        display: flex;
+        margin-bottom: var(--gap-md);
+        justify-content: flex-end;
+      }
       .dice-terms {
         display: flex;
         gap: var(--gap-md);

@@ -1,5 +1,12 @@
 <form class="dice {{partClass}} step">
   <div class="etheria-hr-text">Dice</div>
+  <div class="dice-controls">
+    {{#if isDamageRoll}}
+    <button type="button" class="etheria-button" data-action="maximizeRolls">
+      Maximize Rolls
+    </button>
+    {{/if}}
+  </div>
   <div class="dice-terms">
     {{#each terms as |term termIndex|}}
       <div class="dice-term glass-panel">

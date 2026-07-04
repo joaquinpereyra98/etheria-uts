@@ -171,7 +171,7 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
       : await item[type === "accuracy" ? "rollAccuracy" : "rollDamages"]({
           createMessage: false,
           rollData: item.getRollData(),
-          isCritic: this.isAccuracyRollCritic,
+          maximize: type !== "accuracy" && this.isAccuracyRollCritic,
         });
     const evaluatedRolls = [];
 

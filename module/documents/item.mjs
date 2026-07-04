@@ -144,9 +144,10 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    * @param {boolean} [options.createMessage=true] - Whether to automatically create a ChatMessage document.
    * @param {object} [options.rollData] - Optional custom roll data to override the default.
    * @param {string} [options.flavor] - Optional custom flavor text for the chat message.
-   * @returns {Promise<Roll[]|ChatMessage|null>}
+   * @param {boolean} [options.maximize] - Maximize the result, obtaining the largest possible value
+   * @returns {Promise<foundry.dice.Roll[]|ChatMessage|null>}
    */
-  async rollDamages({ createMessage = true, rollData, flavor, isCritic } = {}) {
+  async rollDamages({ createMessage = true, rollData, flavor, maximize } = {}) {
     if (!this.isOwner) return null;
 
     const damages = Object.values(this.system.damages || {});
@@ -164,7 +165,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
         if (dmg.type === "equippedItem") {
           const item = await this._getEquippedItem();
           return item
-            ? item.rollDamages({ createMessage: false, rollData, isCritic })
+            ? item.rollDamages({ createMessage: false, rollData })
             : null;
         }
 
@@ -185,8 +186,8 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
         return DamageRoll.create(formula, rollData, {
           damageType: dmg.type,
           flavor: `Damage Roll - (${dmgLabel})`,
-          isCritic,
-        }).evaluate();
+          maximize,
+        }).evaluate({ maximize });
       }),
     );
 
