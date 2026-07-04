@@ -27,6 +27,7 @@ export default class DamageRoll extends EtheriaRoll {
     if (options.damageType === "equippedItem") return;
       super(formula, data, options);
     this.options.damageType = options.damageType ?? "untyped";
+    this.options.isCritic = !!options.isCritic;
     if (options.damageType) this.#applyDamageFlavor(options.damageType);
   }
 

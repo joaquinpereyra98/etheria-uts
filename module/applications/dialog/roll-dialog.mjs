@@ -35,12 +35,15 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     this.#messageId = messageId;
 
     this.#roll = roll instanceof foundry.dice.Roll ? roll: foundry.dice.Roll.fromData(roll);
+    
+    if (!this.#roll)
+      throw new Error("EtheriaRollDialog requires a 'Roll' object");
+
     this.#rollData = this.#roll?.data ?? {};
     this.#originalFormula = this.#roll?.formula;
     this.#rollOptions = this.#roll.options ?? {};
 
-    if (!this.#roll)
-      throw new Error("EtheriaRollDialog requires a 'Roll' object");
+    if(this.#rollOptions.isCritic) this.#modifiers.multipliers =  "*2";
 
     this._resolve = resolve;
   }
@@ -542,7 +545,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     }
 
     if (user.isSelf) return await EtheriaRollDialog.wait(options);
-    return user.query(queries.rollDialog, { options });
+    return user.query(queries.rollDialog, { options }, { timeout: 30000 });
   }
 
   static _handleQuery({ options }) {

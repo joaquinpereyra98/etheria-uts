@@ -10,9 +10,7 @@ const { ActorSheet } = foundry.applications.sheets;
 
 const TEMPLATES_PATH_CHARACTER = `${TEMPLATE_PATH}/character-sheet`;
 
-export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
-  ActorSheet,
-) {
+export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(ActorSheet) {
   /**
    * @inheritdoc
    * @type {Partial<foundry.applications.types.ApplicationConfiguration>}
@@ -132,14 +130,6 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     return this._mode === EtheriaCharacterSheet.MODES.PLAY;
   }
 
-  _configureRenderOptions(options) {
-    super._configureRenderOptions(options);
-    options.parts = options.parts.filter((part) => {
-      if (part === "spheres") return this.actor.system.details.isCaster;
-      if (part === "secondaryStats") return game.user.isGM;
-      return true;
-    });
-  }
 
   /* -------------------------------------------- */
   /* Context Preparation                          */
@@ -179,10 +169,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
 
   /**@override */
   _getTabsConfig(group) {
-    const config = this.constructor.TABS[group];
+    const config = foundry.utils.deepClone(this.constructor.TABS[group]);
     if (!config) return null;
 
-    if (group === "primary")
+    if (group === "primary") {}
       config.tabs = config.tabs.filter((t) => {
         if (t.id === "spheres") return this.actor.system.details.isCaster;
         if (t.id === "secondaryStats") return game.user.isGM;
@@ -193,8 +183,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
   }
 
   /** @override */
-  async _preparePartContext(partId, context, options) {
-    context = await super._preparePartContext(partId, context, options);
+  async _preparePartContext(partId, c, options) {
+    const context = foundry.utils.deepClone(
+      await super._preparePartContext(partId, c, options),
+    );
     if (partId in context.tabs) context.tab = context.tabs[partId];
 
     const methodName = `_prepare${partId.capitalize()}Context`;
@@ -449,9 +441,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     );
 
     context.damageTypeChoices = Object.fromEntries(
-      Object.entries({ ...CONFIG.ETHERIA.damageTypes, ...CONFIG.ETHERIA.healingTypes }).map(
-        ([k, v]) => [k, v.label],
-      ),
+      Object.entries({
+        ...CONFIG.ETHERIA.damageTypes,
+        ...CONFIG.ETHERIA.healingTypes,
+      }).map(([k, v]) => [k, v.label]),
     );
     context.resourcesChoices = this.actor.system.getResourcesChoices();
   }
@@ -684,10 +677,13 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static async #onRollInit() {
-    const promises = game.combat?.getCombatantsByActor(this.actor)?.map(c => c.rollInitiative());
-    return await Promise.all(promises).then(()=> ui.notifications.info(`Initiatives rolled for ${this.actor.name} Actor`));
+    const promises = game.combat
+      ?.getCombatantsByActor(this.actor)
+      ?.map((c) => c.rollInitiative());
+    return await Promise.all(promises).then(() =>
+      ui.notifications.info(`Initiatives rolled for ${this.actor.name} Actor`),
+    );
   }
-
 
   /**
    * @this {EtheriaCharacterSheet}
@@ -708,7 +704,10 @@ export default class EtheriaCharacterSheet extends HandlebarsApplicationMixin(
     const keyInput = row.querySelector("input.resource-key");
     const nameInput = row.querySelector("input.resource-name");
 
-    const key = keyInput.value.trim().replace("_", " ").slugify({ replacement: "_", strict: true });
+    const key = keyInput.value
+      .trim()
+      .replace("_", " ")
+      .slugify({ replacement: "_", strict: true });
     const label = nameInput.value.trim() || key || "New Resource";
 
     if (!key) {

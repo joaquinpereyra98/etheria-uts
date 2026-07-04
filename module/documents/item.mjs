@@ -1,6 +1,7 @@
 import EtheriaEquippedItemsDialog from "../applications/dialog/equipped-item.mjs";
 import { DOC_SUB_TYPES } from "../constants.mjs";
 import DamageRoll from "../dice/damage-roll.mjs";
+import simplifyRollFormula from "../dice/simplify-roll-formula.mjs";
 
 export default class EtheriaItem extends foundry.documents.Item.implementation {
   /**@inheritdoc */
@@ -110,7 +111,20 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       if (label) accFlavor = `${accFlavor} - (${label})`;
     }
 
-    const accRoll = foundry.dice.Roll.create(terms.join(" "), rollData, {
+    if (this.system.isSpell) {
+      const spheresMods = this.system.spheres.map(
+        (k) => `+ @magicSpheres.${k}`,
+      );
+      terms.push(...spheresMods);
+    }
+
+    const accFormula = simplifyRollFormula(
+      foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+        terms.join(" "),
+        rollData,
+      ),
+    );
+    const accRoll = foundry.dice.Roll.create(accFormula, rollData, {
       flavor: accFlavor,
     });
     await accRoll.evaluate();
@@ -132,7 +146,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    * @param {string} [options.flavor] - Optional custom flavor text for the chat message.
    * @returns {Promise<Roll[]|ChatMessage|null>}
    */
-  async rollDamages({ createMessage = true, rollData, flavor } = {}) {
+  async rollDamages({ createMessage = true, rollData, flavor, isCritic } = {}) {
     if (!this.isOwner) return null;
 
     const damages = Object.values(this.system.damages || {});
@@ -149,15 +163,29 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       damages.map(async (dmg) => {
         if (dmg.type === "equippedItem") {
           const item = await this._getEquippedItem();
-          if (!item) return null;
-          return await item.rollDamages({ createMessage: false, rollData });
+          return item
+            ? item.rollDamages({ createMessage: false, rollData, isCritic })
+            : null;
         }
+
+        const spheresMods = this.system.isSpell
+          ? this.system.spheres.map((k) => `@magicSpheres.${k}`)
+          : [];
+
+        const formula = simplifyRollFormula(
+          foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+            [dmg.formula, ...spheresMods].join(" + "),
+            rollData,
+          ),
+        );
+
         const dmgLabel =
           CONFIG.ETHERIA.damageTypes[dmg.type]?.label ?? dmg.type;
-        const formula = dmg.type ? `${dmg.formula}` : dmg.formula;
-        return await DamageRoll.create(formula, rollData, {
+
+        return DamageRoll.create(formula, rollData, {
           damageType: dmg.type,
           flavor: `Damage Roll - (${dmgLabel})`,
+          isCritic,
         }).evaluate();
       }),
     );

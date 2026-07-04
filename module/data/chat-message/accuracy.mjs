@@ -50,6 +50,24 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
     });
   }
 
+  /**
+   * Checks if any of the accuracy rolls resulted in a critical hit.
+   * @type {boolean}
+   */
+  get isAccuracyRollCritic() {
+    /** @type {foundry.dice.Roll[]} */
+    const rolls = this.accuracy?.rolls || [];
+
+    return rolls.some((r) => {
+      const roll =
+        r instanceof foundry.dice.Roll ? r : foundry.dice.Roll.fromData(r);
+
+      return roll.dice.some(
+        (d) => d.faces === 20 && d._evaluated && d.total === 20,
+      );
+    });
+  }
+
   /** @override */
   async _prepareContext(context) {
     await super._prepareContext(context);
@@ -143,16 +161,17 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
     });
 
     const item = await foundry.utils.fromUuid(this.itemUuid);
-    
+
     const rolls = this[type]?.rolls || [];
-    
+
     if (!item && !rolls.length) return;
-    
+
     const rollsToEvaluate = rolls.length
       ? rolls.map((r) => foundry.dice.Roll.defaultImplementation.fromData(r))
       : await item[type === "accuracy" ? "rollAccuracy" : "rollDamages"]({
           createMessage: false,
           rollData: item.getRollData(),
+          isCritic: this.isAccuracyRollCritic,
         });
     const evaluatedRolls = [];
 
