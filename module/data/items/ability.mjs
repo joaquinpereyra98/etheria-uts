@@ -2,6 +2,7 @@ import EtheriaItemData from "./_base-item.mjs";
 import DamageField from "../shared/damage-field.mjs";
 import { ASSETS_PATH, DOC_SUB_TYPES } from "../../constants.mjs";
 import FormulaField from "../fields/formula-field.mjs";
+import simplifyRollFormula from "../../dice/simplify-roll-formula.mjs";
 
 export default class EtheriaAbilityData extends EtheriaItemData {
   /** @inheritDoc */
@@ -110,9 +111,18 @@ export default class EtheriaAbilityData extends EtheriaItemData {
       ...CONFIG.ETHERIA.healingTypes,
     };
     const damages = Object.values(this.damages).map(({ formula, type }) => {
+      const replaceFormula =
+        foundry.dice.Roll.defaultImplementation.replaceFormulaData(
+          formula,
+          this.parent.getRollData(),
+          { recursive: true, warn: true },
+        );
+      const simplifyFormula = simplifyRollFormula(replaceFormula, {
+        deterministic: false,
+      });
       return type === "equippedItem"
         ? "Equipped Item"
-        : `${formula} ${damagesConfig[type]?.label ?? type}`;
+        : `${simplifyFormula} ${damagesConfig[type]?.label ?? type}`;
     });
 
     const resources = this.parent?.parent?.system?.getResourcesChoices() ?? {};
@@ -144,5 +154,25 @@ export default class EtheriaAbilityData extends EtheriaItemData {
    */
   get isSpell() {
     return !!this.spheres.size;
+  }
+
+  /**@inheritdoc */
+  static migrateData(source, options, state) {
+    for (const [key, value] of Object.entries(source.damages)) {
+      if (key.includes("-")) {
+        const newKey = key.replace("-", "");
+        source.damages[newKey] = value;
+        delete source.damages[key];
+      }
+    }
+    for (const [key, value] of Object.entries(source.costs)) {
+      if (key.includes("-")) {
+        const newKey = key.replace("-", "");
+        source.costs[newKey] = value;
+        delete source.costs[key];
+      }
+    }
+
+    return super.migrateData(source, options, state);
   }
 }

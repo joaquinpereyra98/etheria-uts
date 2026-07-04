@@ -61,7 +61,7 @@ export default class EtheriaWeaponSheet extends EtheriaItemSheet {
     const existingKeys = Object.keys(this.item.system.damages);
 
     const existingIndices = existingKeys
-      .map((k) => parseInt(k.split("-")[1]))
+      .map((k) => parseInt(k.replace("damage", "")))
       .filter((n) => !isNaN(n))
       .sort((a, b) => a - b);
 
@@ -70,7 +70,7 @@ export default class EtheriaWeaponSheet extends EtheriaItemSheet {
       newIndex++;
     }
 
-    const key = `damage-${newIndex}`;
+    const key = `damage${newIndex}`;
 
     return this.item.update({
       [`system.damages.${key}`]: new DamageData().toObject(),

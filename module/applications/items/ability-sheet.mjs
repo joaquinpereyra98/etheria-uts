@@ -133,7 +133,7 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
     const existingKeys = Object.keys(this.item.system.damages);
 
     const existingIndices = existingKeys
-      .map((k) => parseInt(k.split("-")[1]))
+      .map((k) => parseInt(k.replace("damage", "")))
       .filter((n) => !isNaN(n))
       .sort((a, b) => a - b);
 
@@ -142,7 +142,7 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
       newIndex++;
     }
 
-    const key = `damage-${newIndex}`;
+    const key = `damage${newIndex}`;
 
     return this.item.update({
       [`system.damages.${key}`]: new DamageData().toObject(),
@@ -157,16 +157,15 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
     const existingKeys = Object.keys(this.item.system.costs);
 
     const existingIndices = existingKeys
-      .map((k) => parseInt(k.split("-")[1]))
+      .map((k) => parseInt(k.replace("cost", "")))
       .filter((n) => !isNaN(n))
       .sort((a, b) => a - b);
-
     let newIndex = 0;
     while (existingIndices.includes(newIndex)) {
       newIndex++;
     }
 
-    const key = `cost-${newIndex}`;
+    const key = `cost${newIndex}`;
 
     return this.item.update({
       [`system.costs.${key}`]: { resource: "" },
