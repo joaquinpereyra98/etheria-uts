@@ -282,18 +282,37 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       );
     }
 
-    const costResult = this._getCostsCostUpdates();
-    if (costResult === false) return false; // Validation failed (not enough resources)
+    const evaluatedCosts = this._evaluateCosts();
+    const actorUpdates = this._getActorCostUpdates(evaluatedCosts);
 
-    const { actorUpdates, spentItems } = costResult;
+    if (actorUpdates === false) return false; //
 
-    if (spentItems.length > 0) {
-      cardContent.push(`
-      <p>The ${item.actor.name} spent:</p>
-      <ul>
-        ${spentItems.map((c) => `<li>${c}</li>`).join("")}
-      </ul>
-    `);
+    if (evaluatedCosts.length > 0) {
+      const spentItems = [];
+      for (const { totalCost, config, label } of evaluatedCosts) {
+        const iconClass = config.icon || "";
+        const content = Handlebars.partials.costPart(
+          {
+            icon: iconClass,
+            color: config.color,
+            totalCost,
+            label,
+          },
+          {
+            allowProtoMethodsByDefault: true,
+            allowProtoPropertiesByDefault: true,
+          },
+        );
+        spentItems.push(content);
+      }
+      if (spentItems.length > 0) {
+        cardContent.push(`
+          <p>The ${item.actor.name} spent:</p>
+          <ul>
+            ${spentItems.map((c) => `<li>${c}</li>`).join("")}
+          </ul>
+        `);
+      }
     }
 
     if (!foundry.utils.isEmpty(updates)) {
@@ -317,6 +336,87 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     }
 
     return true;
+  }
+
+  /**
+   * Evaluates resource cost formulas, gathers config data, and returns compiled details.
+   * @returns {Array<{cost: Object, totalCost: number, config: Object, label: string}>}
+   * @private
+   */
+  _evaluateCosts() {
+    const costs = Object.values(this.system.costs || {}).filter(
+      (c) => c.value && c.resource,
+    );
+    if (!costs.length || !this.actor) return [];
+
+    const evaluatedCosts = [];
+    const resourcesChoices = this.actor.system.getResourcesChoices?.() ?? {};
+
+    for (const cost of costs) {
+      let totalCost = 0;
+      try {
+        totalCost = foundry.dice.Roll.create(
+          cost.value,
+          this.getRollData(),
+        ).evaluateSync().total;
+      } catch (err) {
+        console.error(
+          `Etheria | Failed to evaluate cost formula: ${cost.value}`,
+          err,
+        );
+        continue;
+      }
+
+      if (totalCost <= 0) continue;
+
+      const resourceKey = cost.resource.split(".").pop();
+      const config = CONFIG.ETHERIA.resources[resourceKey] ?? {
+        color: "currentColor",
+        icon: "fa-regular fa-stars",
+      };
+
+      const label = resourcesChoices[cost.resource] ?? cost.resource;
+
+      evaluatedCosts.push({ cost, totalCost, config, label });
+    }
+
+    return evaluatedCosts;
+  }
+
+  /**
+   * Validates actor balances and calculates resource updates based on pre-evaluated costs.
+   * @param {Array<Object>} evaluatedCosts - The array of evaluated costs from _evaluateCosts().
+   * @returns {Object|false}
+   * @private
+   */
+  _getActorCostUpdates(evaluatedCosts) {
+    const actorUpdates = {};
+    if (!evaluatedCosts.length) return { actorUpdates };
+
+    for (const { cost, totalCost, config, label } of evaluatedCosts) {
+      const currentResourceValue = foundry.utils.getProperty(
+        this.actor,
+        `${cost.resource}.value`,
+      );
+
+      if (currentResourceValue === undefined) {
+        ui.notifications.error(
+          `Etheria | Actor is missing the resource: ${cost.resource}`,
+        );
+        return false;
+      }
+
+      if (currentResourceValue < totalCost) {
+        ui.notifications.warn(
+          `Etheria | Not enough ${label} to use ${this.name}. Required: ${totalCost}, Have: ${currentResourceValue}`,
+        );
+        return false;
+      }
+
+      actorUpdates[`${cost.resource}.value`] = currentResourceValue - totalCost;
+    }
+
+    return { actorUpdates };
   }
 
   /**

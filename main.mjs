@@ -4,7 +4,7 @@ import * as applications from "./module/applications/_module.mjs";
 import * as hooks from "./module/hooks/_module.mjs";
 import * as dice from "./module/dice/_module.mjs";
 
-import { DOC_SUB_TYPES, MODULE_ID, queries } from "./module/constants.mjs";
+import { DOC_SUB_TYPES, MODULE_ID, queries, TEMPLATE_PATH } from "./module/constants.mjs";
 import { ETHERIA } from "./module/config.mjs";
 
 CONFIG.ETHERIA = ETHERIA;
@@ -15,8 +15,8 @@ Hooks.once("init", () => {
   applications.ux.ActionsPanel.registerSetting();
 
   foundry.applications.handlebars.loadTemplates({
-    effectsFields:
-      "modules/etheria-uts/templates/active-effects/effects-fields.hbs",
+    effectsFields: `${TEMPLATE_PATH}/active-effects/effects-fields.hbs`,
+    costPart: `${TEMPLATE_PATH}/chat-messages/parts/item-spent-costs.hbs`,
   });
 
   CONFIG.Actor.documentClass = documents.EtheriaActor;

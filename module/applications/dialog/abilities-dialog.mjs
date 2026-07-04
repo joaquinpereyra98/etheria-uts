@@ -1,4 +1,5 @@
 import { DOC_SUB_TYPES, MODULE_ID, TEMPLATE_PATH } from "../../constants.mjs";
+import EtheriaItem from "../../documents/item.mjs";
 
 const { Application, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -11,9 +12,7 @@ const { Application, HandlebarsApplicationMixin } = foundry.applications.api;
  * @typedef {foundry.applications.types.ApplicationConfiguration & _AbilitiesDialogConfiguration} AbilitiesDialogConfiguration
  */
 
-export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
-  Application,
-) {
+export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(Application) {
   /** @param {AbilitiesDialogConfiguration} options */
   constructor(options = {}) {
     super(options);
@@ -65,6 +64,7 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
 
     const { ability, weapon } = DOC_SUB_TYPES.items;
 
+    /**@type {EtheriaItem[]} */
     const items = [
       ...this.actor.itemTypes[weapon],
       ...this.actor.itemTypes[ability],
@@ -75,7 +75,7 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
       const key = actionType ?? "misc";
       if (metadata.isEquippable && !equipped) return acc;
       if (!acc[key]) acc[key] = [];
-      acc[key].push({ ability: i, costs: this.getCostsLabels(i) });
+      acc[key].push({ ability: i, costs: i._evaluateCosts() });
       return acc;
     }, {});
 
@@ -103,17 +103,6 @@ export default class EtheriaAbilitiesDialog extends HandlebarsApplicationMixin(
         },
       ],
     };
-  }
-
-  getCostsLabels(item) {
-    const { spentItems } = item._getCostsCostUpdates();
-    return spentItems.map(htmlStr => {
-      const el = foundry.utils.parseHTML(htmlStr);
-      const res = el.querySelector(".resource");
-      el.setAttribute("data-tooltip", res.innerText);
-      res.remove();
-      return el.outerHTML;
-    });
   }
 
   /* -------------------------------------------- */
