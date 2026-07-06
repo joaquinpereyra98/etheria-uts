@@ -1870,12 +1870,10 @@
     }
 
     .accordion-wrapper {
-      display: flex;
-      flex-direction: column;
-      overflow-y: hidden;
+      overflow: hidden;
       min-height: 0;
       height: 100%;
-      min-width: 100%;
+      width: 100%;
       border-radius: 0 10px 10px 0;
       transition: box-shadow 0.3s ease-in-out;
 
@@ -1890,8 +1888,8 @@
         }
 
         .accordion-content {
+          height: 100%;
           grid-template-rows: 1fr;
-          flex: 1 1 0%;
 
           .orb .wave {
             animation-play-state: running;
@@ -1918,7 +1916,7 @@
         span {
           font-size: 1.5rem;
           font-family: "Modesto Condensed", "Palatino Linotype", serif;
-          text-wrap: nowrap;
+          white-space: nowrap;
         }
 
         i.toggle-icon {
@@ -1963,7 +1961,6 @@
       }
     }
     .ui-frame-list {
-      position: relative;
       display: flex;
       flex-direction: column;
       align-items: flex-start;
@@ -1971,11 +1968,11 @@
       overflow-x: hidden;
       min-height: 0;
       padding-left: 10px;
+      scrollbar-width: none;
 
       .character-panel {
-        width: max-content;
+        width: var(--actor-panel-width);
         flex: 1 1 auto;
-        max-width: min-content;
         max-height: 100px;
         min-height: 60px;
         display: flex;
@@ -1990,7 +1987,7 @@
           top: 25%;
           bottom: 25%;
           left: 5%;
-          right: 30px;
+          right: 50px;
           border-radius: 30px;
           box-shadow: 0 0 20px 10px #d66d6d;
           animation: pulse-glow 1.5s ease-in-out infinite;

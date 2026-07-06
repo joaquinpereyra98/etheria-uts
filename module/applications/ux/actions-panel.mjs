@@ -86,13 +86,14 @@ export default class ActionsPanel extends HAM(Application) {
    */
   #syncActionsPanelWidth() {
     const characterPanel = this.element.querySelector(".character-panel");
-
+    characterPanel.children
+    
     if (characterPanel) {
-      const actorWidth = characterPanel.offsetWidth;
-      this.element.style.setProperty(
-        "--actor-panel-width",
-        `${actorWidth + 12}px`,
+      const width = Array.from(characterPanel.children).reduce(
+        (acc, el) => acc + el.getBoundingClientRect().width,
+        10,
       );
+      this.element.style.setProperty("--actor-panel-width", `${width}px`);
     }
   }
 

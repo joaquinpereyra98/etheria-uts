@@ -1,4 +1,9 @@
-<div class="character-panel {{ifThen (lookup @root.glowPanels actor.id) "glow" "" }} " data-uuid="{{actor.uuid}}">
+<div
+  class="character-panel
+    {{ifThen (lookup @root.glowPanels actor.id) 'glow' ''}}
+    "
+  data-uuid="{{actor.uuid}}"
+>
   <div class="portrait" data-tooltip="{{actor.name}}">
     <img
       class="portrait-img"
@@ -11,20 +16,21 @@
   <div class="orbs-list flexrow">
     {{#each actor.system.actions as |action key|}}
       {{#with (lookup @root.config.actionType key) as |configAction|}}
-        <div class="orb">
-          <div
-            class="orb"
-            style="--fluid-level: {{etheria-uts-getFluidLevel action.value action.max}}; --fluid-color: {{configAction.color}};"
-            data-key="{{key}}"
-            data-action="changeValue"
-            data-tooltip="{{configAction.label}}"
-          >
-            <div class="wave"></div>
-            <div class="wave-below"></div>
-            <div class="orb-content">
-              <div class="label">
-                {{action.value}}/{{action.max}}
-              </div>
+        <div
+          class="orb"
+          style="--fluid-level: {{etheria-uts-getFluidLevel
+            action.value
+            action.max
+          }}; --fluid-color: {{configAction.color}};"
+          data-key="{{key}}"
+          data-action="changeValue"
+          data-tooltip="{{configAction.label}}"
+        >
+          <div class="wave"></div>
+          <div class="wave-below"></div>
+          <div class="orb-content">
+            <div class="label">
+              {{action.value}}/{{action.max}}
             </div>
           </div>
         </div>
