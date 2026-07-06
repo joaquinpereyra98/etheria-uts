@@ -156,21 +156,36 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     return !!this.spheres.size;
   }
 
-  /**@inheritdoc */
+  /** @inheritdoc */
   static migrateData(source, options, state) {
-    for (const [key, value] of Object.entries(source.damages)) {
-      if (key.includes("-")) {
-        const newKey = key.replace("-", "");
-        source.damages[newKey] = value;
-        delete source.damages[key];
+    if (!source) return super.migrateData(source, options, state);
+
+    if (source.damages && typeof source.damages === "object") {
+      const cleanDamages = {};
+      for (const [key, value] of Object.entries(source.damages)) {
+        const newKey = key.includes("-") ? key.replaceAll("-", "") : key;
+        cleanDamages[newKey] = value;
       }
+      source.damages = cleanDamages;
+    } else {
+      source.damages = {};
     }
-    for (const [key, value] of Object.entries(source.costs)) {
-      if (key.includes("-")) {
-        const newKey = key.replace("-", "");
-        source.costs[newKey] = value;
-        delete source.costs[key];
+
+    source.costs ??= {};
+    if ("cost" in source) {
+      source.costs.cost0 = source.cost;
+      delete source.cost;
+    }
+
+    if (source.costs && typeof source.costs === "object") {
+      const cleanCosts = {};
+      for (const [key, value] of Object.entries(source.costs)) {
+        const newKey = key.includes("-") ? key.replaceAll("-", "") : key;
+        cleanCosts[newKey] = value;
       }
+      source.costs = cleanCosts;
+    } else {
+      source.costs = {};
     }
 
     return super.migrateData(source, options, state);
