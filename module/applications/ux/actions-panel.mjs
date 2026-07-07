@@ -93,7 +93,7 @@ export default class ActionsPanel extends HAM(Application) {
         (acc, el) => acc + el.getBoundingClientRect().width,
         10,
       );
-      this.element.style.setProperty("--actor-panel-width", `${width}px`);
+      this.element.style.setProperty("--actor-panel-width", `${Math.round(width)}px`);
     }
   }
 
