@@ -66,7 +66,7 @@
         {{/unless}}
       </div>
       {{/each}}
-      {{#if targets.size}}
+      {{#if (and targets.size (or acc.isEvaluated damages.isEvaluated) )}}
       <div class="last-row flexrow">
         {{#if acc.isEvaluated}}
         <a
@@ -124,13 +124,22 @@
         </div>
         <span class="action-label">{{acc.buttonLabel}}</span>
       </button>
-      {{#if (and isGM acc.isEvaluated)}}
+      {{#if isGM}}
+      {{#if acc.isPending}}
       <a
-        class="action-anchor icon fa-solid fa-arrow-rotate-right"
-        data-tooltip="Re-Evaluate Roll"
-        data-action="reEvaluateRoll"
-        data-type="accuracy"
-      ></a>
+          class="action-anchor icon fa-solid fa-arrow-rotate-right"
+          data-tooltip="Re-Evaluate Roll"
+          data-action="promptGMForRoll"
+          data-type="accuracy"
+        ></a>{{/if}}
+        {{#if acc.isEvaluated}}
+        <a
+          class="action-anchor icon fa-solid fa-arrow-rotate-right"
+          data-tooltip="Re-Evaluate Roll"
+          data-action="reEvaluateRoll"
+          data-type="accuracy"
+        ></a>
+        {{/if}}
       {{/if}}
     </div>
     {{#if hasDamage}}
@@ -146,13 +155,22 @@
         </div>
         <span class="action-label">{{damages.buttonLabel}}</span>
       </button>
-      {{#if (and isGM damages.isEvaluated)}}
-      <a
-        class="action-anchor icon fa-solid fa-arrow-rotate-right"
+      {{#if isGM}}
+        {{#if acc.isPending}}
+        <a
+            class="action-anchor icon fa-solid fa-arrow-rotate-right"
+            data-tooltip="Re-Evaluate Roll"
+            data-action="promptGMForRoll"
+            data-type="damages"
+          ></a>{{/if}}
+        {{#if acc.isEvaluated}}
+        <a
+          class="action-anchor icon fa-solid fa-arrow-rotate-right"
         data-tooltip="Re-Evaluate Roll"
         data-action="reEvaluateRoll"
         data-type="damages"
-      ></a>
+        ></a>
+        {{/if}}
       {{/if}}
     </div>
     {{/if}}

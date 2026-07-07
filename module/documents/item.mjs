@@ -75,6 +75,16 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     if (!this.isOwner || !this.actor || !metadata?.hasAccuracyRoll) return;
 
     const ChatMessage = foundry.documents.ChatMessage.implementation;
+
+    const u = !game.user.isGM
+      ? game.user
+      : (game.users.getDesignatedUser(
+          (u) =>
+            u.active &&
+            !u.isGM &&
+            this.actor.testUserPermission(game.user, "OWNER"),
+        ) ?? game.user);
+
     return await ChatMessage.create(
       foundry.utils.mergeObject(
         {
@@ -83,7 +93,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
           type: DOC_SUB_TYPES.messages.accuracy,
           system: {
             itemUuid: this.uuid,
-            targets: game.user.targets.map((t) => t.document.uuid),
+            targets: u?.targets.map((t) => t.document.uuid),
             hasDamage: this.hasDamage,
           },
         },

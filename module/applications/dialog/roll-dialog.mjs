@@ -520,6 +520,12 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
     this.close();
   }
 
+  /**@inheritdoc */
+  _onClose(options) {
+    super._onClose(options);
+     this._resolve(null);
+  }
+
   /**
    *
    * @this {EtheriaRollDialog}

@@ -136,7 +136,6 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
   }
 
   /**
-   *
    * @this {EtheriaAccuracyMessage}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
@@ -161,7 +160,6 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
     });
 
     const item = await foundry.utils.fromUuid(this.itemUuid);
-
     const rolls = this[type]?.rolls || [];
 
     if (!item && !rolls.length) return;
@@ -176,7 +174,7 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
     const evaluatedRolls = [];
 
     for (const rollToEvaluate of rollsToEvaluate) {
-      const { roll } = await EtheriaRollDialog.query(game.users.activeGM, {
+      const response = await EtheriaRollDialog.query(game.users.activeGM, {
         roll: rollToEvaluate,
         messageId: this.parent.id,
         type,
@@ -185,7 +183,16 @@ export default class EtheriaAccuracyMessage extends EtheriaTargetedMessageMixin(
         },
       });
 
-      evaluatedRolls.push(roll);
+      if (!response || !response.roll) {
+        ui.notifications.warn(`Roll evaluation for ${type} cancelled by GM.`);
+
+        await this.parent.update({
+          [`system.${type}.evaluation`]: EVALUATION_STATES.IDLE,
+        });
+        return;
+      }
+
+      evaluatedRolls.push(response.roll);
     }
 
     const otherType = type === "accuracy" ? "damages" : "accuracy";

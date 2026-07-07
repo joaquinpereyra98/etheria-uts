@@ -31,7 +31,7 @@ export default function EtheriaTargetedMessageMixin(Base) {
     async _prepareContext(context) {
       await super._prepareContext(context);
 
-      context.targets =  this.targets
+      context.targets = this.targets
         .map((uuid) => ({
           uuid: uuid,
           doc: fromUuidSync(uuid),
