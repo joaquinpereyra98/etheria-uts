@@ -296,7 +296,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
     const evaluatedCosts = this._evaluateCosts();
     const actorUpdates = this._getActorCostUpdates(evaluatedCosts);
 
-    if (actorUpdates === false) return false; //
+    if (actorUpdates === false) return false;
 
     if (evaluatedCosts.length > 0) {
       const spentItems = [];
@@ -402,9 +402,9 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
    */
   _getActorCostUpdates(evaluatedCosts) {
     const actorUpdates = {};
-    if (!evaluatedCosts.length) return { actorUpdates };
+    if (!evaluatedCosts.length) return actorUpdates;
 
-    for (const { cost, totalCost, config, label } of evaluatedCosts) {
+    for (const { cost, totalCost, label } of evaluatedCosts) {
       const currentResourceValue = foundry.utils.getProperty(
         this.actor,
         `${cost.resource}.value`,
@@ -427,7 +427,7 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
       actorUpdates[`${cost.resource}.value`] = currentResourceValue - totalCost;
     }
 
-    return { actorUpdates };
+    return actorUpdates;
   }
 
   /**
