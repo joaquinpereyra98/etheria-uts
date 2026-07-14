@@ -76,15 +76,6 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
 
     const ChatMessage = foundry.documents.ChatMessage.implementation;
 
-    const u = !game.user.isGM
-      ? game.user
-      : (game.users.getDesignatedUser(
-          (u) =>
-            u.active &&
-            !u.isGM &&
-            this.actor.testUserPermission(game.user, "OWNER"),
-        ) ?? game.user);
-
     return await ChatMessage.create(
       foundry.utils.mergeObject(
         {
@@ -93,13 +84,32 @@ export default class EtheriaItem extends foundry.documents.Item.implementation {
           type: DOC_SUB_TYPES.messages.accuracy,
           system: {
             itemUuid: this.uuid,
-            targets: u?.targets.map((t) => t.document.uuid),
+            targets: this.#getTargets(),
             hasDamage: this.hasDamage,
           },
         },
         messageData,
       ),
     );
+  }
+
+  /**
+   * Retrieves the UUIDs of the targeted tokens for the current context.
+   * @private
+   * @returns {string[]} An array of token document UUIDs.
+   */
+  #getTargets() {
+    const designedUser = game.users.getDesignatedUser(
+      (u) =>
+        u.active &&
+        !u.isGM &&
+        this.actor.testUserPermission(game.user, "OWNER"),
+    );
+
+    const activeUser =
+    game.user.isGM && designedUser?.targets?.size ? designedUser : game.user;
+    
+    return Array.from(activeUser.targets).map((t) => t.document.uuid);
   }
 
   /**

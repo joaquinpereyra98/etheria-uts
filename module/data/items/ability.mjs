@@ -173,19 +173,6 @@ export default class EtheriaAbilityData extends EtheriaItemData {
       };
     }
 
-    if (this.boundAbilities.size > 0) {
-      for (const doc of this.boundAbilitiesDocs) {
-        actions[doc.id] = {
-          action: "useDoc",
-          label: `Use ${doc.name} ability`,
-          icon: doc.img,
-          dataset: {
-            docUuid: doc.uuid,
-          },
-        };
-      }
-    }
-
     return actions;
   }
 
