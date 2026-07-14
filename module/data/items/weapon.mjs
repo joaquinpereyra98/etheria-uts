@@ -45,17 +45,4 @@ export default class EtheriaWeaponData extends EtheriaItemData {
       }),
     };
   }
-
-  /**@inheritdoc */
-  static migrateData(source, options, state) {
-    for (const [key, value] of Object.entries(source.damages)) {
-      if (key.includes("-")) {
-        const newKey = key.replace("-", "");
-        source.damages[newKey] = value;
-        delete source.damages[key];
-      }
-    }
-
-    return super.migrateData(source, options, state);
-  }
 }

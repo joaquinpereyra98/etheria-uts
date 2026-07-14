@@ -217,20 +217,17 @@ export default function BoundAbilitiesMixin(Base) {
     getCardActions() {
       const actions = super.getCardActions();
 
-      if (this.boundAbilities.size > 0) {
-        for (const doc of this.boundAbilitiesDocs) {
-          actions[doc.id] = {
-            action: "useDoc",
-            label: `Use ${doc.name} ability`,
-            icon: doc.img,
-            dataset: {
-              docUuid: doc.uuid,
-            },
-          };
-        }
-      }
+      const haveCost = Object.values(this.costs ?? {})?.filter(
+        (c) => c.value && c.resource,
+      ).length;
 
-      return actions;
+      if (!actions.consumeItem && haveCost) {
+        actions.consumeItem = {
+          action: "consumeItem",
+          label: "Consume",
+          icon: "fa-solid fa-flask-round-potion",
+        };
+      }
     }
   };
 }

@@ -49,6 +49,7 @@ export default class EtheriaAbilityData extends EtheriaItemData {
           value: new FormulaField({ blank: true, deterministic: true }),
           resource: new fields.StringField(),
         }),
+        { initial: {} },
       ),
       spheres: new fields.SetField(
         new fields.StringField({
@@ -156,37 +157,44 @@ export default class EtheriaAbilityData extends EtheriaItemData {
     return !!this.spheres.size;
   }
 
+  /**@inheritdoc */
+  getCardActions() {
+    const actions = super.getCardActions();
+
+    const haveCost = Object.values(this.costs ?? {})?.filter(
+      (c) => c.value && c.resource,
+    ).length;
+
+    if (haveCost && !actions.consumeItem) {
+      actions.consumeItem = {
+        action: "consumeItem",
+        label: "Consume",
+        icon: "fa-solid fa-flask-round-potion",
+      };
+    }
+
+    if (this.boundAbilities.size > 0) {
+      for (const doc of this.boundAbilitiesDocs) {
+        actions[doc.id] = {
+          action: "useDoc",
+          label: `Use ${doc.name} ability`,
+          icon: doc.img,
+          dataset: {
+            docUuid: doc.uuid,
+          },
+        };
+      }
+    }
+
+    return actions;
+  }
+
   /** @inheritdoc */
   static migrateData(source, options, state) {
     if (!source) return super.migrateData(source, options, state);
 
-    if (source.damages && typeof source.damages === "object") {
-      const cleanDamages = {};
-      for (const [key, value] of Object.entries(source.damages)) {
-        const newKey = key.includes("-") ? key.replaceAll("-", "") : key;
-        cleanDamages[newKey] = value;
-      }
-      source.damages = cleanDamages;
-    } else {
-      source.damages = {};
-    }
-
     source.costs ??= {};
-    if ("cost" in source) {
-      source.costs.cost0 = source.cost;
-      delete source.cost;
-    }
-
-    if (source.costs && typeof source.costs === "object") {
-      const cleanCosts = {};
-      for (const [key, value] of Object.entries(source.costs)) {
-        const newKey = key.includes("-") ? key.replaceAll("-", "") : key;
-        cleanCosts[newKey] = value;
-      }
-      source.costs = cleanCosts;
-    } else {
-      source.costs = {};
-    }
+    source.damages ??= {};
 
     return super.migrateData(source, options, state);
   }

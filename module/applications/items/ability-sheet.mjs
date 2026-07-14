@@ -118,11 +118,13 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
       );
     }
 
-    context.costs = Object.entries(this.item.system.costs).map(([k, value]) => ({
-      id: k,
-      name: `system.costs.${k}`,
-      value
-    }))
+    context.costs = Object.entries(this.item.system.costs ?? {}).map(
+      ([k, value]) => ({
+        id: k,
+        name: `system.costs.${k}`,
+        value,
+      }),
+    );
   }
 
   /**
@@ -173,12 +175,15 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
   }
 
   /**
-   * @this {EtheriaAbilitySheet}
+   * @this {EtheriaWeaponSheet}
    * @type {foundry.applications.types.ApplicationClickAction}
    */
   static #onDeleteDamage(_event, target) {
     const { damageId } = target.closest("[data-damage-id]")?.dataset ?? {};
-    return this.item.update({ [`system.damages.${damageId}`]: _del });
+    if (!damageId) return;
+
+    const key = `system.damages.${damageId}`;
+    return this.item.update({ [key]: _del });
   }
 
   /**
@@ -187,7 +192,10 @@ export default class EtheriaAbilitySheet extends EtheriaItemSheet {
    */
   static #onDeleteCost(_event, target) {
     const { costId } = target.closest("[data-cost-id]")?.dataset ?? {};
-    console.log(costId)
-    return this.item.update({ [`system.costs.${costId}`]: _del });
+
+    if (!costId) return;
+
+    const key = `system.costs.${costId}`;
+    return this.item.update({ [key]: _del });
   }
 }

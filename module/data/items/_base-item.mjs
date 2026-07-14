@@ -52,8 +52,7 @@ export default class EtheriaItemData extends foundry.abstract.TypeDataModel {
     const haveUses =
       this.uses && this.uses.value !== null && this.uses.max !== null;
 
-    const haveCost = Object.values(this.costs)?.filter((c) => c.value && c.resource).length;
-    if (haveUses || haveCost) {
+    if (haveUses) {
       actions.consumeItem = {
         action: "consumeItem",
         label: "Consume",

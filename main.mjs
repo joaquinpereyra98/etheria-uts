@@ -4,7 +4,12 @@ import * as applications from "./module/applications/_module.mjs";
 import * as hooks from "./module/hooks/_module.mjs";
 import * as dice from "./module/dice/_module.mjs";
 
-import { DOC_SUB_TYPES, MODULE_ID, queries, TEMPLATE_PATH } from "./module/constants.mjs";
+import {
+  DOC_SUB_TYPES,
+  MODULE_ID,
+  queries,
+  TEMPLATE_PATH,
+} from "./module/constants.mjs";
 import { ETHERIA } from "./module/config.mjs";
 
 CONFIG.ETHERIA = ETHERIA;
@@ -25,7 +30,6 @@ Hooks.once("init", () => {
   CONFIG.Combatant.documentClass = documents.EtheriaCombatant;
   CONFIG.Item.documentClass = documents.EtheriaItem;
   CONFIG.Token.documentClass = documents.EtheriaTokenDocument;
-
 
   CONFIG.Actor.dataModels[DOC_SUB_TYPES.character] = data.EtheriaCharacterData;
   CONFIG.ActiveEffect.dataModels.base = data.effect.EtheriaBaseEffect;
@@ -122,3 +126,4 @@ Hooks.on("renderActiveEffectConfig", hooks.onRenderActiveEffectConfig);
 Hooks.on("hotbarDrop", hooks.onHotbatDrop);
 Hooks.on("updateActor", hooks.onUpdateActor);
 Hooks.on("updateUser", hooks.onUpdateUser);
+Hooks.on("userConnected", () => ui[`${MODULE_ID}.ActionsPanel`].render());

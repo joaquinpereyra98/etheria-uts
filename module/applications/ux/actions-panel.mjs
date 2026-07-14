@@ -86,7 +86,6 @@ export default class ActionsPanel extends HAM(Application) {
    */
   #syncActionsPanelWidth() {
     const characterPanel = this.element.querySelector(".character-panel");
-    characterPanel.children
     
     if (characterPanel) {
       const width = Array.from(characterPanel.children).reduce(
