@@ -304,6 +304,44 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   }
 
   /* -------------------------------------------- */
+  /* Parsing & Formatting Helpers                 */
+  /* -------------------------------------------- */
+
+  /**
+   * Extracts cleaned tokens from a string using a regex.
+   * @param {string} str - The raw input string
+   * @param {RegExp} regex - The matching pattern
+   * @returns {string[]} An array of matched tokens
+   */
+  static #getTokens(str, regex) {
+    if (!str) return [];
+    return str.replace(/\s+/g, "").match(regex) || [];
+  }
+
+  /**
+   * Formats math tokens with normalized spaces and operators.
+   * @param {string} str - The raw input string
+   * @param {RegExp} regex - The matching pattern
+   * @param {string} defaultOp - Operator to use if one isn't present
+   * @param {string} suffix - Suffix to append (e.g. "%")
+   * @param {string} joinChar - Separator character to join tokens
+   * @returns {string} The formatted string
+   */
+  static #formatTokens(str, regex, defaultOp, suffix = "", joinChar = " ") {
+    const tokens = this.#getTokens(str, regex);
+    if (!tokens.length) return "";
+
+    return tokens
+      .map((token) => {
+        const hasOp = /^([+\-*/])/.test(token);
+        const op = hasOp ? token[0] : defaultOp;
+        const num = hasOp ? token.slice(1) : token;
+        return `${op} ${num}${suffix}`;
+      })
+      .join(joinChar);
+  }
+
+  /* -------------------------------------------- */
   /* Internal Logic                               */
   /* -------------------------------------------- */
 
@@ -347,6 +385,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
 
     return rollData;
   }
+
   /**
    * Calculates the total modifiers from the additive, multiplier, and percentage inputs.
    * @returns {{additive: number, multiplier: number, percentage: number}}
@@ -354,21 +393,31 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
    */
   #getModifierTotals() {
     const { additives, multipliers, percentages } = this.#modifiers;
-    const additive = (additives?.match(/[+-]?(\d+(\.\d+)?)/g) || []).reduce(
+
+    const numRegex = /[+-]?\d+(?:\.\d+)?/g;
+    const multRegex = /[*\/]?[+-]?\d+(?:\.\d+)?/g;
+
+    const addTokens = EtheriaRollDialog.#getTokens(additives, numRegex);
+    const pctTokens = EtheriaRollDialog.#getTokens(percentages, numRegex);
+    const multTokens = EtheriaRollDialog.#getTokens(multipliers, multRegex);
+
+    const additive = addTokens.reduce(
+      (acc, val) => acc + (parseFloat(val) || 0),
+      0,
+    );
+    const percentage = pctTokens.reduce(
       (acc, val) => acc + (parseFloat(val) || 0),
       0,
     );
 
-    const multiplier = (
-      multipliers?.match(/[*\/]?[+-]?(\d+(\.\d+)?)/g) || []
-    ).reduce((acc, val) => {
-      const num = parseFloat(val.replace(/[*\/]/g, "")) || 1;
-      return val.includes("/") ? acc / num : acc * num;
-    }, 1);
-
-    const percentage = (percentages?.match(/[+-]?(\d+(\.\d+)?)/g) || []).reduce(
-      (acc, p) => acc + (parseFloat(p) || 0),
-      0,
+    const multiplier = parseFloat(
+      multTokens
+        .reduce((acc, val) => {
+          const num = parseFloat(val.replace(/[*\/]/g, "")) || 0;
+          if (val.startsWith("/") && num === 0) return acc;
+          return acc * num;
+        }, 1)
+        .toFixed(2),
     );
 
     return { additive, multiplier, percentage };
@@ -392,46 +441,31 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
       this.#rollOptions.flavor = `Damage Roll - (${dmgLabel})`;
     }
 
-    if (data.additives) {
-      data.additives =
-        data.additives
-          .match(/[+-]?(\d+(\.\d+)?)/g)
-          ?.map((n) => {
-            const sign = n.startsWith("-") ? "-" : "+";
-            const num = n.replace(/[+-]/, "");
-            return `${sign} ${num}`;
-          })
-          .join(" ") || "";
-    }
-
-    if (data.multipliers) {
-      data.multipliers =
-        data.multipliers
-          .match(/[*\/]?[+-]?(\d+(\.\d+)?)/g)
-          ?.map((m) => {
-            const op = m.startsWith("/") ? "/" : "*";
-            const num = m.replace(/[*\/]/, "");
-            return `${op} ${num}`;
-          })
-          .join(" ") || "";
-    }
-
-    if (data.percentages) {
-      data.percentages =
-        data.percentages
-          .match(/[+-]?(\d+(\.\d+)?)/g)
-          ?.map((p) => {
-            const sign = p.startsWith("-") ? "-" : "+";
-            const num = p.replace(/[+-]/, "");
-            return `${sign} ${num} %`;
-          })
-          .join(" ") || "";
-    }
+    const numRegex = /[+-]?\d+(?:\.\d+)?/g;
+    const multRegex = /[*\/]?[+-]?\d+(?:\.\d+)?/g;
 
     this.#modifiers = {
-      additives: data.additives || "",
-      multipliers: data.multipliers || "",
-      percentages: data.percentages || "",
+      additives: EtheriaRollDialog.#formatTokens(
+        data.additives,
+        numRegex,
+        "+",
+        "",
+        " ",
+      ),
+      multipliers: EtheriaRollDialog.#formatTokens(
+        data.multipliers,
+        multRegex,
+        "*",
+        "",
+        " ",
+      ),
+      percentages: EtheriaRollDialog.#formatTokens(
+        data.percentages,
+        numRegex,
+        "+",
+        "%",
+        " ",
+      ),
     };
 
     this.render();
@@ -523,7 +557,7 @@ export default class EtheriaRollDialog extends HandlebarsApplicationMixin(
   /**@inheritdoc */
   _onClose(options) {
     super._onClose(options);
-     this._resolve(null);
+    this._resolve(null);
   }
 
   /**

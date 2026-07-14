@@ -371,12 +371,21 @@ export default class EtheriaActor extends Actor {
     const roll = foundry.dice.Roll.create(formula, rollData);
     await roll.evaluate();
 
-    roll.toMessage({
-      speaker: foundry.documents.ChatMessage.implementation.getSpeaker({
-        actor: this,
-      }),
-      flavor: `<b>Defense Roll</b> - ${config.label}`,
-    });
+    const messageOptions = {};
+
+    if (!this.hasPlayerOwner) {
+      messageOptions.messageMode = "blind";
+    }
+
+    roll.toMessage(
+      {
+        speaker: foundry.documents.ChatMessage.implementation.getSpeaker({
+          actor: this,
+        }),
+        flavor: `<b>Defense Roll</b> - ${config.label}`,
+      },
+      messageOptions,
+    );
 
     return roll;
   }

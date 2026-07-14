@@ -12,7 +12,7 @@ export default class EtheriaRaceData extends BoundAbilitiesMixin(
       img: `${ASSETS_PATH}/items-icons/viking-head.svg`,
       type: DOC_SUB_TYPES.items.race,
       isEquippable: false,
-    });
+    }); 
   }
 
   /**@inheritdoc */
